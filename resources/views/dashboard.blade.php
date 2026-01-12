@@ -174,12 +174,9 @@
                 </td>
                 <td class="py-5 px-6 text-right font-bold text-gray-900">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</td>
                 <td class="py-5 px-6 text-center">
-                  <form method="POST" action="{{ route('transactions.checkout', $tx->id) }}" style="display:inline;">
-                    @csrf
-                    <button type="submit" class="bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg flex items-center gap-2 justify-center mx-auto">
-                      <i class="fas fa-sign-out-alt"></i>Checkout
-                    </button>
-                  </form>
+                  <a href="{{ route('transactions.checkout', $tx->id) }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg">
+                    <i class="fas fa-sign-out-alt"></i>Checkout
+                  </a>
                 </td>
               </tr>
             @endforeach

@@ -79,11 +79,33 @@ class TransactionController extends Controller
         return redirect()->route('dashboard')->with('success', 'Check-in Berhasil: Tamu ' . $transaction->guest_name . ' di Kamar ' . $room->room_number);
     }
 
-    public function checkout($id)
+    public function showCheckout($id)
+    {
+        $tx = Transaction::with('room', 'user')->findOrFail($id);
+        
+        if ($tx->status !== 'active') {
+            return redirect()->route('dashboard')->with('error','Transaksi sudah selesai.');
+        }
+
+        return view('transactions.checkout', compact('tx'));
+    }
+
+    public function processCheckout(Request $request, $id)
     {
         $tx = Transaction::findOrFail($id);
+        
         if ($tx->status !== 'active') {
             return back()->with('error','Transaksi sudah selesai.');
+        }
+
+        // Validate penalty input
+        $data = $request->validate([
+            'penalty' => 'nullable|numeric|min:0',
+        ]);
+
+        // Add penalty to total if provided
+        if (isset($data['penalty']) && $data['penalty'] > 0) {
+            $tx->total_price += $data['penalty'];
         }
 
         // Record actual checkout time
