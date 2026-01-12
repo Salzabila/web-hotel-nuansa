@@ -127,12 +127,39 @@ class TransactionController extends Controller
         return view('transactions.struk', compact('tx'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Transaction::with('room', 'user')
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $query = Transaction::with(['room', 'user']);
+
+        // Search by guest name or invoice code
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('guest_name', 'like', "%{$search}%")
+                  ->orWhere('invoice_code', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('check_in', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('check_in', '<=', $request->date_to);
+        }
+
+        $transactions = $query->orderBy('check_in', 'desc')->paginate(15);
+        
         return view('transactions.index', compact('transactions'));
     }
-}
+    public function show($id)
+    {
+        $tx = Transaction::with(['room', 'user'])->findOrFail($id);
+        return view('transactions.show', compact('tx'));
+    }}
 

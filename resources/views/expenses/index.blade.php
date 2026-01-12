@@ -48,6 +48,50 @@
     <div class="flex items-start justify-between gap-4">
       <div class="flex-1">
         <p class="text-slate-500 text-sm font-medium mb-2">Jumlah Item</p>
+        <p class="text-3xl font-bold text-slate-800">{{ $expenses->count() }}</p>
+      </div>
+      <div class="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center">
+        <i class="fas fa-list text-2xl text-emerald-500"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 mb-6">
+  <form method="GET" action="{{ route('expenses.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Cari Deskripsi</label>
+      <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari deskripsi pengeluaran..." class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Kategori</label>
+      <select name="category" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+        <option value="">Semua Kategori</option>
+        <option value="maintenance" {{ request('category') === 'maintenance' ? 'selected' : '' }}>Perawatan</option>
+        <option value="utilities" {{ request('category') === 'utilities' ? 'selected' : '' }}>Utilitas</option>
+        <option value="supplies" {{ request('category') === 'supplies' ? 'selected' : '' }}>Perlengkapan</option>
+        <option value="other" {{ request('category') === 'other' ? 'selected' : '' }}>Lainnya</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Dari Tanggal</label>
+      <input type="date" name="date_from" value="{{ request('date_from') }}" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+    </div>
+    <div>
+      <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Sampai Tanggal</label>
+      <input type="date" name="date_to" value="{{ request('date_to') }}" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+    </div>
+    <div class="md:col-span-4 flex gap-3">
+      <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-md flex items-center gap-2">
+        <i class="fas fa-search"></i>Cari
+      </button>
+      <a href="{{ route('expenses.index') }}" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all flex items-center gap-2">
+        <i class="fas fa-redo"></i>Reset
+      </a>
+    </div>
+  </form>
+</div>
         <p class="text-4xl font-bold text-slate-800">{{ $expenses->count() }}</p>
       </div>
       <div class="w-14 h-14 bg-cyan-50 rounded-xl flex items-center justify-center">
