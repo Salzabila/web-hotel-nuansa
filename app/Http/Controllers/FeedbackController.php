@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 
 class FeedbackController extends Controller
 {
+    public function index()
+    {
+        $feedbacks = Feedback::with('transaction')
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+        
+        return view('feedbacks.index', compact('feedbacks'));
+    }
+
     public function create($transactionId)
     {
         $transaction = Transaction::findOrFail($transactionId);

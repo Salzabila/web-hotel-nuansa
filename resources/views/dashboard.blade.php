@@ -110,12 +110,12 @@
             default => 'Unknown'
           };
         @endphp
-        @if($room->status === 'available' && auth()->user()->role === 'kasir')
+        @if($room->status === 'available')
           <a href="{{ route('transactions.create', $room->id) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
             <div class="text-3xl mb-3 font-bold"><i class="fas fa-door-open"></i></div>
             <div class="font-bold text-base">{{ $room->room_number }}</div>
             <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
-            <div class="text-sm opacity-80 mt-2 font-semibold">Rp {{ number_format($room->price, 0, ',', '.') }}</div>
+            <div class="text-sm opacity-80 mt-2 font-semibold">Rp {{ number_format($room->price_per_night, 0, ',', '.') }}</div>
           </a>
         @else
           <div class="{{ $statusColor }} text-white rounded-xl p-5 text-center shadow-lg cursor-default">
@@ -174,14 +174,12 @@
                 </td>
                 <td class="py-5 px-6 text-right font-bold text-gray-900">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</td>
                 <td class="py-5 px-6 text-center">
-                  @if(auth()->user()->role === 'kasir')
-                    <form method="POST" action="{{ route('transactions.checkout', $tx->id) }}" style="display:inline;">
-                      @csrf
-                      <button type="submit" class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg flex items-center gap-2 justify-center mx-auto">
-                        <i class="fas fa-sign-out-alt"></i>Checkout
-                      </button>
-                    </form>
-                  @endif
+                  <form method="POST" action="{{ route('transactions.checkout', $tx->id) }}" style="display:inline;">
+                    @csrf
+                    <button type="submit" class="bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg flex items-center gap-2 justify-center mx-auto">
+                      <i class="fas fa-sign-out-alt"></i>Checkout
+                    </button>
+                  </form>
                 </td>
               </tr>
             @endforeach

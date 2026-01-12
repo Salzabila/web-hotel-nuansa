@@ -40,45 +40,45 @@
 
     <div class="row">
       <div class="label">Invoice</div>
-      <div class="value bold">{{ $transaction->invoice_code }}</div>
+      <div class="value bold">{{ $tx->invoice_code }}</div>
     </div>
     <div class="row">
       <div class="label">Tanggal</div>
-      <div class="value">{{ $transaction->check_in->format('d/m/Y H:i') }}</div>
+      <div class="value">{{ $tx->check_in->format('d/m/Y H:i') }}</div>
     </div>
     <div class="line"></div>
 
     <div style="margin: 4px 0; font-size: 11px;">
-      <div>Nama: <strong>{{ $transaction->guest_name }}</strong></div>
-      <div style="margin-top: 4px;">NIK: {{ $transaction->guest_nik ?? '-' }}</div>
-      @if($transaction->guest_address)
-        <div style="margin-top: 4px;">Alamat: {{ Str::limit($transaction->guest_address, 40) }}</div>
+      <div>Nama: <strong>{{ $tx->guest_name }}</strong></div>
+      <div style="margin-top: 4px;">NIK: {{ $tx->guest_nik ?? '-' }}</div>
+      @if($tx->guest_address)
+        <div style="margin-top: 4px;">Alamat: {{ Str::limit($tx->guest_address, 40) }}</div>
       @endif
     </div>
     <div class="line"></div>
 
     <div style="margin: 4px 0;">
-      <div class="row"><div class="label">Kamar</div><div class="value bold">{{ $transaction->room->room_number }}</div></div>
-      <div class="row"><div class="label">Tipe</div><div class="value">{{ $transaction->room->type }}</div></div>
+      <div class="row"><div class="label">Kamar</div><div class="value bold">{{ $tx->room->room_number }}</div></div>
+      <div class="row"><div class="label">Tipe</div><div class="value">{{ $tx->room->type }}</div></div>
     </div>
     <div class="line"></div>
 
     <div style="margin: 4px 0;">
-      <div class="row"><div class="label">Check-in</div><div class="value">{{ $transaction->check_in->format('d/m/Y') }}</div></div>
-      <div class="row"><div class="label">Check-out</div><div class="value">{{ $transaction->check_out->format('d/m/Y') }}</div></div>
-      <div class="row"><div class="label">Durasi</div><div class="value bold">{{ $transaction->check_in->diffInDays($transaction->check_out) }} malam</div></div>
+      <div class="row"><div class="label">Check-in</div><div class="value">{{ $tx->check_in->format('d/m/Y') }}</div></div>
+      <div class="row"><div class="label">Check-out</div><div class="value">{{ $tx->check_out->format('d/m/Y') }}</div></div>
+      <div class="row"><div class="label">Durasi</div><div class="value bold">{{ $tx->check_in->diffInDays($tx->check_out) }} malam</div></div>
     </div>
     <div class="line"></div>
 
     <div style="margin: 4px 0;">
-      <div class="row"><div class="label">Harga/Malam</div><div class="value">Rp {{ number_format($transaction->room->price, 0, ',', '.') }}</div></div>
+      <div class="row"><div class="label">Harga/Malam</div><div class="value">Rp {{ number_format($tx->room->price_per_night, 0, ',', '.') }}</div></div>
       <div class="total-row">
-        <div class="row"><div class="label">TOTAL BAYAR</div><div class="value">Rp {{ number_format($transaction->total_price, 0, ',', '.') }}</div></div>
+        <div class="row"><div class="label">TOTAL BAYAR</div><div class="value">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</div></div>
       </div>
     </div>
 
     <div style="margin: 6px 0; font-size: 10px;">
-      @if($transaction->is_ktp_held)
+      @if($tx->is_ktp_held)
         <div class="center bold" style="color: #d32f2f; margin: 4px 0;">⚠ KTP DITAHAN</div>
       @endif
       <div style="margin-top: 6px; border-top: 1px solid #000; padding-top: 6px;">
@@ -89,7 +89,7 @@
 
     <div class="line"></div>
     <div class="footer center" style="margin-top: 6px;">
-      <div>Petugas: {{ $transaction->user->name }}</div>
+      <div>Petugas: {{ $tx->user->name }}</div>
       <div style="margin-top: 4px;">{{ now()->format('d M Y H:i') }}</div>
       <div style="margin-top: 6px;">Terima kasih telah menginap di Hotel Nuansa</div>
     </div>
