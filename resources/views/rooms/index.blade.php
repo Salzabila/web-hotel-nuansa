@@ -27,10 +27,10 @@
     </thead>
     <tbody>
       @forelse($rooms as $room)
-        <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors duration-150">
+        <tr class="border-b border-slate-100 hover:bg-blue-50 transition-colors duration-150 cursor-pointer room-row" data-url="{{ route('rooms.edit', $room) }}">
           <td class="px-6 py-4 font-semibold text-slate-800">{{ $room->room_number }}</td>
           <td class="px-6 py-4 text-slate-600">{{ $room->type }}</td>
-          <td class="px-6 py-4 text-slate-800 font-medium">Rp {{ number_format($room->price,0,',','.') }}</td>
+          <td class="px-6 py-4 text-slate-800 font-medium">Rp {{ number_format($room->price_per_night,0,',','.') }}</td>
           <td class="px-6 py-4">
             @if($room->status === 'available')
               <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
@@ -46,8 +46,8 @@
               </span>
             @endif
           </td>
-          <td class="px-6 py-4 text-center space-x-2">
-            <a href="{{ route('rooms.edit', $room) }}" class="inline-flex items-center justify-center w-9 h-9 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors border border-slate-200">
+          <td class="px-6 py-4 text-center space-x-2 action-buttons">
+            <a href="{{ route('rooms.edit', $room) }}" class="inline-flex items-center justify-center w-9 h-9 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors border border-blue-200">
               <i class="fas fa-pencil text-sm"></i>
             </a>
             <form method="POST" action="{{ route('rooms.destroy', $room) }}" style="display:inline;">@csrf @method('DELETE')
@@ -69,4 +69,19 @@
     </tbody>
   </table>
 </div>
+
+<script>
+// Make all room rows clickable
+document.addEventListener('DOMContentLoaded', function() {
+  const rows = document.querySelectorAll('.room-row');
+  rows.forEach(row => {
+    row.addEventListener('click', function(e) {
+      // Don't navigate if clicking on action buttons
+      if (!e.target.closest('.action-buttons')) {
+        window.location.href = this.getAttribute('data-url');
+      }
+    });
+  });
+});
+</script>
 @endsection

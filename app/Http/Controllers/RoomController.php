@@ -22,12 +22,13 @@ class RoomController extends Controller
     {
         $data = $request->validate([
             'room_number' => 'required|unique:rooms,room_number',
-            'type' => 'required|in:AC,Kipas',
-            'price' => 'required|numeric|min:0',
+            'type' => 'required|in:Standard (Kipas),Deluxe (AC)',
+            'price_per_night' => 'required|numeric|min:0',
             'status' => 'nullable|in:available,occupied,maintenance',
         ]);
+        
         Room::create($data);
-        return redirect()->route('rooms.index')->with('success','Kamar ditambahkan.');
+        return redirect()->route('rooms.index')->with('success','Kamar nomor ' . $data['room_number'] . ' berhasil ditambahkan.');
     }
 
     public function edit(Room $room)
@@ -38,7 +39,7 @@ class RoomController extends Controller
     public function update(Request $request, Room $room)
     {
         $data = $request->validate([
-            'price' => 'required|numeric|min:0',
+            'price_per_night' => 'required|numeric|min:0',
             'status' => 'nullable|in:available,occupied,maintenance',
         ]);
 
@@ -50,5 +51,11 @@ class RoomController extends Controller
     {
         $room->delete();
         return redirect()->route('rooms.index')->with('success','Kamar dihapus.');
+    }
+
+    public function viewAll()
+    {
+        $rooms = Room::orderBy('room_number')->get();
+        return view('rooms.all', compact('rooms'));
     }
 }

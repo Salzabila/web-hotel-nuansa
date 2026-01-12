@@ -68,7 +68,7 @@
       <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Kategori</label>
       <select name="category" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
         <option value="">Semua Kategori</option>
-        <option value="maintenance" {{ request('category') === 'maintenance' ? 'selected' : '' }}>Perawatan</option>
+        <option value="maintenance" {{ request('category') === 'maintenance' ? 'selected' : '' }}>Pemeliharaan</option>
         <option value="utilities" {{ request('category') === 'utilities' ? 'selected' : '' }}>Utilitas</option>
         <option value="supplies" {{ request('category') === 'supplies' ? 'selected' : '' }}>Perlengkapan</option>
         <option value="other" {{ request('category') === 'other' ? 'selected' : '' }}>Lainnya</option>
@@ -84,21 +84,13 @@
     </div>
     <div class="md:col-span-4 flex gap-3">
       <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-md flex items-center gap-2">
-        <i class="fas fa-search"></i>Cari
+        <i class="fas fa-search"></i> Cari
       </button>
       <a href="{{ route('expenses.index') }}" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all flex items-center gap-2">
-        <i class="fas fa-redo"></i>Reset
+        <i class="fas fa-redo"></i> Reset
       </a>
     </div>
   </form>
-</div>
-        <p class="text-4xl font-bold text-slate-800">{{ $expenses->count() }}</p>
-      </div>
-      <div class="w-14 h-14 bg-cyan-50 rounded-xl flex items-center justify-center">
-        <i class="fas fa-boxes text-2xl text-cyan-500"></i>
-      </div>
-    </div>
-  </div>
 </div>
 
 <!-- Table Card -->

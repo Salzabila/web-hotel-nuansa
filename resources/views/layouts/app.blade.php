@@ -255,6 +255,22 @@
       text-align: center;
     }
 
+    /* Alert Animation */
+    @keyframes slide-down {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .animate-slide-down {
+      animation: slide-down 0.3s ease-out;
+    }
+
     /* Sidebar Footer */
     .sidebar-footer {
       padding: 20px 24px;
@@ -593,18 +609,6 @@
         </div>
       </div>
 
-      @auth
-        <div class="profile-section">
-          <div class="profile-avatar">
-            {{ substr(auth()->user()->name, 0, 1) }}
-          </div>
-          <div class="profile-info">
-            <h3>{{ auth()->user()->name }}</h3>
-            <p>{{ ucfirst(auth()->user()->role) }}</p>
-          </div>
-        </div>
-      @endauth
-
       <div class="nav-menu">
         @auth
           @if(auth()->check() && auth()->user()->role === 'kasir')
@@ -801,23 +805,41 @@
 
       <!-- Main Content -->
       <main class="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50 p-8">
-          <!-- Session Alerts -->
+          <!-- Session Alerts with Auto-hide -->
           @if(session('success'))
-            <div class="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl flex items-start gap-3 mb-6 shadow-sm">
-              <i class="fas fa-check-circle flex-shrink-0 text-lg mt-0.5 text-emerald-600"></i>
-              <span class="text-sm font-medium">{{ session('success') }}</span>
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="p-5 bg-emerald-50 border-2 border-emerald-200 text-emerald-800 rounded-2xl flex items-start gap-4 mb-6 shadow-lg animate-slide-down">
+              <i class="fas fa-check-circle flex-shrink-0 text-2xl text-emerald-600"></i>
+              <div class="flex-1">
+                <h4 class="font-bold text-base mb-1">Berhasil!</h4>
+                <p class="text-sm font-medium">{{ session('success') }}</p>
+              </div>
+              <button @click="show = false" class="text-emerald-600 hover:text-emerald-800 transition">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
           @endif
           @if(session('error'))
-            <div class="p-4 bg-rose-50 border border-rose-200 text-rose-800 rounded-2xl flex items-start gap-3 mb-6 shadow-sm">
-              <i class="fas fa-exclamation-circle flex-shrink-0 text-lg mt-0.5 text-rose-600"></i>
-              <span class="text-sm font-medium">{{ session('error') }}</span>
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 6000)" class="p-5 bg-rose-50 border-2 border-rose-200 text-rose-800 rounded-2xl flex items-start gap-4 mb-6 shadow-lg animate-slide-down">
+              <i class="fas fa-exclamation-circle flex-shrink-0 text-2xl text-rose-600"></i>
+              <div class="flex-1">
+                <h4 class="font-bold text-base mb-1">Terjadi Kesalahan!</h4>
+                <p class="text-sm font-medium">{{ session('error') }}</p>
+              </div>
+              <button @click="show = false" class="text-rose-600 hover:text-rose-800 transition">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
           @endif
           @if(session('info'))
-            <div class="p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-800 rounded-lg flex items-start gap-2 mb-4">
-              <i class="fas fa-info-circle flex-shrink-0 text-lg mt-0.5"></i>
-              <span class="text-sm font-medium">{{ session('info') }}</span>
+            <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)" class="p-5 bg-blue-50 border-2 border-blue-200 text-blue-800 rounded-2xl flex items-start gap-4 mb-6 shadow-lg animate-slide-down">
+              <i class="fas fa-info-circle flex-shrink-0 text-2xl text-blue-600"></i>
+              <div class="flex-1">
+                <h4 class="font-bold text-base mb-1">Informasi</h4>
+                <p class="text-sm font-medium">{{ session('info') }}</p>
+              </div>
+              <button @click="show = false" class="text-blue-600 hover:text-blue-800 transition">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
           @endif
 

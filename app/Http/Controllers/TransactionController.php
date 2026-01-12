@@ -44,11 +44,14 @@ class TransactionController extends Controller
             'ktp_photo' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
         ]);
 
+        // Convert duration to integer to ensure Carbon compatibility
+        $duration = (int) $data['duration'];
+
         $checkInDate = Carbon::now();
-        $checkOutDate = $checkInDate->copy()->addDays($data['duration']);
+        $checkOutDate = $checkInDate->copy()->addDays($duration);
 
         // Auto-calculate Total = Room Price * Duration
-        $total = $room->price_per_night * $data['duration'];
+        $total = $room->price_per_night * $duration;
 
         // Handle KTP photo upload
         $ktpPhotoPath = null;
@@ -76,7 +79,8 @@ class TransactionController extends Controller
         $room->status = 'occupied';
         $room->save();
 
-        return redirect()->route('dashboard')->with('success', 'Check-in Berhasil: Tamu ' . $transaction->guest_name . ' di Kamar ' . $room->room_number);
+        return redirect()->route('dashboard')
+            ->with('success', '✓ Check-in Berhasil! Tamu ' . $transaction->guest_name . ' telah check-in di Kamar ' . $room->room_number . ' | Invoice: ' . $transaction->invoice_code);
     }
 
     public function showCheckout($id)
@@ -118,7 +122,8 @@ class TransactionController extends Controller
         $room->status = 'available';
         $room->save();
 
-        return redirect()->route('transactions.struk', $tx->id)->with('success', 'Check-out berhasil! Terima kasih.');
+        return redirect()->route('transactions.struk', $tx->id)
+            ->with('success', '✓ Check-out Berhasil! Tamu ' . $tx->guest_name . ' telah check-out dari Kamar ' . $room->room_number . ' | Total Pembayaran: Rp ' . number_format($tx->total_price, 0, ',', '.'));
     }
 
     public function struk($id)

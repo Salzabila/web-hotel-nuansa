@@ -8,7 +8,7 @@
     <p class="text-slate-500 mt-2 text-base">Verifikasi data sebelum menyelesaikan transaksi</p>
   </div>
 
-  <form method="POST" action="{{ route('transactions.processCheckout', $tx->id) }}">
+  <form method="POST" action="{{ route('transactions.processCheckout', $tx->id) }}" onsubmit="return confirm('Yakin ingin menyelesaikan check-out untuk {{ $tx->guest_name }}?\n\nProses ini tidak dapat dibatalkan.')">
     @csrf
     
     <!-- Guest Information Card -->
@@ -146,13 +146,13 @@
     <div class="flex gap-4">
       <button 
         type="submit" 
-        class="flex-1 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-emerald-600/20 hover:shadow-xl flex items-center justify-center gap-3">
+        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
         <i class="fas fa-check-circle text-xl"></i>
         <span class="text-lg">Selesaikan Check-out & Cetak Struk</span>
       </button>
       <a 
         href="{{ route('dashboard') }}" 
-        class="px-8 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-4 rounded-xl transition-all shadow-md flex items-center justify-center gap-3">
+        class="px-8 bg-red-600 hover:bg-red-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
         <i class="fas fa-times-circle text-xl"></i>
         <span class="text-lg">Batal</span>
       </a>

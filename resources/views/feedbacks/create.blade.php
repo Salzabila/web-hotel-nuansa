@@ -50,10 +50,10 @@
       </div>
 
       <div class="flex gap-3">
-        <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+        <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition shadow-lg">
           <i class="fas fa-paper-plane mr-2"></i>Kirim Rating
         </button>
-        <a href="{{ route('dashboard') }}" class="flex-1 bg-gray-400 text-white py-3 rounded-lg font-semibold hover:bg-gray-500 transition text-center">
+        <a href="{{ route('dashboard') }}" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition text-center shadow-lg">
           Lewati
         </a>
       </div>

@@ -74,8 +74,8 @@
         <h2 class="text-xl font-bold text-slate-800">Master Kamar</h2>
         <p class="text-slate-500 text-sm mt-1">Status dan ketersediaan kamar</p>
       </div>
-      <a href="{{ route('rooms.index') }}" class="text-blue-600 hover:text-blue-700 font-medium text-sm flex items-center gap-2 hover:underline transition">
-        Lihat Semua <i class="fas fa-arrow-right"></i>
+      <a href="{{ route('rooms.all') }}" target="_blank" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all shadow-lg">
+        <i class="fas fa-external-link-alt"></i> Lihat Semua
       </a>
     </div>
     
@@ -95,7 +95,7 @@
     </div>
 
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-      @foreach($rooms as $room)
+      @foreach($rooms->take(8) as $room)
         @php
           $statusColor = match($room->status) {
             'available' => 'bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700',
@@ -118,12 +118,12 @@
             <div class="text-sm opacity-80 mt-2 font-semibold">Rp {{ number_format($room->price_per_night, 0, ',', '.') }}</div>
           </a>
         @else
-          <div class="{{ $statusColor }} text-white rounded-xl p-5 text-center shadow-lg cursor-default">
+          <a href="{{ route('rooms.edit', $room) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition shadow-lg hover:shadow-2xl transform hover:-translate-y-1 cursor-pointer">
             <div class="text-3xl mb-3 font-bold"><i class="fas fa-door-open"></i></div>
             <div class="font-bold text-base">{{ $room->room_number }}</div>
             <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
             <div class="text-sm opacity-80 mt-2 font-semibold">{{ $statusText }}</div>
-          </div>
+          </a>
         @endif
       @endforeach
     </div>
@@ -174,8 +174,9 @@
                 </td>
                 <td class="py-5 px-6 text-right font-bold text-gray-900">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</td>
                 <td class="py-5 px-6 text-center">
-                  <a href="{{ route('transactions.checkout', $tx->id) }}" class="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-rose-600 hover:from-rose-600 hover:to-rose-700 text-white font-bold text-xs px-4 py-2 rounded-lg transition shadow-md hover:shadow-lg">
-                    <i class="fas fa-sign-out-alt"></i>Checkout
+                  <a href="{{ route('transactions.checkout', $tx->id) }}" class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all shadow-lg" onclick="return confirm('Yakin ingin melakukan check-out untuk {{ $tx->guest_name }}?')">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Check-out</span>
                   </a>
                 </td>
               </tr>

@@ -18,11 +18,15 @@ Route::middleware('auth')->group(function () {
 
     // Transactions - untuk semua user
     Route::get('transactions', [TransactionController::class,'index'])->name('transactions.index');
+    Route::get('transactions/{id}', [TransactionController::class,'show'])->name('transactions.show');
     Route::get('transactions/checkin/{room}', [TransactionController::class,'create'])->name('transactions.create');
     Route::post('transactions/checkin/{room}', [TransactionController::class,'store'])->name('transactions.store');
     Route::get('transactions/checkout/{id}', [TransactionController::class,'showCheckout'])->name('transactions.checkout');
     Route::post('transactions/checkout/{id}', [TransactionController::class,'processCheckout'])->name('transactions.processCheckout');
     Route::get('transactions/struk/{id}', [TransactionController::class,'struk'])->name('transactions.struk');
+
+    // View all rooms - untuk semua user
+    Route::get('rooms-all', [RoomController::class,'viewAll'])->name('rooms.all');
 
     // Admin-only routes
     Route::middleware('admin')->group(function () {
