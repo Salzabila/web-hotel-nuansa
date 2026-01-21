@@ -7,146 +7,142 @@
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 10px;
-      width: 58mm;
+      font-size: 11px;
+      width: 80mm;
       margin: 0 auto;
-      padding: 6px;
+      padding: 8px;
       color: #000;
       background: #fff;
-      line-height: 1.3;
+      line-height: 1.5;
     }
     .center { text-align: center; }
     .right { text-align: right; }
-    .separator { 
-      border-top: 1px dashed #000; 
-      margin: 4px 0; 
-    }
-    .line { 
-      border-top: 1px solid #000; 
-      margin: 4px 0; 
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    td {
-      padding: 2px 0;
-      vertical-align: top;
-    }
-    .col-qty {
-      width: 12px;
-      text-align: left;
-    }
-    .col-name {
-      padding: 0 4px;
-    }
-    .col-price {
-      text-align: right;
-      white-space: nowrap;
-    }
+    .bold { font-weight: bold; }
+    .separator { border-top: 1px dashed #000; margin: 6px 0; }
+    .line { border-top: 1px solid #000; margin: 6px 0; }
+    .double-line { border-top: 2px double #000; margin: 8px 0; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 2px 0; vertical-align: top; }
+    .qty { width: 15px; }
+    .item { padding-right: 5px; }
+    .price { text-align: right; white-space: nowrap; }
+    
     @media print {
-      body { margin: 0; padding: 6px; }
-      @page { margin: 0; }
+      body { margin: 0; padding: 8px; }
+      @page { size: 80mm auto; margin: 0; }
     }
   </style>
-  <title>Struk</title>
+  <title>{{ $tx->invoice_code }}</title>
 </head>
 <body onload="window.print();">
   @php
-    // Calculate duration in days, rounded UP (Ceiling)
-    $durationDays = ceil($tx->check_in->diffInDays($tx->check_out, false));
-    
-    // Ensure minimum 1 night charge
-    if ($durationDays < 1) $durationDays = 1;
-    
-    // Calculate subtotal
+    $durationDays = $tx->duration;
     $subtotal = $tx->room->price_per_night * $durationDays;
-    $service = 0; // Service fee 5% if applicable
-    $pb1 = 0; // Tax if applicable
+    $additionalCharges = $tx->additional_charges ?? 0;
     $grandTotal = $tx->total_price;
+    $paidAmount = $tx->paid_amount ?? 0;
+    $change = $paidAmount - $grandTotal;
+    $shift = $tx->shift ?? 'Pagi';
   @endphp
   
-  <!-- Header -->
-  <div class="center" style="margin-bottom: 2px; font-size: 9px;">HOTEL NUANSA</div>
-  <div class="center" style="margin-bottom: 2px; font-size: 8px;">Jl. Raya Utama No. 45</div>
-  <div class="center" style="margin-bottom: 4px; font-size: 8px;">Telp: (0274) 556789</div>
-  
-  <div class="separator"></div>
-  
-  <!-- Invoice Info -->
-  <div style="margin: 4px 0;">
-    <div>Invoice : {{ $tx->invoice_code }}</div>
-    <div>Tanggal : {{ $tx->created_at->format('d/m/y H:i') }}</div>
-    <div>Lodge   : {{ $tx->room->room_number }}</div>
+  <!-- Logo -->
+  <div class="center" style="margin-bottom: 8px;">
+    <img src="{{ asset('images/logo nuansa.jpg') }}" alt="Nuansa Hotel" style="width: 140px; height: auto;">
   </div>
   
-  <div class="separator"></div>
+  <div class="center" style="font-size: 9px;">Jl. Letjen Sutoyo No. 59-60</div>
+  <div class="center" style="font-size: 9px; margin-bottom: 6px;">Medaeng - Waru - Sidoarjo</div>
   
-  <!-- Items -->
-  <table style="margin: 4px 0;">
-    <tr>
-      <td class="col-qty">{{ $durationDays }}</td>
-      <td class="col-name">Kamar {{ $tx->room->room_number }}</td>
-      <td class="col-price">{{ number_format($tx->room->price_per_night, 0, ',', '.') }}</td>
-    </tr>
-    <tr>
-      <td class="col-qty"></td>
-      <td class="col-name" style="font-size: 9px;">Tamu: {{ $tx->guest_name }}</td>
-      <td class="col-price">{{ number_format($subtotal, 0, ',', '.') }}</td>
-    </tr>
+  <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
+  
+  <table style="font-size: 10px; margin: 4px 0;">
+    <tr><td class="bold">{{ $tx->invoice_code }}</td><td class="right">{{ $tx->created_at->format('d/m/Y H:i') }}</td></tr>
+    <tr><td colspan="2">Shift : {{ $shift }}</td></tr>
   </table>
   
-  <div style="margin: 4px 0; font-size: 8px;">
-    <div>Check-in : {{ $tx->check_in->format('d/m/y H:i') }}</div>
-    <div>Check-out: {{ $tx->check_out->format('d/m/y H:i') }}</div>
-    <div>Durasi   : {{ $durationDays }} malam</div>
+  <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
+  
+  <div style="font-size: 10px; margin: 4px 0;">
+    <table style="width: 100%;">
+      <tr><td style="width: 65px;">Pelanggan</td><td>: <span class="bold">{{ strtoupper($tx->guest_name) }}</span></td></tr>
+      <tr><td>Alamat</td><td>: {{ $tx->guest_address ?: '-' }}</td></tr>
+      <tr><td>Kamar</td><td>: <span class="bold">{{ $tx->room->room_number }}</span> - {{ $tx->room->type }}</td></tr>
+    </table>
   </div>
   
-  <div class="separator"></div>
+  <div style="font-size: 9px; margin: 8px 0 4px 0;">
+    <table style="width: 100%;">
+      <tr><td style="width: 65px;">Check-in</td><td>: {{ $tx->check_in->format('d/m/Y') }} ({{ $tx->check_in->format('H:i') }})</td></tr>
+      <tr><td>Check-out</td><td>: {{ $tx->check_out->format('d/m/Y') }} ({{ $tx->check_out->format('H:i') }})</td></tr>
+      <tr><td>Waktu</td><td>: {{ $durationDays }} malam</td></tr>
+    </table>
+  </div>
   
-  <!-- Totals -->
-  <table style="margin: 4px 0;">
+  <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
+  
+  <table style="font-size: 10px;">
     <tr>
-      <td>Subtotal</td>
-      <td class="right">{{ number_format($subtotal, 2, ',', '.') }}</td>
+      <td class="qty">{{ $durationDays }}</td>
+      <td class="item">Kamar {{ $tx->room->room_number }}</td>
+      <td class="price">{{ number_format($subtotal, 0, ',', '.') }}</td>
     </tr>
+    @if($additionalCharges > 0)
     <tr>
-      <td>Service 5%</td>
-      <td class="right">{{ number_format($service, 2, ',', '.') }}</td>
+      <td class="qty">1</td>
+      <td class="item">Biaya Tambahan</td>
+      <td class="price">{{ number_format($additionalCharges, 0, ',', '.') }}</td>
     </tr>
-    <tr>
-      <td>PB1</td>
-      <td class="right">{{ number_format($pb1, 2, ',', '.') }}</td>
-    </tr>
+    @endif
   </table>
   
-  <div class="line"></div>
+  <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
   
-  <table style="font-weight: bold; margin: 4px 0;">
-    <tr>
-      <td>Total:</td>
-      <td class="right">{{ number_format($grandTotal, 2, ',', '.') }}</td>
-    </tr>
+  <table style="font-size: 10px;">
+    <tr><td>Subtotal</td><td class="price">Rp {{ number_format($subtotal, 0, ',', '.') }}</td></tr>
+    @if($additionalCharges > 0)
+    <tr><td>Biaya Tambahan</td><td class="price">Rp {{ number_format($additionalCharges, 0, ',', '.') }}</td></tr>
+    @endif
   </table>
   
-  <div class="line"></div>
+  <div style="border-top: 1px dashed #000; margin: 6px 0;"></div>
   
-  <!-- KTP Warning -->
-  @if($tx->is_ktp_held)
-  <div class="center" style="margin: 6px 0; font-weight: bold;">
-    ** KTP DITAHAN **
-  </div>
-  <div class="center" style="margin-bottom: 4px; font-size: 8px;">
-    Tunjukkan struk saat pengambilan KTP
-  </div>
-  <div class="separator"></div>
+  <table style="font-size: 10px;">
+    <tr><td colspan="2" style="font-style: italic; color: #555;">Harga per malam: Rp {{ number_format($tx->room->price_per_night, 0, ',', '.') }}</td></tr>
+  </table>
+  
+  <table style="font-size: 12px; font-weight: bold;">
+    <tr><td>TOTAL</td><td class="price">Rp {{ number_format($grandTotal, 0, ',', '.') }}</td></tr>
+  </table>
+  
+  <div style="border-top: 1px solid #000; margin: 6px 0;"></div>
+  
+  @if($paidAmount > 0)
+  <table style="font-size: 10px;">
+    <tr><td>Dibayar</td><td class="price">Rp {{ number_format($paidAmount, 0, ',', '.') }}</td></tr>
+    <tr class="bold"><td>Kembalian</td><td class="price">Rp {{ number_format($change, 0, ',', '.') }}</td></tr>
+  </table>
   @endif
   
-  <!-- Footer -->
-  <div class="center" style="margin: 6px 0;">
-    <div style="margin-bottom: 4px;">TERIMA KASIH</div>
-    <div style="font-size: 8px;">Petugas: {{ $tx->user->name }}</div>
-    <div style="font-size: 8px; margin-top: 2px;">{{ now()->format('d/m/Y H:i:s') }}</div>
+  <div class="center bold" style="margin: 12px 0 8px 0; padding: 6px 0; {{ $tx->payment_status === 'paid' ? 'background: #000; color: #fff;' : 'border: 1px solid #000;' }}">
+    @if($tx->payment_status === 'paid')
+       LUNAS 
+    @elseif($tx->payment_status === 'partial')
+      BELUM LUNAS<br><span style="font-size: 9px;">Sisa: Rp {{ number_format($grandTotal - $paidAmount, 0, ',', '.') }}</span>
+    @else
+      BELUM DIBAYAR
+    @endif
   </div>
+  
+  <div class="center" style="font-size: 9px; margin: 8px 0 4px 0;">
+    Kasir: <span class="bold">{{ $tx->cashier_name ?? $tx->user->name }}</span>
+  </div>
+  
+  <div class="center" style="font-size: 8px; margin: 8px 0 4px 0;">Barang hilang/rusak bukan tanggung jawab kami</div>
+  <div class="center" style="font-size: 8px; margin-bottom: 6px;">Simpan struk ini sebagai bukti pembayaran</div>
+  
+  <div class="center" style="font-size: 8px; margin: 6px 0;">CS: 0889-9429-8505 / 0812-1543-0838</div>
+  <div class="center bold" style="margin: 6px 0; font-size: 10px;">TERIMA KASIH</div>
+
 </body>
 </html>

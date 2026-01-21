@@ -70,7 +70,7 @@
       <table class="w-full">
         <thead>
           <tr class="border-b border-slate-200">
-            <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider bg-transparent">Tamu</th>
+            <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider bg-transparent">Pelanggan</th>
             <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider bg-transparent">NIK</th>
             <th class="px-6 py-4 text-left text-xs font-bold text-slate-500 uppercase tracking-wider bg-transparent">Kamar</th>
             <th class="px-6 py-4 text-right text-xs font-bold text-slate-500 uppercase tracking-wider bg-transparent">Total</th>

@@ -4,11 +4,34 @@
 <div class="h-full max-w-4xl mx-auto">
   <!-- Header -->
   <div class="mb-8">
+    <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 font-medium mb-3 transition">
+      <i class="fas fa-arrow-left"></i>
+      <span>Kembali ke Beranda</span>
+    </a>
     <h1 class="text-3xl font-bold text-slate-800">Konfirmasi Check-out</h1>
     <p class="text-slate-500 mt-2 text-base">Verifikasi data sebelum menyelesaikan transaksi</p>
   </div>
+  @if(session('error'))
+    <div class="bg-red-50 border-2 border-red-300 text-red-800 px-6 py-4 rounded-xl mb-6 flex items-center gap-3">
+      <i class="fas fa-exclamation-circle text-2xl"></i>
+      <span class="font-semibold">{{ session('error') }}</span>
+    </div>
+  @endif
 
-  <form method="POST" action="{{ route('transactions.processCheckout', $tx->id) }}" onsubmit="return confirm('Yakin ingin menyelesaikan check-out untuk {{ $tx->guest_name }}?\n\nProses ini tidak dapat dibatalkan.')">
+  @if($errors->any())
+    <div class="bg-red-50 border-2 border-red-300 text-red-800 px-6 py-4 rounded-xl mb-6">
+      <div class="flex items-center gap-3 mb-2">
+        <i class="fas fa-exclamation-triangle text-2xl"></i>
+        <span class="font-bold text-lg">Terjadi Kesalahan Validasi:</span>
+      </div>
+      <ul class="list-disc list-inside space-y-1 ml-8">
+        @foreach($errors->all() as $error)
+          <li class="text-sm">{{ $error }}</li>
+        @endforeach
+      </ul>
+    </div>
+  @endif
+  <form method="POST" action="{{ route('transactions.processCheckout', $tx->id) }}">
     @csrf
     
     <!-- Guest Information Card -->
@@ -18,7 +41,7 @@
           <i class="fas fa-user text-blue-600 text-lg"></i>
         </div>
         <div>
-          <h2 class="text-lg font-bold text-slate-800">Informasi Tamu</h2>
+          <h2 class="text-lg font-bold text-slate-800">Informasi Pelanggan</h2>
           <p class="text-xs text-slate-500">Invoice: <span class="font-semibold text-blue-600">{{ $tx->invoice_code }}</span></p>
         </div>
       </div>
@@ -59,7 +82,7 @@
             <div class="flex-1">
               <p class="text-base font-bold text-amber-900 mb-2">⚠️ PERHATIAN - JAMINAN KTP</p>
               <p class="text-sm text-amber-800 leading-relaxed">
-                Mohon kembalikan <strong>KTP atas nama {{ $tx->guest_name }}</strong> kepada tamu sebelum menyelesaikan transaksi ini.
+                Mohon kembalikan <strong>KTP atas nama {{ $tx->guest_name }}</strong> kepada pelanggan sebelum menyelesaikan transaksi ini.
               </p>
             </div>
           </div>
@@ -98,7 +121,7 @@
         </div>
         <div class="flex justify-between items-center pt-2 border-t border-slate-100">
           <span class="text-sm text-slate-600">Durasi Menginap</span>
-          <span class="text-sm font-bold text-slate-800">{{ $tx->check_in->diffInDays($tx->check_out) }} Malam</span>
+          <span class="text-sm font-bold text-slate-800">{{ $tx->duration }} Malam</span>
         </div>
 
         <!-- Pricing -->
@@ -107,36 +130,113 @@
           <span class="text-sm font-semibold text-slate-800">Rp {{ number_format($tx->room->price_per_night, 0, ',', '.') }}</span>
         </div>
         <div class="flex justify-between items-center">
-          <span class="text-base font-semibold text-slate-800">Subtotal Kamar</span>
-          <span class="text-base font-bold text-slate-800">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</span>
+          <span class="text-base font-semibold text-slate-800">Subtotal Kamar ({{ $tx->duration }} malam)</span>
+          <span class="text-base font-bold text-slate-800">Rp {{ number_format($tx->room->price_per_night * $tx->duration, 0, ',', '.') }}</span>
         </div>
 
-        <!-- Penalty Input (Optional) -->
+        <!-- Additional Charges Input -->
         <div class="pt-4 border-t border-slate-200">
           <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Denda / Biaya Tambahan <span class="text-slate-400 text-xs font-normal">(Opsional)</span>
+            <i class="fas fa-plus-circle text-rose-500 mr-1"></i>
+            Biaya Tambahan (Denda/Layanan) 
+            <span class="bg-slate-100 text-slate-600 text-xs font-semibold px-2 py-0.5 rounded ml-1">Opsional</span>
           </label>
-          <input 
-            type="number" 
-            name="penalty" 
-            id="penalty"
-            value="{{ old('penalty', 0) }}"
-            class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500"
-            placeholder="Masukkan jumlah denda (jika ada)"
-            min="0"
-            oninput="calculateTotal()">
+          <div class="relative">
+            <span class="absolute left-4 top-3.5 text-slate-600 font-semibold z-10">Rp</span>
+            <input 
+              type="text" 
+              id="additionalChargesDisplay"
+              value=""
+              class="w-full pl-12 pr-4 py-3 border-2 border-slate-200 bg-slate-50 rounded-xl focus:ring-2 focus:ring-rose-500 focus:border-rose-500 focus:bg-white"
+              placeholder="0"
+              oninput="formatCurrency(this, 'additionalCharges'); calculateTotal()">
+            <input type="hidden" name="additional_charges" id="additionalCharges" value="0">
+          </div>
           <p class="text-xs text-slate-500 mt-2">
-            <i class="fas fa-info-circle mr-1"></i>Contoh: kerusakan barang, keterlambatan check-out, dll.
+            <i class="fas fa-info-circle mr-1"></i>Contoh: denda kerusakan, minibar, laundry, keterlambatan check-out, dll.
+          </p>
+        </div>
+        
+        <!-- Payment Input -->
+        <div class="pt-4 border-t border-slate-200">
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            <i class="fas fa-money-bill-wave text-emerald-600 mr-1"></i>
+            Jumlah Dibayar 
+            <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded ml-1">WAJIB DIISI</span>
+          </label>
+          <div class="relative">
+            <span class="absolute left-4 top-3.5 text-slate-700 font-bold text-lg z-10">Rp</span>
+            <input 
+              type="text" 
+              id="paidAmountDisplay"
+              value=""
+              class="w-full pl-14 pr-4 py-3 border-3 border-yellow-400 bg-yellow-50 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-lg font-semibold"
+              placeholder="0"
+              oninput="formatCurrency(this, 'paidAmount'); calculateChange()">
+            <input type="hidden" name="paid_amount" id="paidAmount" value="0" required>
+          </div>
+          <p class="text-xs text-emerald-600 mt-2 font-semibold">
+            <i class="fas fa-exclamation-circle mr-1"></i>Wajib diisi - Masukkan jumlah uang tunai yang diterima dari pelanggan
+          </p>
+        </div>
+        <!-- Cashier Selection -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            <i class="fas fa-user-tie text-blue-600 mr-1"></i>
+            Kasir Bertugas 
+            <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded ml-1">WAJIB DIISI</span>
+          </label>
+          <select 
+            name="cashier_name" 
+            class="w-full px-4 py-3 border-3 border-yellow-400 bg-yellow-50 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:bg-white text-base font-medium"
+            required>
+            <option value="">-- Pilih Nama Kasir --</option>
+            @foreach($cashiers as $cashier)
+              <option value="{{ $cashier->name }}" {{ old('cashier_name') == $cashier->name ? 'selected' : '' }}>
+                {{ $cashier->name }}
+              </option>
+            @endforeach
+          </select>
+          <p class="text-xs text-blue-600 mt-2 font-semibold">
+            <i class="fas fa-exclamation-circle mr-1"></i>Wajib diisi - Pilih nama kasir yang melakukan proses checkout ini
+          </p>
+          @if($cashiers->count() === 0)
+            <p class="text-xs text-red-600 mt-2 font-semibold">
+              <i class="fas fa-exclamation-triangle mr-1"></i>Belum ada data kasir! Admin harus menambahkan kasir terlebih dahulu.
+            </p>
+          @endif
+        </div>
+
+        <!-- Shift Selection (Flexible) -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            <i class="fas fa-clock text-purple-600 mr-1"></i>
+            Shift Kerja 
+            <span class="bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded ml-1">WAJIB DIISI</span>
+          </label>
+          <select 
+            name="shift" 
+            class="w-full px-4 py-3 border-3 border-yellow-400 bg-yellow-50 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 focus:bg-white text-base font-medium"
+            required>
+            <option value="Pagi" {{ $currentShift === 'Pagi' ? 'selected' : '' }}>☀️ Pagi (07:00 - 19:00)</option>
+            <option value="Malam" {{ $currentShift === 'Malam' ? 'selected' : '' }}>🌙 Malam (19:00 - 07:00)</option>
+          </select>
+          <p class="text-xs text-purple-600 mt-2 font-semibold">
+            <i class="fas fa-info-circle mr-1"></i>Otomatis terdeteksi: <strong>{{ $currentShift }}</strong> - Ubah jika perlu sesuai tutup buku
           </p>
         </div>
 
         <!-- Grand Total -->
         <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-200 rounded-xl p-5 mt-4">
-          <div class="flex justify-between items-center">
+          <div class="flex justify-between items-center mb-3">
             <span class="text-lg font-bold text-emerald-900">TOTAL PEMBAYARAN</span>
             <span class="text-2xl font-bold text-emerald-700" id="grandTotal">
-              Rp {{ number_format($tx->total_price, 0, ',', '.') }}
+              Rp {{ number_format($tx->room->price_per_night * $tx->duration, 0, ',', '.') }}
             </span>
+          </div>
+          <div class="flex justify-between items-center pt-3 border-t border-emerald-300" id="changeDisplay" style="display: none;">
+            <span class="text-sm font-semibold text-emerald-800">Kembalian</span>
+            <span class="text-lg font-bold text-emerald-900" id="changeAmount">Rp 0</span>
           </div>
         </div>
       </div>
@@ -161,13 +261,58 @@
 </div>
 
 <script>
-  const baseTotal = {{ $tx->total_price }};
+  const pricePerNight = {{ $tx->room->price_per_night }};
+  const duration = {{ $tx->duration }};
+  const baseSubtotal = pricePerNight * duration;
+  
+  function formatCurrency(input, hiddenInputId) {
+    // Ambil value dan hapus semua karakter non-digit
+    let value = input.value.replace(/\D/g, '');
+    
+    // Update hidden input dengan value asli (tanpa format)
+    document.getElementById(hiddenInputId).value = value || '0';
+    
+    // Format dengan titik separator untuk ribuan
+    if (value) {
+      value = parseInt(value).toLocaleString('id-ID');
+      input.value = value;
+    }
+  }
   
   function calculateTotal() {
-    const penalty = parseInt(document.getElementById('penalty').value) || 0;
-    const grandTotal = baseTotal + penalty;
+    const additionalCharges = parseInt(document.getElementById('additionalCharges').value) || 0;
+    const grandTotal = baseSubtotal + additionalCharges;
     
     document.getElementById('grandTotal').textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+    
+    // Recalculate change if payment amount is entered
+    calculateChange();
+  }
+  
+  function calculateChange() {
+    const additionalCharges = parseInt(document.getElementById('additionalCharges').value) || 0;
+    const grandTotal = baseSubtotal + additionalCharges;
+    const paidAmount = parseInt(document.getElementById('paidAmount').value) || 0;
+    const change = paidAmount - grandTotal;
+    
+    const changeDisplay = document.getElementById('changeDisplay');
+    const changeAmount = document.getElementById('changeAmount');
+    
+    if (paidAmount > 0) {
+      changeDisplay.style.display = 'flex';
+      
+      if (change >= 0) {
+        changeAmount.textContent = 'Rp ' + change.toLocaleString('id-ID');
+        changeAmount.classList.remove('text-red-600');
+        changeAmount.classList.add('text-emerald-900');
+      } else {
+        changeAmount.textContent = 'KURANG: Rp ' + Math.abs(change).toLocaleString('id-ID');
+        changeAmount.classList.remove('text-emerald-900');
+        changeAmount.classList.add('text-red-600');
+      }
+    } else {
+      changeDisplay.style.display = 'none';
+    }
   }
   
   // Initialize on page load

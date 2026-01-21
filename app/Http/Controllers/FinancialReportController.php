@@ -25,7 +25,7 @@ class FinancialReportController extends Controller
         $transactions = Transaction::with('room')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'finished')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('check_out', 'desc')
             ->paginate(20);
 
         // Get operational expenses
@@ -40,8 +40,18 @@ class FinancialReportController extends Controller
 
         $totalExpenses = OperationalExpense::whereBetween('expense_date', [$startDate, $endDate])
             ->sum('amount');
+        
+        // Manual input untuk biaya operasional dan gaji (dari form)
+        $operationalCost = $request->get('operational_cost', 0);
+        $employeeSalary = $request->get('employee_salary', 0);
+        
+        // Total customer count
+        $totalCustomers = Transaction::whereBetween('created_at', [$startDate, $endDate])
+            ->where('status', 'finished')
+            ->count();
 
-        $netProfit = $totalRevenue - $totalExpenses;
+        // Laba Bersih = Total Pendapatan - (Biaya Ops + Gaji)
+        $netProfit = $totalRevenue - ($operationalCost + $employeeSalary);
 
         return view('reports.financial', compact(
             'transactions',
@@ -50,7 +60,10 @@ class FinancialReportController extends Controller
             'endDate',
             'totalRevenue',
             'totalExpenses',
-            'netProfit'
+            'netProfit',
+            'operationalCost',
+            'employeeSalary',
+            'totalCustomers'
         ));
     }
 }

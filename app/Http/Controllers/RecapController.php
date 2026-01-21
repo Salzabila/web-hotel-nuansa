@@ -135,7 +135,7 @@ class RecapController extends Controller
 
         $csv = "REKAPITULASI HARIAN - $date\n\n";
         $csv .= "TRANSAKSI:\n";
-        $csv .= "No,Tamu,NIK,Kamar,Total\n";
+        $csv .= "No,Pelanggan,NIK,Kamar,Total\n";
         
         $incomeTotal = 0;
         foreach ($transactions as $idx => $tx) {
@@ -160,5 +160,39 @@ class RecapController extends Controller
             'Content-Type' => 'text/csv',
             'Content-Disposition' => "attachment; filename=recap_daily_$date.csv"
         ]);
+    }
+
+    /**
+     * Personal Shift Recap - Accessible by Kasir and Admin
+     * Shows transactions handled by the currently authenticated user today
+     */
+    public function personal()
+    {
+        $today = Carbon::today();
+        $userId = auth()->id();
+        $userName = auth()->user()->name;
+
+        // Get all transactions created by this user today
+        $transactions = Transaction::with(['room'])
+            ->where('user_id', $userId)
+            ->whereDate('created_at', $today)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Calculate total cash in
+        $totalCashIn = $transactions->where('status', 'finished')->sum('total_price');
+        $totalTransactions = $transactions->count();
+        $finishedTransactions = $transactions->where('status', 'finished')->count();
+        $activeTransactions = $transactions->where('status', 'active')->count();
+
+        return view('recaps.personal', compact(
+            'today',
+            'userName',
+            'transactions',
+            'totalCashIn',
+            'totalTransactions',
+            'finishedTransactions',
+            'activeTransactions'
+        ));
     }
 }

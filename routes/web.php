@@ -5,6 +5,8 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\CashierController;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -21,17 +23,25 @@ Route::middleware('auth')->group(function () {
     Route::get('transactions/{id}', [TransactionController::class,'show'])->name('transactions.show');
     Route::get('transactions/checkin/{room}', [TransactionController::class,'create'])->name('transactions.create');
     Route::post('transactions/checkin/{room}', [TransactionController::class,'store'])->name('transactions.store');
+    Route::post('transactions/{id}/extend', [TransactionController::class,'extend'])->name('transactions.extend');
     Route::get('transactions/checkout/{id}', [TransactionController::class,'showCheckout'])->name('transactions.checkout');
     Route::post('transactions/checkout/{id}', [TransactionController::class,'processCheckout'])->name('transactions.processCheckout');
     Route::get('transactions/struk/{id}', [TransactionController::class,'struk'])->name('transactions.struk');
 
-    // View all rooms - untuk semua user
-    Route::get('rooms-all', [RoomController::class,'viewAll'])->name('rooms.all');
+    // Room Management - accessible by all users (grid view) and admin (CRUD)
 
+    // Mark room as clean - accessible by Admin & Kasir
+    Route::post('rooms/{id}/mark-clean', [RoomController::class,'markAsClean'])->name('rooms.markClean');
+
+    // Personal Recap - accessible by Admin & Kasir
+    Route::get('my-recap', [\App\Http\Controllers\RecapController::class, 'personal'])->name('recaps.personal');
+
+    // Unified Room Management - accessible by all users
+    Route::get('rooms', [RoomController::class,'index'])->name('rooms.index');
+    
     // Admin-only routes
     Route::middleware('admin')->group(function () {
-        // Manajemen Kamar
-        Route::get('rooms', [RoomController::class,'index'])->name('rooms.index');
+        // Room CRUD operations
         Route::get('rooms/create', [RoomController::class,'create'])->name('rooms.create');
         Route::post('rooms', [RoomController::class,'store'])->name('rooms.store');
         Route::get('rooms/{room}/edit', [RoomController::class,'edit'])->name('rooms.edit');
@@ -63,6 +73,20 @@ Route::middleware('auth')->group(function () {
         Route::get('feedbacks', [\App\Http\Controllers\FeedbackController::class, 'index'])->name('feedbacks.index');
         Route::get('feedbacks/{feedback}', [\App\Http\Controllers\FeedbackController::class, 'show'])->name('feedbacks.show');
         Route::put('feedbacks/{feedback}/status', [\App\Http\Controllers\FeedbackController::class, 'updateStatus'])->name('feedbacks.updateStatus');
+        
+        // User Management (admin)
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::get('users/create', [UserController::class, 'create'])->name('users.create');
+        Route::post('users', [UserController::class, 'store'])->name('users.store');
+        Route::get('users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        Route::post('users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
+        
+        // Cashier Management (admin)
+        Route::get('cashiers', [CashierController::class, 'index'])->name('cashiers.index');
+        Route::post('cashiers', [CashierController::class, 'store'])->name('cashiers.store');
+        Route::delete('cashiers/{cashier}', [CashierController::class, 'destroy'])->name('cashiers.destroy');
     });
 });
 

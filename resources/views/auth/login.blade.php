@@ -41,8 +41,8 @@
     }
 
     .illustration-panel {
-      background: linear-gradient(135deg, rgba(30, 58, 138, 0.65) 0%, rgba(59, 130, 246, 0.65) 100%),
-                  url('/images/hotel-building.jpg');
+      background: linear-gradient(135deg, rgba(30, 58, 138, 0.5) 0%, rgba(59, 130, 246, 0.5) 100%),
+                  url('/images/logo nuansa - background.jpg');
       background-size: cover;
       background-position: center;
       position: relative;
@@ -125,12 +125,14 @@
       transform: translateY(-50%);
       color: #64748b;
       font-size: 18px;
+      z-index: 1;
+      pointer-events: none;
     }
 
     .input-wrapper input {
       width: 100%;
       padding: 16px 20px 16px 55px;
-      border: none;
+      border: 2px solid #e2e8f0;
       border-radius: 16px;
       font-size: 16px;
       background: white;
@@ -138,6 +140,8 @@
       font-weight: 600;
       transition: all 0.3s;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      position: relative;
+      z-index: 2;
     }
 
     .input-wrapper input::placeholder {
@@ -310,7 +314,7 @@
           @if($errors->any())
             <div class="error-message">
               <i class="fas fa-exclamation-circle"></i>
-              <span>Username atau password salah</span>
+              <span>{{ $errors->first('phone') ?? 'Username atau password salah' }}</span>
             </div>
           @endif
 
@@ -318,8 +322,9 @@
             <i class="fas fa-user"></i>
             <input 
               type="text" 
-              name="username" 
-              placeholder="Username/Email"
+              name="phone" 
+              placeholder="Username"
+              value="{{ old('phone') }}"
               required
               autofocus
             >

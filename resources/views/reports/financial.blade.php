@@ -14,63 +14,96 @@
   <!-- Filter Section -->
   <div class="card p-8 mb-8">
     <h3 class="text-lg font-bold text-gray-900 mb-4">Filter Laporan</h3>
-    <form method="GET" action="{{ route('reports.finance') }}" class="flex flex-wrap gap-4 items-end">
-      <div>
-        <label class="block text-sm font-semibold text-gray-900 mb-2">Dari Tanggal</label>
-        <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}" class="px-4 py-2 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
+    <form method="GET" action="{{ route('reports.finance') }}" class="space-y-4">
+      <div class="flex flex-wrap gap-4 items-end">
+        <div>
+          <label class="block text-sm font-semibold text-gray-900 mb-2">Dari Tanggal</label>
+          <input type="date" name="start_date" value="{{ $startDate->format('Y-m-d') }}" class="px-4 py-2 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-900 mb-2">Sampai Tanggal</label>
+          <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') }}" class="px-4 py-2 border-2 border-slate-200 rounded-xl focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
+        </div>
+        <button type="submit" class="btn btn-primary px-6 py-2 shadow-md">
+          <i class="fas fa-search mr-2"></i>Filter
+        </button>
+        <a href="{{ route('reports.finance') }}" class="btn btn-secondary px-6 py-2 shadow-md">
+          <i class="fas fa-redo mr-2"></i>Refresh
+        </a>
       </div>
-      <div>
-        <label class="block text-sm font-semibold text-gray-900 mb-2">Sampai Tanggal</label>
-        <input type="date" name="end_date" value="{{ $endDate->format('Y-m-d') }}" class="px-4 py-2 border-2 border-slate-200 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent">
-      </div>
-      <button type="submit" class="btn btn-primary px-6 py-2 shadow-md">
-        <i class="fas fa-search mr-2"></i>Filter
-      </button>
-      <a href="{{ route('reports.finance') }}" class="btn btn-secondary px-6 py-2 shadow-md">
-        <i class="fas fa-redo mr-2"></i>Reset
-      </a>
     </form>
   </div>
 
-  <!-- Summary Cards -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 items-stretch">
-    <!-- Total Omset Card -->
-    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500 hover:shadow-xl transition-all flex flex-col justify-between">
+  <!-- Summary Cards - Layout Horizontal -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <!-- Kiri: Total Pelanggan -->
+    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500 hover:shadow-xl transition-all">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1">
-          <p class="text-green-700 text-xs font-semibold uppercase tracking-wide">Total Omset</p>
+          <p class="text-purple-700 text-xs font-semibold uppercase tracking-wide">Total Pelanggan</p>
+          <p class="text-5xl font-extrabold text-purple-900 mt-3">{{ $totalCustomers }}</p>
+          <p class="text-xs text-purple-600 mt-2">{{ $startDate->format('d M') }} - {{ $endDate->format('d M Y') }}</p>
+        </div>
+        <div class="text-6xl text-purple-300 opacity-60">
+          <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Kanan: Total Pendapatan/Omset -->
+    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500 hover:shadow-xl transition-all">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1">
+          <p class="text-green-700 text-xs font-semibold uppercase tracking-wide">Total Pendapatan</p>
           <p class="text-4xl font-extrabold text-green-900 mt-3">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
-          <p class="text-xs text-green-600 mt-2">{{ $startDate->format('d M') }} - {{ $endDate->format('d M Y') }}</p>
+          <p class="text-xs text-green-600 mt-2">Omset Kotor</p>
         </div>
         <div class="text-6xl text-green-300 opacity-60">
           <i class="fas fa-money-bill-wave"></i>
         </div>
       </div>
     </div>
+  </div>
 
-    <!-- Total Operasional Card -->
-    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-red-50 to-red-100 border-l-4 border-red-500 hover:shadow-xl transition-all flex flex-col justify-between">
+  <!-- Card Biaya, Gaji, Laba Bersih -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Biaya Operasional -->
+    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-amber-50 to-amber-100 border-l-4 border-amber-500 hover:shadow-xl transition-all">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1">
-          <p class="text-red-700 text-xs font-semibold uppercase tracking-wide">Total Operasional</p>
-          <p class="text-4xl font-extrabold text-red-900 mt-3">Rp {{ number_format($totalExpenses, 0, ',', '.') }}</p>
-          <p class="text-xs text-red-600 mt-2">Biaya & Pengeluaran</p>
+          <p class="text-amber-700 text-xs font-semibold uppercase tracking-wide">Biaya Operasional</p>
+          <p class="text-3xl font-extrabold text-amber-900 mt-3">Rp {{ number_format($operationalCost, 0, ',', '.') }}</p>
+          <p class="text-xs text-amber-600 mt-2">Listrik, Air, dll</p>
         </div>
-        <div class="text-6xl text-red-300 opacity-60">
-          <i class="fas fa-receipt"></i>
+        <div class="text-5xl text-amber-300 opacity-60">
+          <i class="fas fa-bolt"></i>
         </div>
       </div>
     </div>
 
-    <!-- Laba Bersih Card -->
-    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500 hover:shadow-xl transition-all flex flex-col justify-between">
+    <!-- Total Gaji -->
+    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500 hover:shadow-xl transition-all">
       <div class="flex items-start justify-between gap-4">
         <div class="flex-1">
-          <p class="text-blue-700 text-xs font-semibold uppercase tracking-wide">Laba Bersih</p>
-          <p class="text-4xl font-extrabold text-blue-900 mt-3">Rp {{ number_format($netProfit, 0, ',', '.') }}</p>
-          <p class="text-xs text-blue-600 mt-2">{{ $netProfit >= 0 ? 'Positif' : 'Negatif' }}</p>
+          <p class="text-blue-700 text-xs font-semibold uppercase tracking-wide">Total Gaji</p>
+          <p class="text-3xl font-extrabold text-blue-900 mt-3">Rp {{ number_format($employeeSalary, 0, ',', '.') }}</p>
+          <p class="text-xs text-blue-600 mt-2">Gaji Karyawan</p>
         </div>
-        <div class="text-6xl text-blue-300 opacity-60">
+        <div class="text-5xl text-blue-300 opacity-60">
+          <i class="fas fa-users"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- Laba Bersih -->
+    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 border-l-4 border-emerald-500 hover:shadow-xl transition-all">
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex-1">
+          <p class="text-emerald-700 text-xs font-semibold uppercase tracking-wide">Laba Bersih</p>
+          <p class="text-3xl font-extrabold {{ $netProfit >= 0 ? 'text-emerald-900' : 'text-red-900' }} mt-3">Rp {{ number_format($netProfit, 0, ',', '.') }}</p>
+          <p class="text-xs {{ $netProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }} mt-2">{{ $netProfit >= 0 ? '✓ Positif' : '✗ Negatif' }}</p>
+        </div>
+        <div class="text-5xl {{ $netProfit >= 0 ? 'text-emerald-300' : 'text-red-300' }} opacity-60">
           <i class="fas fa-chart-line"></i>
         </div>
       </div>
@@ -95,26 +128,32 @@
           <thead>
             <tr class="border-b border-gray-200 bg-gray-50">
               <th class="text-left py-3 px-6 font-semibold text-gray-900 text-sm">Invoice</th>
-              <th class="text-left py-3 px-6 font-semibold text-gray-900 text-sm">Tamu</th>
+              <th class="text-left py-3 px-6 font-semibold text-gray-900 text-sm">Pelanggan</th>
               <th class="text-left py-3 px-6 font-semibold text-gray-900 text-sm">Kamar</th>
               <th class="text-left py-3 px-6 font-semibold text-gray-900 text-sm">Durasi</th>
+              <th class="text-right py-3 px-6 font-semibold text-gray-900 text-sm">Harga/Malam</th>
               <th class="text-left py-3 px-6 font-semibold text-gray-900 text-sm">Check-out</th>
               <th class="text-right py-3 px-6 font-semibold text-gray-900 text-sm">Total</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
             @forelse($transactions as $tx)
+              @php
+                $duration = $tx->check_out ? max(1, (int) ceil($tx->check_in->diffInHours($tx->check_out) / 24)) : 1;
+                $pricePerNight = $tx->room->price;
+              @endphp
               <tr class="hover:bg-gray-50">
                 <td class="py-3 px-6 font-medium text-blue-600 text-sm">{{ $tx->invoice_code }}</td>
                 <td class="py-3 px-6 text-gray-900 text-sm">{{ $tx->guest_name }}</td>
                 <td class="py-3 px-6 text-gray-900 text-sm">{{ $tx->room->room_number }}</td>
                 <td class="py-3 px-6 text-gray-600 text-sm">
                   @if($tx->check_out)
-                    {{ $tx->check_in->diffInDays($tx->check_out) }} malam
+                    {{ $duration }} malam
                   @else
                     -
                   @endif
                 </td>
+                <td class="py-3 px-6 text-right text-gray-700 text-sm">Rp {{ number_format($pricePerNight, 0, ',', '.') }}</td>
                 <td class="py-3 px-6 text-gray-600 text-sm">
                   @if($tx->check_out)
                     {{ $tx->check_out->format('d M Y') }}
@@ -126,7 +165,7 @@
               </tr>
             @empty
               <tr>
-                <td colspan="6" class="py-8 text-center text-gray-500">Tidak ada transaksi</td>
+                <td colspan="7" class="py-8 text-center text-gray-500">Tidak ada transaksi</td>
               </tr>
             @endforelse
           </tbody>

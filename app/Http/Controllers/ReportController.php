@@ -51,7 +51,7 @@ class ReportController extends Controller
             ->with('room','user')
             ->get();
         
-        $csv = "No,Tamu,NIK,Kamar,Check-in,Check-out,Harga,Status\n";
+        $csv = "No,Pelanggan,NIK,Kamar,Check-in,Check-out,Harga,Status\n";
         foreach($transactions as $idx=>$tx) {
             $csv .= ($idx+1)."," . $tx->guest_name . "," . $tx->nik . "," . $tx->room->room_number 
                 . "," . $tx->check_in->format('Y-m-d') . "," . $tx->check_out->format('Y-m-d')

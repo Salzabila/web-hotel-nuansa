@@ -1,17 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="h-full" x-data="checkInForm()">
+<div class="h-full">
   <!-- Header -->
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-slate-800">Check-in Tamu Baru</h1>
+    <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 font-medium mb-3 transition">
+      <i class="fas fa-arrow-left"></i>
+      <span>Kembali ke Beranda</span>
+    </a>
+    <h1 class="text-3xl font-bold text-slate-800">Check-in Pelanggan Baru</h1>
     <p class="text-slate-500 mt-2 text-base flex items-center gap-2">
       <i class="fas fa-door-open text-blue-600"></i>
       Kamar {{ $room->room_number }} - {{ $room->type }}
     </p>
   </div>
 
-  <form method="POST" action="{{ route('transactions.store', $room->id) }}" enctype="multipart/form-data" id="checkInForm" @submit.prevent="showConfirmModal()">
+  <form method="POST" action="{{ route('transactions.store', $room->id) }}" enctype="multipart/form-data" id="checkInForm">
     @csrf
     
     <!-- Two Column Layout -->
@@ -24,7 +28,7 @@
             <i class="fas fa-id-card text-blue-600 text-lg"></i>
           </div>
           <div>
-            <h2 class="text-lg font-bold text-slate-800">Informasi Tamu</h2>
+            <h2 class="text-lg font-bold text-slate-800">Informasi Pelanggan</h2>
             <p class="text-xs text-slate-500">Sesuai Kartu Identitas (KTP)</p>
           </div>
         </div>
@@ -71,17 +75,17 @@
             @enderror
           </div>
 
-          <!-- No. Handphone -->
+          <!-- Alamat Asal -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
-              No. Handphone / WhatsApp <span class="text-red-500">*</span>
+              Alamat Asal (Kota/Kabupaten) <span class="text-red-500">*</span>
             </label>
             <input 
-              type="tel" 
+              type="text" 
               name="guest_phone" 
               value="{{ old('guest_phone') }}" 
               class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 {{ $errors->has('guest_phone') ? 'border-red-500' : '' }}" 
-              placeholder="08xxxxxxxxxx"
+              placeholder="Contoh: Surabaya, Sidoarjo, Malang"
               required>
             @error('guest_phone')
               <span class="block mt-1.5 text-sm text-red-600">
@@ -100,21 +104,6 @@
               class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
               rows="3" 
               placeholder="Alamat lengkap sesuai KTP">{{ old('guest_address') }}</textarea>
-          </div>
-
-          <!-- Upload Foto KTP (Optional) -->
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-2">
-              Upload Foto KTP <span class="text-slate-400 text-xs">(Opsional)</span>
-            </label>
-            <input 
-              type="file" 
-              name="ktp_photo" 
-              accept="image/*"
-              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
-            <p class="text-xs text-slate-500 mt-1.5">
-              <i class="fas fa-info-circle mr-1"></i>Format: JPG, PNG (Max 2MB)
-            </p>
           </div>
         </div>
       </div>
@@ -149,20 +138,18 @@
             <label class="block text-sm font-semibold text-slate-700 mb-2">
               Lama Menginap <span class="text-red-500">*</span>
             </label>
-            <div class="flex items-center gap-3">
-              <input 
-                type="number" 
-                name="duration" 
-                id="duration" 
-                class="flex-1 px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-lg font-semibold text-slate-800" 
-                min="1" 
-                value="{{ old('duration', 1) }}" 
-                required 
-                oninput="updateTotal()">
-              <span class="text-slate-700 font-semibold whitespace-nowrap bg-slate-100 px-4 py-3 rounded-xl">
-                Malam
-              </span>
-            </div>
+            <select 
+              name="duration" 
+              id="duration" 
+              class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-lg font-semibold text-slate-800" 
+              required 
+              onchange="updateTotal()">
+              @for($i = 1; $i <= 30; $i++)
+                <option value="{{ $i }}" {{ old('duration', 1) == $i ? 'selected' : '' }}>
+                  {{ $i }} Malam
+                </option>
+              @endfor
+            </select>
             @error('duration')
               <span class="block mt-1.5 text-sm text-red-600">
                 <i class="fas fa-exclamation-circle mr-1"></i>{{ $message }}
@@ -202,10 +189,10 @@
               <label for="is_ktp_held" class="text-sm font-medium text-slate-800 cursor-pointer flex-1">
                 <div class="flex items-center gap-2 mb-1">
                   <i class="fas fa-shield-alt text-amber-600"></i>
-                  <span class="font-bold">Tahan KTP Asli sebagai Jaminan</span>
+                  <span class="font-bold">Tahan KTP/SIM Asli sebagai Jaminan</span>
                 </div>
                 <p class="text-xs text-slate-600 leading-relaxed">
-                  Centang jika tamu menyerahkan fisik KTP sebagai jaminan selama menginap
+                  Centang jika pelanggan menyerahkan fisik KTP/SIM sebagai jaminan selama menginap
                 </p>
               </label>
             </div>
@@ -230,98 +217,6 @@
       </a>
     </div>
   </form>
-
-  <!-- Modal Konfirmasi Check-in -->
-  <div x-show="showModal" 
-       x-cloak
-       class="fixed inset-0 z-50 overflow-y-auto" 
-       style="display: none;">
-    <!-- Backdrop -->
-    <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity" @click="showModal = false"></div>
-    
-    <!-- Modal Content -->
-    <div class="flex items-center justify-center min-h-screen p-4">
-      <div x-show="showModal"
-           x-transition:enter="transition ease-out duration-300"
-           x-transition:enter-start="opacity-0 transform scale-90"
-           x-transition:enter-end="opacity-100 transform scale-100"
-           x-transition:leave="transition ease-in duration-200"
-           x-transition:leave-start="opacity-100 transform scale-100"
-           x-transition:leave-end="opacity-0 transform scale-90"
-           class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 relative">
-        
-        <!-- Header Modal -->
-        <div class="text-center mb-6">
-          <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-check-circle text-4xl text-blue-600"></i>
-          </div>
-          <h3 class="text-2xl font-bold text-slate-800 mb-2">Konfirmasi Check-in</h3>
-          <p class="text-slate-500">Pastikan data sudah benar sebelum melanjutkan</p>
-        </div>
-
-        <!-- Detail Info -->
-        <div class="bg-slate-50 rounded-xl p-6 mb-6 space-y-4">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-user text-blue-600"></i>
-            </div>
-            <div class="flex-1">
-              <p class="text-xs text-slate-500">Nama Tamu</p>
-              <p class="font-bold text-slate-800" x-text="formData.guestName"></p>
-            </div>
-          </div>
-          
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-teal-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-door-open text-teal-600"></i>
-            </div>
-            <div class="flex-1">
-              <p class="text-xs text-slate-500">Kamar</p>
-              <p class="font-bold text-slate-800">{{ $room->room_number }} - {{ $room->type }}</p>
-            </div>
-          </div>
-          
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 bg-amber-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-calendar text-amber-600"></i>
-            </div>
-            <div class="flex-1">
-              <p class="text-xs text-slate-500">Durasi Menginap</p>
-              <p class="font-bold text-slate-800" x-text="formData.duration + ' Malam'"></p>
-            </div>
-          </div>
-          
-          <div class="flex items-center gap-3 pt-3 border-t border-slate-200">
-            <div class="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center flex-shrink-0">
-              <i class="fas fa-money-bill-wave text-emerald-600"></i>
-            </div>
-            <div class="flex-1">
-              <p class="text-xs text-slate-500">Total Pembayaran</p>
-              <p class="font-bold text-emerald-600 text-xl" x-text="'Rp ' + formData.total"></p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex gap-3">
-          <button 
-            type="button"
-            @click="submitForm()"
-            class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
-            <i class="fas fa-check"></i>
-            Ya, Proses Check-in
-          </button>
-          <button 
-            type="button"
-            @click="showModal = false"
-            class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2">
-            <i class="fas fa-times"></i>
-            Batal
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
 </div>
 
 <script>
@@ -340,66 +235,6 @@
   
   // Initialize on page load
   updateTotal();
-  
-  // Refresh CSRF token every 10 minutes to prevent page expiration
-  setInterval(function() {
-    fetch('{{ route("dashboard") }}', {
-      method: 'GET',
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    }).then(response => response.text()).then(html => {
-      // Extract new CSRF token from response
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const newToken = doc.querySelector('meta[name="csrf-token"]');
-      if (newToken) {
-        const tokenInput = document.querySelector('input[name="_token"]');
-        if (tokenInput) {
-          tokenInput.value = newToken.getAttribute('content');
-        }
-        // Update meta tag too
-        document.querySelector('meta[name="csrf-token"]').setAttribute('content', newToken.getAttribute('content'));
-      }
-    }).catch(err => console.log('Token refresh failed:', err));
-  }, 600000); // 10 minutes
-  
-  // Alpine.js component methods
-  document.addEventListener('alpine:init', () => {
-    Alpine.data('checkInForm', () => ({
-      showModal: false,
-      formData: {},
-      
-      showConfirmModal() {
-        const guestName = document.querySelector('input[name="guest_name"]').value.trim();
-        const guestNik = document.querySelector('input[name="guest_nik"]').value.trim();
-        const guestPhone = document.querySelector('input[name="guest_phone"]').value.trim();
-        const duration = document.getElementById('duration').value;
-        
-        if (!guestName || !guestNik || !guestPhone) {
-          alert('⚠️ Mohon lengkapi data identitas tamu (Nama, NIK, dan No. HP) terlebih dahulu!');
-          return;
-        }
-        
-        // Set form data for modal display
-        this.formData = {
-          guestName: guestName,
-          duration: duration,
-          total: (pricePerNight * duration).toLocaleString('id-ID')
-        };
-        
-        this.showModal = true;
-      },
-      
-      submitForm() {
-        // Get the form element
-        const form = document.getElementById('checkInForm');
-        
-        // Submit the form
-        form.submit();
-      }
-    }));
-  });
   
   // Prevent form resubmission on page back
   if (window.history.replaceState) {

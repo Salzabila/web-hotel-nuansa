@@ -2,16 +2,24 @@
 
 @section('content')
 <div class="h-full">
-<!-- Header -->
-<div class="flex justify-between items-center mb-8">
-  <div>
+  <div class="mb-8">
     <h1 class="text-3xl font-bold text-slate-800">Biaya Operasional</h1>
     <p class="text-slate-500 mt-2 text-base">Kelola pengeluaran operasional hotel</p>
   </div>
-  <a href="{{ route('expenses.create') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl transition-all shadow-lg shadow-blue-600/20 hover:shadow-xl">
-    <i class="fas fa-plus"></i> Input Pengeluaran
-  </a>
-</div>
+
+  @if(session('success'))
+    <div class="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-xl mb-6 flex items-center gap-3">
+      <i class="fas fa-check-circle text-xl"></i>
+      <span>{{ session('success') }}</span>
+    </div>
+  @endif
+
+  @if(session('error'))
+    <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-6 flex items-center gap-3">
+      <i class="fas fa-exclamation-circle text-xl"></i>
+      <span>{{ session('error') }}</span>
+    </div>
+  @endif
 
 <!-- Summary Stats -->
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -62,7 +70,7 @@
   <form method="GET" action="{{ route('expenses.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
     <div>
       <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Cari Deskripsi</label>
-      <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari deskripsi pengeluaran..." class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+      <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari deskripsi..." class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
     </div>
     <div>
       <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Kategori</label>
@@ -87,27 +95,38 @@
         <i class="fas fa-search"></i> Cari
       </button>
       <a href="{{ route('expenses.index') }}" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all flex items-center gap-2">
-        <i class="fas fa-redo"></i> Reset
+        <i class="fas fa-redo"></i> Refresh
       </a>
     </div>
   </form>
 </div>
 
 <!-- Table Card -->
-<div class="bg-white overflow-hidden rounded-2xl shadow-sm border border-slate-100">
-  <table class="w-full">
-    <thead>
-      <tr class="border-b border-slate-200">
-        <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider bg-transparent">Kategori</th>
-        <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider bg-transparent">Deskripsi</th>
-        <th class="px-6 py-4 text-right text-xs font-bold text-slate-400 uppercase tracking-wider bg-transparent">Jumlah</th>
-        <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider bg-transparent">Tanggal</th>
-      </tr>
-    </thead>
-    <tbody class="divide-y divide-gray-100">
-      @forelse($expenses as $exp)
-        <tr class="hover:bg-blue-50/50 transition-colors duration-150">
-          <td class="px-6 py-4">
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h2 class="text-xl font-bold text-slate-800">Daftar Pengeluaran</h2>
+      <p class="text-slate-500 text-sm mt-1">Total: {{ $expenses->count() }} item</p>
+    </div>
+    <a href="{{ route('expenses.create') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all shadow-lg">
+      <i class="fas fa-plus"></i> Input Pengeluaran
+    </a>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="border-b-2 border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
+          <th class="text-left py-4 px-6 font-bold text-gray-900">Kategori</th>
+          <th class="text-left py-4 px-6 font-bold text-gray-900">Deskripsi</th>
+          <th class="text-right py-4 px-6 font-bold text-gray-900">Jumlah</th>
+          <th class="text-left py-4 px-6 font-bold text-gray-900">Tanggal</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        @forelse($expenses as $exp)
+          <tr class="hover:bg-blue-50 transition-colors duration-150">
+            <td class="py-4 px-6">
             <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold border
               @if($exp->category === 'maintenance') bg-amber-50 text-amber-700 border-amber-200
               @elseif($exp->category === 'utilities') bg-blue-50 text-blue-700 border-blue-200
@@ -122,22 +141,23 @@
                 @endif mr-1"></i>
               {{ ucfirst(str_replace('_', ' ', $exp->category)) }}
             </span>
-          </td>
-          <td class="px-6 py-5 text-slate-700 font-medium">{{ $exp->description ?? '-' }}</td>
-          <td class="px-6 py-5 text-right font-bold text-slate-800">Rp {{ number_format($exp->amount,0,',','.') }}</td>
-          <td class="px-6 py-5 text-slate-700 font-medium">{{ $exp->date->format('d M Y') }}</td>
-        </tr>
-      @empty
-        <tr>
-          <td colspan="4" class="px-6 py-16 text-center text-slate-500">
-            <i class="fas fa-inbox text-6xl text-slate-300 mb-4 block"></i>
-            <p class="text-lg font-medium">Tidak ada pengeluaran</p>
-            <p class="text-sm text-slate-400">Silakan input pengeluaran baru untuk memulai</p>
-          </td>
-        </tr>
-      @endforelse
-    </tbody>
-  </table>
+            </td>
+            <td class="py-4 px-6 text-gray-700">{{ $exp->description ?? '-' }}</td>
+            <td class="py-4 px-6 text-right font-semibold text-gray-900">Rp {{ number_format($exp->amount,0,',','.') }}</td>
+            <td class="py-4 px-6 text-gray-700">{{ $exp->date->format('d M Y') }}</td>
+          </tr>
+        @empty
+          <tr>
+            <td colspan="4" class="py-16 text-center text-slate-500">
+              <i class="fas fa-inbox text-6xl text-slate-300 mb-4 block"></i>
+              <p class="text-lg font-medium">Tidak ada pengeluaran</p>
+              <p class="text-sm text-slate-400 mt-1">Silakan input pengeluaran baru untuk memulai</p>
+            </td>
+          </tr>
+        @endforelse
+      </tbody>
+    </table>
+  </div>
 </div>
 
 <!-- Pagination -->

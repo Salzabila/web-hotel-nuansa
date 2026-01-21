@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel POS System - AMD Pattern Demo</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .card-header {
+            background-color: #667eea;
+            color: white;
+            font-weight: bold;
+        }
+        .receipt-preview {
+            background-color: #fff;
+            border: 2px dashed #ccc;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            min-height: 200px;
+            white-space: pre-wrap;
+        }
+        .shift-indicator {
+            padding: 15px;
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .list-group-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏨 HOTEL POS SYSTEM</h1>
+            <p class="mb-0">Modular JavaScript dengan AMD Pattern (RequireJS)</p>
+        </div>
+
+        <!-- Shift Display -->
+        <div class="shift-indicator" id="currentShift">
+            <strong>Shift:</strong> Loading...
+        </div>
+
+        <div class="row">
+            <!-- Left Column: Cashier Management -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-person-badge"></i> MANAJEMEN KASIR
+                    </div>
+                    <div class="card-body">
+                        <div class="alert" id="cashierMessage" style="display: none;"></div>
+                        
+                        <div class="input-group mb-3">
+                            <input 
+                                type="text" 
+                                class="form-control" 
+                                id="cashierInput" 
+                                placeholder="Nama kasir baru..."
+                                autocomplete="off">
+                            <button class="btn btn-primary" type="button" id="btnAddCashier">
+                                ➕ Tambah
+                            </button>
+                        </div>
+
+                        <h6>Daftar Kasir:</h6>
+                        <ul class="list-group" id="cashierList">
+                            <li class="list-group-item">Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Checkout Form -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-receipt"></i> FORM CHECKOUT
+                    </div>
+                    <div class="card-body">
+                        <form id="checkoutForm">
+                            <div class="mb-3">
+                                <label for="cashierSelect" class="form-label">
+                                    <strong>Nama Kasir *</strong>
+                                </label>
+                                <select class="form-select" id="cashierSelect" required>
+                                    <option value="">-- Pilih Kasir --</option>
+                                </select>
+                                <small class="text-muted">Wajib pilih kasir sebelum cetak</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="roomNumber" class="form-label">Nomor Kamar *</label>
+                                <input type="text" class="form-control" id="roomNumber" placeholder="101" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="guestName" class="form-label">Nama Pelanggan</label>
+                                <input type="text" class="form-control" id="guestName" placeholder="Budi Santoso">
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="checkInDate" class="form-label">Check-in Tanggal *</label>
+                                    <input type="date" class="form-control" id="checkInDate" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="checkInTime" class="form-label">Check-in Waktu *</label>
+                                    <input type="time" class="form-control" id="checkInTime" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="checkOutDate" class="form-label">Check-out Tanggal *</label>
+                                    <input type="date" class="form-control" id="checkOutDate" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="checkOutTime" class="form-label">Check-out Waktu *</label>
+                                    <input type="time" class="form-control" id="checkOutTime" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="totalAmount" class="form-label">Total Bayar (Rp)</label>
+                                <input type="number" class="form-control" id="totalAmount" placeholder="250000" min="0">
+                            </div>
+
+                            <button type="button" class="btn btn-success btn-lg w-100" id="btnPrintReceipt">
+                                🖨️ Cetak Struk
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receipt Preview -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-file-text"></i> PREVIEW STRUK
+                    </div>
+                    <div class="card-body">
+                        <div class="receipt-preview" id="receiptPreview">
+                            <em>Struk akan muncul di sini setelah cetak...</em>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-info">
+                    <div class="card-header bg-info text-white">
+                        ℹ️ INFORMASI SISTEM
+                    </div>
+                    <div class="card-body">
+                        <h6>Teknologi yang Digunakan:</h6>
+                        <ul>
+                            <li><strong>Pattern:</strong> AMD (Asynchronous Module Definition)</li>
+                            <li><strong>Module Loader:</strong> RequireJS</li>
+                            <li><strong>JavaScript:</strong> ES5/ES6 Compatible</li>
+                            <li><strong>UI Framework:</strong> Bootstrap 5</li>
+                        </ul>
+
+                        <h6 class="mt-3">Modul yang Dibuat:</h6>
+                        <ul>
+                            <li><code>ShiftLogic.js</code> - Logika shift pagi/malam (07:30 - 19:30)</li>
+                            <li><code>CashierLogic.js</code> - CRUD manajemen kasir (Create/Read/Delete)</li>
+                            <li><code>ReceiptLogic.js</code> - Generate & format struk dengan shift info</li>
+                            <li><code>UIController.js</code> - Manipulasi DOM, sinkronisasi dropdown</li>
+                            <li><code>main.js</code> - Entry point & orchestration</li>
+                        </ul>
+
+                        <h6 class="mt-3">Fitur Utama:</h6>
+                        <ul>
+                            <li>✅ Auto-detect shift berdasarkan waktu sistem</li>
+                            <li>✅ CRUD kasir dengan update real-time ke dropdown</li>
+                            <li>✅ Validasi: wajib pilih kasir sebelum cetak</li>
+                            <li>✅ Format waktu dengan kurung: <code>(14:30)</code></li>
+                            <li>✅ Struk otomatis print di window baru</li>
+                        </ul>
+
+                        <hr>
+                        <p class="mb-0">
+                            <strong>Console Demo:</strong> Buka Developer Console (F12) untuk melihat demo otomatis.<br>
+                            Atau ketik: <code>HotelPOS.demo()</code> di console untuk run ulang.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center text-muted mt-5 pb-4">
+            <small>
+                Hotel POS System v1.0 | AMD Pattern Implementation | 2026<br>
+                Made with ❤️ for Hotel Nuansa
+            </small>
+        </footer>
+    </div>
+
+    <!-- RequireJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="js/main"></script>
+</body>
+</html>

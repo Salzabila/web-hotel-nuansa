@@ -12,7 +12,7 @@
     <form method="GET" action="{{ route('transactions.index') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4">
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Cari Nama/Invoice</label>
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Nama tamu atau kode invoice..." class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama atau invoice..." class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm">
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-2 uppercase tracking-wider">Status</label>
@@ -32,10 +32,10 @@
       </div>
       <div class="md:col-span-4 flex gap-3">
         <button type="submit" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-md flex items-center gap-2">
-          <i class="fas fa-search"></i>Cari
+          <i class="fas fa-search"></i> Cari
         </button>
         <a href="{{ route('transactions.index') }}" class="px-6 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all flex items-center gap-2">
-          <i class="fas fa-redo"></i>Reset
+          <i class="fas fa-redo"></i> Refresh
         </a>
       </div>
     </form>
@@ -47,7 +47,7 @@
         <thead>
           <tr class="border-b border-slate-200">
             <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Invoice</th>
-            <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Tamu</th>
+            <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Pelanggan</th>
             <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Kamar</th>
             <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Check-in</th>
             <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Check-out</th>

@@ -37,7 +37,7 @@
           <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
             <i class="fas fa-user text-blue-600 text-lg"></i>
           </div>
-          <h2 class="text-lg font-bold text-slate-800">Informasi Tamu</h2>
+          <h2 class="text-lg font-bold text-slate-800">Informasi Pelanggan</h2>
         </div>
 
         <div class="grid grid-cols-2 gap-6">
@@ -71,17 +71,6 @@
           <div class="mt-6 pt-6 border-t border-slate-100">
             <p class="text-xs text-slate-500 mb-2 uppercase tracking-wider">Alamat Domisili</p>
             <p class="text-sm text-slate-700 leading-relaxed">{{ $tx->guest_address }}</p>
-          </div>
-        @endif
-
-        <!-- KTP Photo Preview -->
-        @if($tx->ktp_photo_path)
-          <div class="mt-6 pt-6 border-t border-slate-100">
-            <p class="text-xs text-slate-500 mb-3 uppercase tracking-wider">Foto KTP</p>
-            <img 
-              src="{{ asset('storage/' . $tx->ktp_photo_path) }}" 
-              alt="KTP {{ $tx->guest_name }}"
-              class="w-full max-w-md rounded-xl border-2 border-slate-200 shadow-md">
           </div>
         @endif
       </div>
@@ -175,7 +164,7 @@
         <div class="space-y-4">
           <div class="flex justify-between items-center">
             <span class="text-sm text-blue-800">Durasi Menginap</span>
-            <span class="text-sm font-bold text-blue-900">{{ $tx->check_in->diffInDays($tx->check_out) }} Malam</span>
+            <span class="text-sm font-bold text-blue-900">{{ $tx->duration }} Malam</span>
           </div>
           <div class="flex justify-between items-center">
             <span class="text-sm text-blue-800">Harga per Malam</span>
@@ -201,6 +190,12 @@
           </a>
           
           @if($tx->status === 'active')
+            <!-- Extend Stay Button -->
+            <button onclick="showExtendModal()" class="w-full flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md">
+              <i class="fas fa-calendar-plus"></i>
+              Perpanjang Menginap
+            </button>
+            
             <a href="{{ route('transactions.checkout', $tx->id) }}" class="w-full flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md">
               <i class="fas fa-sign-out-alt"></i>
               Check-out
@@ -219,4 +214,106 @@
     </div>
   </div>
 </div>
+
+<!-- Extend Stay Modal -->
+<div id="extendModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 transform transition-all">
+    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-200">
+      <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+        <i class="fas fa-calendar-plus text-amber-600 text-lg"></i>
+      </div>
+      <div>
+        <h2 class="text-lg font-bold text-slate-800">Perpanjang Masa Menginap</h2>
+        <p class="text-xs text-slate-500">Tambah durasi untuk {{ $tx->guest_name }}</p>
+      </div>
+    </div>
+    
+    <form method="POST" action="{{ route('transactions.extend', $tx->id) }}">
+      @csrf
+      
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-slate-700 mb-2">
+          Tambah Berapa Malam? <span class="text-red-500">*</span>
+        </label>
+        <select 
+          name="additional_nights" 
+          id="additionalNights"
+          class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-lg font-semibold"
+          required
+          onchange="updateExtendPreview()">
+          @for($i = 1; $i <= 30; $i++)
+            <option value="{{ $i }}">+ {{ $i }} Malam</option>
+          @endfor
+        </select>
+      </div>
+      
+      <div class="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 mb-6">
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between">
+            <span class="text-slate-600">Durasi Sekarang</span>
+            <span class="font-bold text-slate-800">{{ $tx->duration }} Malam</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-slate-600">Tambahan</span>
+            <span class="font-bold text-amber-700" id="previewAdditional">+1 Malam</span>
+          </div>
+          <div class="flex justify-between pt-2 border-t border-amber-300">
+            <span class="font-bold text-slate-800">Total Durasi Baru</span>
+            <span class="font-bold text-amber-700 text-lg" id="previewTotal">{{ $tx->duration + 1 }} Malam</span>
+          </div>
+          <div class="flex justify-between pt-2 border-t border-amber-300">
+            <span class="font-bold text-slate-800">Total Biaya Baru</span>
+            <span class="font-bold text-emerald-700 text-lg" id="previewPrice">Rp {{ number_format($tx->room->price_per_night * ($tx->duration + 1), 0, ',', '.') }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex gap-3">
+        <button type="submit" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded-xl transition-all shadow-md">
+          <i class="fas fa-check mr-2"></i>Konfirmasi Perpanjangan
+        </button>
+        <button type="button" onclick="hideExtendModal()" class="px-6 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-3 rounded-xl transition-all">
+          Batal
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const currentDuration = {{ $tx->duration }};
+  const pricePerNight = {{ $tx->room->price_per_night }};
+  
+  function showExtendModal() {
+    document.getElementById('extendModal').classList.remove('hidden');
+  }
+  
+  function hideExtendModal() {
+    document.getElementById('extendModal').classList.add('hidden');
+  }
+  
+  function updateExtendPreview() {
+    const additional = parseInt(document.getElementById('additionalNights').value) || 1;
+    const newTotal = currentDuration + additional;
+    const newPrice = pricePerNight * newTotal;
+    
+    document.getElementById('previewAdditional').textContent = '+' + additional + ' Malam';
+    document.getElementById('previewTotal').textContent = newTotal + ' Malam';
+    document.getElementById('previewPrice').textContent = 'Rp ' + newPrice.toLocaleString('id-ID');
+  }
+  
+  // Close modal on ESC key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      hideExtendModal();
+    }
+  });
+  
+  // Close modal on backdrop click
+  document.getElementById('extendModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      hideExtendModal();
+    }
+  });
+</script>
 @endsection

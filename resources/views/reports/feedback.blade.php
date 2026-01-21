@@ -2,7 +2,7 @@
 
 @section('content')
 <div>
-  <h1 class="text-3xl font-bold mb-6"><i class="fas fa-star mr-2 text-yellow-500"></i>Rating & Feedback Tamu</h1>
+  <h1 class="text-3xl font-bold mb-6"><i class="fas fa-star mr-2 text-yellow-500"></i>Rating & Feedback Pelanggan</h1>
 
   <!-- Stats -->
   <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-6">
@@ -38,7 +38,7 @@
     @empty
       <div class="bg-gray-100 p-6 rounded-lg text-center text-gray-500">
         <i class="fas fa-inbox text-3xl mb-2"></i>
-        <p>Belum ada feedback dari tamu.</p>
+        <p>Belum ada feedback dari pelanggan.</p>
       </div>
     @endforelse
   </div>

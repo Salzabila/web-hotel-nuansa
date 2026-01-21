@@ -33,7 +33,7 @@
       <table class="w-full">
         <thead class="bg-gray-700 text-white">
           <tr>
-            <th class="p-3 text-left">Tamu</th>
+            <th class="p-3 text-left">Pelanggan</th>
             <th class="p-3 text-left">NIK</th>
             <th class="p-3 text-left">Kamar</th>
             <th class="p-3 text-left">Check-in</th>

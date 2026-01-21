@@ -17,8 +17,7 @@ class HotelSeeder extends Seeder
         // 1 Admin User
         $admin = User::create([
             'name' => 'Admin Nuansa',
-            'email' => 'admin@nuansa.local',
-            'username' => 'admin',
+            'phone' => 'admin',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
         ]);
@@ -26,8 +25,7 @@ class HotelSeeder extends Seeder
         // 1 Kasir User
         $kasir = User::create([
             'name' => 'Kasir Nuansa',
-            'email' => 'kasir@nuansa.local',
-            'username' => 'kasir',
+            'phone' => 'kasir',
             'password' => Hash::make('kasir123'),
             'role' => 'kasir',
         ]);
@@ -94,7 +92,7 @@ class HotelSeeder extends Seeder
         ]);
 
         $this->command->info('✅ Hotel Seeder selesai!');
-        $this->command->info('Admin: username=admin | password=admin123');
-        $this->command->info('Kasir: username=kasir | password=kasir123');
+        $this->command->info('Admin: phone=admin | password=admin123');
+        $this->command->info('Kasir: phone=kasir | password=kasir123');
     }
 }

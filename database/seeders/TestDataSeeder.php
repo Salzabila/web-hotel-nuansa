@@ -62,7 +62,7 @@ class TestDataSeeder extends Seeder
                 'room_id' => $rooms[rand(0, count($rooms) - 1)]->id,
                 'user_id' => $kasir->id,
                 'invoice_code' => 'INV-' . $checkInDate->format('Ymd') . '-' . str_pad($i, 3, '0', STR_PAD_LEFT),
-                'guest_name' => 'Tamu ' . $i,
+                'guest_name' => 'Pelanggan ' . $i,
                 'guest_nik' => '327' . rand(1000000, 9999999),
                 'guest_address' => 'Jalan Raya ' . $i . ', Kota Bandung',
                 'check_in' => $checkInDate,

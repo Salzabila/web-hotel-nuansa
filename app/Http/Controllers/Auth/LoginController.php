@@ -16,7 +16,7 @@ class LoginController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'username' => 'required|string',
+            'phone' => 'required|string',
             'password' => 'required|string',
         ]);
 
@@ -25,7 +25,7 @@ class LoginController extends Controller
             return redirect()->intended(route('dashboard'));
         }
 
-        return back()->withErrors(['username' => 'Username atau password tidak cocok.']);
+        return back()->withErrors(['phone' => 'Nomor telepon atau password tidak cocok.']);
     }
 
     public function logout(Request $request)

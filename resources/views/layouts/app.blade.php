@@ -23,6 +23,11 @@
       --shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+    
+    /* Custom slate-400 color for dirty room status */
+    .bg-slate-400 {
+      background-color: #94a3b8 !important;
+    }
 
     * { 
       margin: 0;
@@ -620,19 +625,29 @@
                 </div>
                 <div class="nav-text">Beranda</div>
               </a>
-
-              <a href="{{ route('rooms.index') }}" class="nav-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
-                <div class="nav-icon">
-                  <i class="fas fa-bed"></i>
-                </div>
-                <div class="nav-text">Kamar</div>
-              </a>
               
               <a href="{{ route('transactions.index') }}" class="nav-item {{ request()->routeIs('transactions.*') ? 'active' : '' }}">
                 <div class="nav-icon">
                   <i class="fas fa-exchange-alt"></i>
                 </div>
-                <div class="nav-text">Transaksi</div>
+                <div class="nav-text">Riwayat</div>
+                @if(\App\Models\Transaction::where('status', 'active')->count() > 0)
+                  <div class="badge">{{ \App\Models\Transaction::where('status', 'active')->count() }}</div>
+                @endif
+              </a>
+
+              <a href="{{ route('rooms.index') }}" class="nav-item {{ request()->routeIs('rooms.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                  <i class="fas fa-door-open"></i>
+                </div>
+                <div class="nav-text">Kamar</div>
+              </a>
+
+              <a href="{{ route('recaps.personal') }}" class="nav-item {{ request()->routeIs('recaps.personal') ? 'active' : '' }}">
+                <div class="nav-icon">
+                  <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="nav-text">Shift Saya</div>
               </a>
             </div>
           @endif
@@ -659,7 +674,7 @@
                 <div class="nav-icon">
                   <i class="fas fa-exchange-alt"></i>
                 </div>
-                <div class="nav-text">Transaksi</div>
+                <div class="nav-text">Riwayat</div>
                 @if(\App\Models\Transaction::whereNull('check_out')->count() > 0)
                   <div class="badge">{{ \App\Models\Transaction::whereNull('check_out')->count() }}</div>
                 @endif
@@ -668,6 +683,14 @@
 
             <div class="nav-section">
               <div class="nav-title">Manajemen</div>
+              <a href="{{ route('users.index') }}" class="nav-item {{ request()->routeIs('users.*') ? 'active' : '' }}">
+                <div class="nav-icon">
+                  <i class="fas fa-users"></i>
+                </div>
+                <div class="nav-text">User</div>
+                <div class="badge">{{ \App\Models\User::count() }}</div>
+              </a>
+              
               <a href="{{ route('expenses.index') }}" class="nav-item {{ request()->routeIs('expenses.*') ? 'active' : '' }}">
                 <div class="nav-icon">
                   <i class="fas fa-money-bill-wave"></i>
@@ -897,6 +920,11 @@
         sidebar.classList.toggle('hidden');
       });
     }
+    
+    // Auto-print struk after checkout
+    @if(session('print_struk'))
+      window.open('{{ session('print_struk') }}', '_blank');
+    @endif
   </script>
 
 </body>
