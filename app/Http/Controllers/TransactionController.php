@@ -170,6 +170,33 @@ class TransactionController extends Controller
         return view('transactions.checkout', compact('tx', 'currentShift', 'cashiers'));
     }
 
+    /**
+     * Get transaction data for checkout modal (AJAX)
+     */
+    public function getCheckoutData($id)
+    {
+        try {
+            $tx = Transaction::with('room', 'user')->findOrFail($id);
+            
+            if ($tx->status !== 'active') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Transaksi sudah selesai'
+                ], 400);
+            }
+
+            return response()->json([
+                'success' => true,
+                'transaction' => $tx
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Transaksi tidak ditemukan'
+            ], 404);
+        }
+    }
+
     public function processCheckout(Request $request, $id)
     {
         try {
@@ -343,6 +370,36 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::with(['room', 'user', 'paymentMethod'])->findOrFail($id);
         return view('transactions.receipt', compact('transaction'));
+    }
+
+    /**
+     * Update cashier and shift data for check-in receipt
+     */
+    public function updateCheckInData(Request $request, $id)
+    {
+        try {
+            $validated = $request->validate([
+                'cashier_name' => 'required|string|max:100',
+                'shift' => 'required|in:Pagi,Malam'
+            ]);
+
+            $transaction = Transaction::findOrFail($id);
+            
+            // Update cashier and shift (we'll need to add these columns)
+            $transaction->cashier_name = $validated['cashier_name'];
+            $transaction->shift = $validated['shift'];
+            $transaction->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data check-in berhasil disimpan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**

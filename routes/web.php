@@ -27,8 +27,15 @@ Route::middleware('auth')->group(function () {
     
     // Express Check-in Routes
     Route::get('transactions/{id}/receipt', [TransactionController::class,'showReceipt'])->name('transactions.receipt');
+    Route::put('transactions/{id}/update-checkin-data', [TransactionController::class,'updateCheckInData'])->name('transactions.updateCheckInData');
     Route::get('transactions/{id}/guest-book', [TransactionController::class,'showGuestBook'])->name('transactions.guestBook');
     Route::put('transactions/{id}/update-guest-data', [TransactionController::class,'updateGuestData'])->name('transactions.updateGuestData');
+    
+    // API for modal checkout
+    Route::get('transactions/{id}/checkout-data', [TransactionController::class,'getCheckoutData']);
+    Route::get('api/cashiers', function() {
+        return response()->json(\App\Models\User::orderBy('name')->get(['id', 'name']));
+    });
     
     Route::post('transactions/{id}/extend', [TransactionController::class,'extend'])->name('transactions.extend');
     Route::get('transactions/checkout/{id}', [TransactionController::class,'showCheckout'])->name('transactions.checkout');

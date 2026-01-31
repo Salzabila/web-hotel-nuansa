@@ -328,10 +328,12 @@
                 </td>
                 <td class="py-5 px-6 text-right font-bold text-gray-900">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</td>
                 <td class="py-5 px-6 text-center">
-                  <a href="{{ route('transactions.checkout', $tx->id) }}" class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all shadow-lg">
+                  <button 
+                    onclick="openCheckoutModal({{ $tx->id }})" 
+                    class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all shadow-lg">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Check-out</span>
-                  </a>
+                  </button>
                 </td>
               </tr>
             @endforeach
@@ -584,5 +586,314 @@
     activeBtn.classList.remove('bg-slate-100', 'text-slate-600');
     activeBtn.classList.add('bg-blue-500', 'text-white');
   }
+
+  // Checkout Modal Functions
+  function openCheckoutModal(transactionId) {
+    const modal = document.getElementById('checkoutModal');
+    
+    // Fetch transaction data
+    fetch(`/transactions/${transactionId}/checkout-data`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Populate modal with transaction data
+        populateCheckoutModal(data.transaction);
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      } else {
+        alert('Gagal memuat data transaksi');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('Terjadi kesalahan saat memuat data');
+    });
+  }
+
+  function closeCheckoutModal() {
+    const modal = document.getElementById('checkoutModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+
+  function populateCheckoutModal(tx) {
+    // Update invoice code
+    document.getElementById('modalInvoiceCode').textContent = tx.invoice_code;
+    document.getElementById('modalGuestName').textContent = tx.guest_name;
+    document.getElementById('modalGuestNik').textContent = tx.guest_nik || '-';
+    document.getElementById('modalGuestPhone').textContent = tx.guest_phone || '-';
+    document.getElementById('modalRoomNumber').textContent = tx.room.room_number + ' - ' + tx.room.type;
+    
+    if (tx.guest_address) {
+      document.getElementById('modalGuestAddress').textContent = tx.guest_address;
+      document.getElementById('modalAddressSection').classList.remove('hidden');
+    } else {
+      document.getElementById('modalAddressSection').classList.add('hidden');
+    }
+    
+    // Check-in/out dates
+    document.getElementById('modalCheckIn').textContent = new Date(tx.check_in).toLocaleString('id-ID');
+    document.getElementById('modalCheckOut').textContent = new Date(tx.check_out).toLocaleString('id-ID');
+    document.getElementById('modalDuration').textContent = tx.duration + ' Malam';
+    
+    // Pricing
+    const pricePerNight = tx.total_price / tx.duration;
+    document.getElementById('modalPricePerNight').textContent = 'Rp ' + pricePerNight.toLocaleString('id-ID');
+    document.getElementById('modalSubtotal').textContent = 'Rp ' + tx.total_price.toLocaleString('id-ID');
+    document.getElementById('modalGrandTotal').textContent = 'Rp ' + tx.total_price.toLocaleString('id-ID');
+    
+    // Guarantee warning
+    if (tx.is_ktp_held) {
+      document.getElementById('modalGuaranteeWarning').classList.remove('hidden');
+      document.getElementById('modalGuaranteeType').textContent = tx.guarantee_type || 'KTP';
+      document.getElementById('modalGuaranteeName').textContent = tx.guest_name;
+      document.getElementById('guaranteeReturnedCheckbox').required = true;
+    } else {
+      document.getElementById('modalGuaranteeWarning').classList.add('hidden');
+      document.getElementById('guaranteeReturnedCheckbox').required = false;
+    }
+    
+    // Set form action
+    document.getElementById('checkoutForm').action = `/transactions/checkout/${tx.id}`;
+    
+    // Set cashiers
+    populateCashiers();
+  }
+
+  function populateCashiers() {
+    // Fetch cashiers if not already loaded
+    const cashierSelect = document.getElementById('modalCashierName');
+    if (cashierSelect.options.length <= 1) {
+      fetch('/api/cashiers', {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        data.forEach(cashier => {
+          const option = document.createElement('option');
+          option.value = cashier.name;
+          option.textContent = cashier.name;
+          cashierSelect.appendChild(option);
+        });
+      });
+    }
+  }
+
+  // Calculate total and change
+  function calculateTotal() {
+    const subtotal = parseFloat(document.getElementById('modalSubtotal').textContent.replace(/[^\d]/g, ''));
+    const additionalCharges = parseFloat(document.getElementById('additionalCharges').value) || 0;
+    const grandTotal = subtotal + additionalCharges;
+    document.getElementById('modalGrandTotal').textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
+    calculateChange();
+  }
+
+  function calculateChange() {
+    const grandTotal = parseFloat(document.getElementById('modalGrandTotal').textContent.replace(/[^\d]/g, ''));
+    const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
+    const change = Math.max(0, paidAmount - grandTotal);
+    document.getElementById('modalChangeAmount').textContent = 'Rp ' + change.toLocaleString('id-ID');
+  }
+
+  function formatCurrency(input, hiddenFieldId) {
+    let value = input.value.replace(/[^\d]/g, '');
+    input.value = value ? parseInt(value).toLocaleString('id-ID') : '';
+    document.getElementById(hiddenFieldId).value = value;
+    
+    if (hiddenFieldId === 'additionalCharges') {
+      calculateTotal();
+    } else if (hiddenFieldId === 'paidAmount') {
+      calculateChange();
+    }
+  }
+
+  // Close modal on outside click
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('checkoutModal');
+    if (e.target === modal) {
+      closeCheckoutModal();
+    }
+  });
 </script>
+
+<!-- Checkout Modal -->
+<div id="checkoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <form id="checkoutForm" method="POST" action="">
+      @csrf
+      
+      <!-- Modal Header -->
+      <div class="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-slate-800">Konfirmasi Check-out</h2>
+          <p class="text-sm text-slate-500">Invoice: <span id="modalInvoiceCode" class="font-bold text-blue-600"></span></p>
+        </div>
+        <button type="button" onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-600 text-2xl">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 space-y-6">
+        <!-- Guest Info -->
+        <div class="bg-slate-50 p-4 rounded-xl">
+          <h3 class="font-bold text-slate-800 mb-3">Informasi Pelanggan</h3>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <p class="text-slate-500">Nama</p>
+              <p id="modalGuestName" class="font-bold text-slate-800"></p>
+            </div>
+            <div>
+              <p class="text-slate-500">NIK</p>
+              <p id="modalGuestNik" class="font-semibold text-slate-700"></p>
+            </div>
+            <div>
+              <p class="text-slate-500">Telepon</p>
+              <p id="modalGuestPhone" class="font-semibold text-slate-700"></p>
+            </div>
+            <div>
+              <p class="text-slate-500">Kamar</p>
+              <p id="modalRoomNumber" class="font-bold text-slate-800"></p>
+            </div>
+          </div>
+          <div id="modalAddressSection" class="hidden mt-3 pt-3 border-t border-slate-200">
+            <p class="text-slate-500 text-sm">Alamat</p>
+            <p id="modalGuestAddress" class="text-sm text-slate-700"></p>
+          </div>
+        </div>
+
+        <!-- Guarantee Warning -->
+        <div id="modalGuaranteeWarning" class="hidden bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
+          <div class="flex items-start gap-3">
+            <i class="fas fa-exclamation-triangle text-amber-600 text-xl mt-1"></i>
+            <div class="flex-1">
+              <p class="font-bold text-amber-900 mb-2">⚠️ JAMINAN IDENTITAS</p>
+              <p class="text-sm text-amber-800 mb-3">Kembalikan <strong><span id="modalGuaranteeType"></span> atas nama <span id="modalGuaranteeName"></span></strong> kepada pelanggan.</p>
+              <div class="bg-white border border-amber-400 rounded-lg p-3">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input type="checkbox" id="guaranteeReturnedCheckbox" name="guarantee_returned" value="1" class="w-5 h-5 text-amber-600 rounded">
+                  <span class="text-sm font-bold text-amber-900">✓ Sudah mengembalikan jaminan</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bill Summary -->
+        <div class="bg-blue-50 p-4 rounded-xl">
+          <h3 class="font-bold text-slate-800 mb-3">Rincian Tagihan</h3>
+          <div class="space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-slate-600">Check-in</span>
+              <span id="modalCheckIn" class="font-semibold"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Check-out</span>
+              <span id="modalCheckOut" class="font-semibold"></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Durasi</span>
+              <span id="modalDuration" class="font-bold"></span>
+            </div>
+            <div class="border-t border-slate-200 pt-2 mt-2"></div>
+            <div class="flex justify-between">
+              <span class="text-slate-600">Harga/Malam</span>
+              <span id="modalPricePerNight" class="font-semibold"></span>
+            </div>
+            <div class="flex justify-between text-base font-bold">
+              <span>Subtotal</span>
+              <span id="modalSubtotal"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Charges -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            Biaya Tambahan (Opsional)
+          </label>
+          <input type="hidden" id="additionalCharges" name="additional_charges" value="0">
+          <input 
+            type="text" 
+            id="additionalChargesDisplay"
+            placeholder="0"
+            oninput="formatCurrency(this, 'additionalCharges')"
+            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+        </div>
+
+        <!-- Paid Amount -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            Jumlah Dibayar <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs">WAJIB</span>
+          </label>
+          <input type="hidden" id="paidAmount" name="paid_amount" required>
+          <input 
+            type="text" 
+            id="paidAmountDisplay"
+            placeholder="Masukkan jumlah pembayaran"
+            oninput="formatCurrency(this, 'paidAmount')"
+            required
+            class="w-full px-4 py-3 border-2 border-yellow-300 bg-yellow-50 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+        </div>
+
+        <!-- Cashier -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            Nama Kasir <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs">WAJIB</span>
+          </label>
+          <select id="modalCashierName" name="cashier_name" required class="w-full px-4 py-3 border-2 border-yellow-300 bg-yellow-50 rounded-xl">
+            <option value="">-- Pilih Kasir --</option>
+          </select>
+        </div>
+
+        <!-- Shift -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            Shift <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs">WAJIB</span>
+          </label>
+          <select name="shift" required class="w-full px-4 py-3 border-2 border-yellow-300 bg-yellow-50 rounded-xl">
+            @php
+              $hour = now()->hour;
+              $currentShift = ($hour >= 7 && $hour < 19) ? 'Pagi' : 'Malam';
+            @endphp
+            <option value="Pagi" {{ $currentShift === 'Pagi' ? 'selected' : '' }}>☀️ Pagi (07:00 - 19:00)</option>
+            <option value="Malam" {{ $currentShift === 'Malam' ? 'selected' : '' }}>🌙 Malam (19:00 - 07:00)</option>
+          </select>
+        </div>
+
+        <!-- Total & Change -->
+        <div class="bg-emerald-50 p-4 rounded-xl space-y-2">
+          <div class="flex justify-between text-lg font-bold">
+            <span>TOTAL</span>
+            <span id="modalGrandTotal" class="text-emerald-700"></span>
+          </div>
+          <div class="flex justify-between text-base">
+            <span class="text-slate-600">Kembalian</span>
+            <span id="modalChangeAmount" class="font-bold text-emerald-700">Rp 0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="sticky bottom-0 bg-slate-50 border-t border-slate-200 p-6 flex gap-3">
+        <button type="button" onclick="closeCheckoutModal()" class="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition">
+          Batal
+        </button>
+        <button type="submit" class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition">
+          <i class="fas fa-check mr-2"></i>
+          Konfirmasi Check-out
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 @endsection
