@@ -41,11 +41,36 @@
       <div>
         <label class="block text-sm font-medium text-slate-700 mb-1.5">Jumlah (Rp) <span class="text-red-500">*</span></label>
         <div class="relative">
-          <span class="absolute left-3 top-2 text-slate-600 font-medium text-sm">Rp</span>
-          <input type="number" name="amount" step="1" value="{{ old('amount') }}" required class="w-full px-3 py-2 pl-9 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent {{ $errors->has('amount') ? 'border-red-500' : '' }}" placeholder="50000">
+          <span class="absolute left-3 top-2 text-slate-600 font-medium text-sm pointer-events-none">Rp</span>
+          <input 
+            type="text" 
+            id="amount_display" 
+            class="w-full px-3 py-2 pl-9 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent {{ $errors->has('amount') ? 'border-red-500' : '' }}" 
+            placeholder="50.000"
+            value="{{ old('amount') ? number_format(old('amount'), 0, ',', '.') : '' }}"
+            oninput="formatRupiahInput(this, 'amount')">
+          <input type="hidden" name="amount" id="amount" value="{{ old('amount', '') }}" required>
         </div>
         @error('amount')<span class="block mt-1 text-xs text-red-600"><i class="fas fa-times-circle"></i> {{ $message }}</span>@enderror
       </div>
+
+      <script>
+        function formatRupiahInput(input, hiddenId) {
+          let value = input.value.replace(/\D/g, '');
+          let formatted = '';
+          if (value) {
+            let reversed = value.split('').reverse().join('');
+            for (let i = 0; i < reversed.length; i++) {
+              if (i > 0 && i % 3 === 0) {
+                formatted = '.' + formatted;
+              }
+              formatted = reversed[i] + formatted;
+            }
+          }
+          input.value = formatted;
+          document.getElementById(hiddenId).value = value || '';
+        }
+      </script>
 
       <!-- Tanggal -->
       <div>

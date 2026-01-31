@@ -4,7 +4,7 @@
 <div class="h-full">
   <!-- Header -->
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-slate-800">Manajemen Kamar</h1>
+    <h1 class="text-2xl md:text-3xl font-bold text-slate-800">Manajemen Kamar</h1>
     <p class="text-slate-500 mt-2 text-base">Kelola dan pantau status kamar hotel</p>
   </div>
 
@@ -25,57 +25,57 @@
   <!-- SECTION 1: CARD STATUS SUMMARY -->
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
     <!-- Total Kamar -->
-    <div class="bg-gradient-to-br from-blue-50 to-blue-100 hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border-2 border-blue-200">
-      <div class="flex items-start justify-between gap-4">
+    <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+      <div class="flex items-center justify-between gap-2">
         <div class="flex-1">
-          <p class="text-blue-700 text-sm font-semibold mb-2">Total Kamar</p>
-          <p class="text-4xl font-bold text-blue-900">{{ $summary['total'] }}</p>
-          <p class="text-sm text-blue-600 mt-2">Kapasitas Hotel</p>
+          <p class="text-slate-500 text-xs font-medium">Total Kamar</p>
+          <p class="text-2xl font-bold text-slate-800 my-1">{{ $summary['total'] }}</p>
+          <p class="text-xs text-slate-400">Kapasitas Hotel</p>
         </div>
-        <div class="w-14 h-14 bg-blue-500 rounded-xl flex items-center justify-center shadow-md">
-          <i class="fas fa-door-open text-2xl text-white"></i>
+        <div class="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-door-open text-lg text-teal-500"></i>
         </div>
       </div>
     </div>
 
     <!-- Kamar Tersedia -->
-    <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border-2 border-emerald-200">
-      <div class="flex items-start justify-between gap-4">
+    <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+      <div class="flex items-center justify-between gap-2">
         <div class="flex-1">
-          <p class="text-emerald-700 text-sm font-semibold mb-2">Kamar Tersedia</p>
-          <p class="text-4xl font-bold text-emerald-900">{{ $summary['available'] }}</p>
-          <p class="text-sm text-emerald-600 mt-2">Siap Ditempati</p>
+          <p class="text-slate-500 text-xs font-medium">Kamar Tersedia</p>
+          <p class="text-2xl font-bold text-slate-800 my-1">{{ $summary['available'] }}</p>
+          <p class="text-xs text-slate-400">Siap Ditempati</p>
         </div>
-        <div class="w-14 h-14 bg-emerald-500 rounded-xl flex items-center justify-center shadow-md">
-          <i class="fas fa-check-circle text-2xl text-white"></i>
+        <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-check-circle text-lg text-emerald-500"></i>
         </div>
       </div>
     </div>
 
     <!-- Kamar Terisi -->
-    <div class="bg-gradient-to-br from-rose-50 to-rose-100 hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border-2 border-rose-200">
-      <div class="flex items-start justify-between gap-4">
+    <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+      <div class="flex items-center justify-between gap-2">
         <div class="flex-1">
-          <p class="text-rose-700 text-sm font-semibold mb-2">Kamar Terisi</p>
-          <p class="text-4xl font-bold text-rose-900">{{ $summary['occupied'] }}</p>
-          <p class="text-sm text-rose-600 mt-2">Sedang Dihuni</p>
+          <p class="text-slate-500 text-xs font-medium">Kamar Terisi</p>
+          <p class="text-2xl font-bold text-slate-800 my-1">{{ $summary['occupied'] }}</p>
+          <p class="text-xs text-slate-400">Sedang Dihuni</p>
         </div>
-        <div class="w-14 h-14 bg-rose-500 rounded-xl flex items-center justify-center shadow-md">
-          <i class="fas fa-user text-2xl text-white"></i>
+        <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-user text-lg text-rose-500"></i>
         </div>
       </div>
     </div>
 
     <!-- Perlu Cleaning -->
-    <div class="bg-gradient-to-br from-amber-50 to-amber-100 hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border-2 border-amber-200">
-      <div class="flex items-start justify-between gap-4">
+    <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+      <div class="flex items-center justify-between gap-2">
         <div class="flex-1">
-          <p class="text-amber-700 text-sm font-semibold mb-2">Perlu Cleaning</p>
-          <p class="text-4xl font-bold text-amber-900">{{ $summary['maintenance'] }}</p>
-          <p class="text-sm text-amber-600 mt-2">Kotor/Maintenance</p>
+          <p class="text-slate-500 text-xs font-medium">Perlu Cleaning</p>
+          <p class="text-2xl font-bold text-slate-800 my-1">{{ $summary['maintenance'] }}</p>
+          <p class="text-xs text-slate-400">Butuh Pembersihan</p>
         </div>
-        <div class="w-14 h-14 bg-amber-500 rounded-xl flex items-center justify-center shadow-md">
-          <i class="fas fa-broom text-2xl text-white"></i>
+        <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
+          <i class="fas fa-broom text-lg text-amber-600"></i>
         </div>
       </div>
     </div>
@@ -134,16 +134,40 @@
             <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
             <div class="text-sm opacity-80 mt-2 font-semibold">Rp {{ number_format($room->price_per_night, 0, ',', '.') }}</div>
           </a>
+        @elseif($room->status === 'occupied')
+          @php
+            $activeTransaction = \App\Models\Transaction::where('room_id', $room->id)->where('status', 'active')->first();
+          @endphp
+          @if($activeTransaction)
+            <a href="{{ route('transactions.checkout', $activeTransaction->id) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
+              <div class="text-3xl mb-3 font-bold"><i class="fas fa-user"></i></div>
+              <div class="font-bold text-base">{{ $room->room_number }}</div>
+              <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
+              <div class="text-xs opacity-80 mt-2 font-semibold">{{ $activeTransaction->guest_name }}</div>
+              <div class="text-xs opacity-70 mt-1">Klik untuk Checkout</div>
+            </a>
+          @else
+            <div class="{{ $statusColor }} text-white rounded-xl p-5 text-center shadow-lg opacity-75">
+              <div class="text-3xl mb-3 font-bold"><i class="fas fa-user"></i></div>
+              <div class="font-bold text-base">{{ $room->room_number }}</div>
+              <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
+              <div class="text-sm opacity-80 mt-2 font-semibold">{{ $statusText }}</div>
+            </div>
+          @endif
         @elseif($room->status === 'dirty')
-          <div class="{{ $statusColor }} text-white rounded-xl p-5 text-center shadow-lg opacity-90">
-            <div class="text-3xl mb-3 font-bold"><i class="fas fa-broom"></i></div>
-            <div class="font-bold text-base">{{ $room->room_number }}</div>
-            <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
-            <div class="text-sm opacity-80 mt-2 font-semibold">{{ $statusText }}</div>
-          </div>
+          <form method="POST" action="{{ route('rooms.markClean', $room->id) }}" class="w-full confirm-form" data-confirm-title="Konfirmasi Cleaning" data-confirm-message="Apakah kamar {{ $room->room_number }} sudah bersih dan siap ditempati?">
+            @csrf
+            <button type="submit" class="{{ $statusColor }} text-white rounded-xl p-5 text-center shadow-lg hover:shadow-2xl transform hover:-translate-y-1 transition w-full cursor-pointer">
+              <div class="text-3xl mb-3 font-bold"><i class="fas fa-broom"></i></div>
+              <div class="font-bold text-base">{{ $room->room_number }}</div>
+              <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
+              <div class="text-xs opacity-80 mt-2 font-semibold">Perlu Cleaning</div>
+              <div class="text-xs opacity-70 mt-1">Klik untuk Mark Clean</div>
+            </button>
+          </form>
         @else
-          <div class="{{ $statusColor }} text-white rounded-xl p-5 text-center shadow-lg opacity-75">
-            <div class="text-3xl mb-3 font-bold"><i class="fas fa-door-open"></i></div>
+          <div class="{{ $statusColor }} text-white rounded-xl p-5 text-center shadow-lg opacity-75 cursor-not-allowed">
+            <div class="text-3xl mb-3 font-bold"><i class="fas fa-wrench"></i></div>
             <div class="font-bold text-base">{{ $room->room_number }}</div>
             <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
             <div class="text-sm opacity-80 mt-2 font-semibold">{{ $statusText }}</div>
@@ -209,7 +233,7 @@
                     <span style="vertical-align: middle;">Edit</span>
                   </a>
 
-                  <form method="POST" action="{{ route('rooms.destroy', $room) }}" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus kamar ini?')">
+                  <form method="POST" action="{{ route('rooms.destroy', $room) }}" class="inline-block confirm-form" data-confirm-title="Konfirmasi Hapus Kamar" data-confirm-message="Yakin ingin menghapus kamar {{ $room->room_number }}? Data tidak dapat dikembalikan.">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs px-3 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md" style="line-height: 1; width: 75px; justify-content: center;">

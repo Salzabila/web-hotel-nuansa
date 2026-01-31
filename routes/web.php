@@ -7,6 +7,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\CashierController;
+use App\Http\Controllers\ReportExportController;
 use Illuminate\Support\Facades\Route;
 
 // Auth
@@ -23,6 +24,12 @@ Route::middleware('auth')->group(function () {
     Route::get('transactions/{id}', [TransactionController::class,'show'])->name('transactions.show');
     Route::get('transactions/checkin/{room}', [TransactionController::class,'create'])->name('transactions.create');
     Route::post('transactions/checkin/{room}', [TransactionController::class,'store'])->name('transactions.store');
+    
+    // Express Check-in Routes
+    Route::get('transactions/{id}/receipt', [TransactionController::class,'showReceipt'])->name('transactions.receipt');
+    Route::get('transactions/{id}/guest-book', [TransactionController::class,'showGuestBook'])->name('transactions.guestBook');
+    Route::put('transactions/{id}/update-guest-data', [TransactionController::class,'updateGuestData'])->name('transactions.updateGuestData');
+    
     Route::post('transactions/{id}/extend', [TransactionController::class,'extend'])->name('transactions.extend');
     Route::get('transactions/checkout/{id}', [TransactionController::class,'showCheckout'])->name('transactions.checkout');
     Route::post('transactions/checkout/{id}', [TransactionController::class,'processCheckout'])->name('transactions.processCheckout');
@@ -58,6 +65,12 @@ Route::middleware('auth')->group(function () {
         Route::get('reports/transactions', [\App\Http\Controllers\ReportController::class, 'transactions'])->name('reports.transactions');
         Route::get('reports/feedback', [\App\Http\Controllers\ReportController::class, 'feedback'])->name('reports.feedback');
         Route::get('reports/export-transactions', [\App\Http\Controllers\ReportController::class, 'exportTransactions'])->name('reports.exportTransactions');
+        
+        // Export Routes (PDF & Excel)
+        Route::get('export/transactions-pdf', [ReportExportController::class, 'exportTransactionsPDF'])->name('export.transactions.pdf');
+        Route::get('export/transactions-excel', [ReportExportController::class, 'exportTransactionsExcel'])->name('export.transactions.excel');
+        Route::get('export/financial-pdf', [ReportExportController::class, 'exportFinancialPDF'])->name('export.financial.pdf');
+        Route::get('export/financial-excel', [ReportExportController::class, 'exportFinancialExcel'])->name('export.financial.excel');
         
         // Recapitulation (admin)
         Route::get('recaps/daily', [\App\Http\Controllers\RecapController::class, 'daily'])->name('recaps.daily');

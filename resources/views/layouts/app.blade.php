@@ -711,16 +711,6 @@
                 </div>
                 <div class="nav-text">Rekap Harian</div>
               </a>
-
-              <a href="{{ route('feedbacks.index') }}" class="nav-item {{ request()->routeIs('feedbacks.*') ? 'active' : '' }}">
-                <div class="nav-icon">
-                  <i class="fas fa-comment-alt"></i>
-                </div>
-                <div class="nav-text">Feedback</div>
-                @if(\App\Models\Feedback::count() > 0)
-                  <div class="badge">{{ \App\Models\Feedback::count() }}</div>
-                @endif
-              </a>
             </div>
           @endif
         @endauth
@@ -741,12 +731,6 @@
           <button id="sidebar-toggle" class="md:hidden text-gray-700 hover:text-gray-900 p-2">
             <i class="fas fa-bars text-xl"></i>
           </button>
-          <div class="hidden sm:block">
-            <h2 class="text-base font-semibold text-gray-900">Selamat Datang</h2>
-            @auth
-              <p class="text-sm font-medium text-gray-600">{{ auth()->user()->name }} · <span class="text-blue-600 uppercase text-xs font-bold">{{ auth()->user()->role }}</span></p>
-            @endauth
-          </div>
         </div>
         
         <!-- Right Section: Date + Profile Widget -->
@@ -796,18 +780,6 @@
               <div class="px-4 py-3 border-b border-slate-100">
                 <p class="text-sm font-bold text-slate-800">{{ auth()->user()->name }}</p>
                 <p class="text-xs text-slate-500 mt-0.5">{{ auth()->user()->email ?? 'admin@hotelnuansa.com' }}</p>
-              </div>
-
-              <!-- Menu Items -->
-              <div class="py-2">
-                <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  <i class="fas fa-user-circle w-5 text-slate-400"></i>
-                  <span class="font-medium">Profile Saya</span>
-                </a>
-                <a href="#" class="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors">
-                  <i class="fas fa-cog w-5 text-slate-400"></i>
-                  <span class="font-medium">Pengaturan</span>
-                </a>
               </div>
 
               <!-- Logout -->
@@ -872,7 +844,100 @@
     </div>
   </div>
 
+  <!-- Confirmation Modal (Reusable) -->
+  <div id="confirmModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4" style="backdrop-filter: blur(4px);">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full transform transition-all scale-95" id="confirmModalContent">
+      <div class="p-6 border-b border-slate-200">
+        <div class="flex items-center gap-4">
+          <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-question-circle text-3xl text-blue-600"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-slate-800" id="confirmModalTitle">Konfirmasi Tindakan</h3>
+            <p class="text-sm text-slate-500 mt-1">Pastikan data sudah benar</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="p-6">
+        <p class="text-slate-700 text-base leading-relaxed" id="confirmModalMessage">
+          Apakah Anda yakin ingin melanjutkan tindakan ini?
+        </p>
+      </div>
+      
+      <div class="p-6 bg-slate-50 rounded-b-2xl flex gap-3">
+        <button type="button" onclick="closeConfirmModal()" class="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition-all">
+          <i class="fas fa-times mr-2"></i>Tidak, Batal
+        </button>
+        <button type="button" id="confirmModalYes" class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold rounded-xl transition-all shadow-lg">
+          <i class="fas fa-check mr-2"></i>Ya, Lanjutkan
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // Confirmation Modal Functions
+    let pendingFormSubmit = null;
+    
+    function showConfirmModal(title, message, onConfirm) {
+      document.getElementById('confirmModalTitle').textContent = title;
+      document.getElementById('confirmModalMessage').textContent = message;
+      document.getElementById('confirmModal').classList.remove('hidden');
+      document.getElementById('confirmModalContent').classList.add('scale-100');
+      document.getElementById('confirmModalContent').classList.remove('scale-95');
+      
+      // Set confirm action
+      document.getElementById('confirmModalYes').onclick = function() {
+        closeConfirmModal();
+        if (onConfirm) onConfirm();
+      };
+    }
+    
+    function closeConfirmModal() {
+      document.getElementById('confirmModalContent').classList.add('scale-95');
+      document.getElementById('confirmModalContent').classList.remove('scale-100');
+      setTimeout(() => {
+        document.getElementById('confirmModal').classList.add('hidden');
+      }, 200);
+    }
+    
+    // Close modal when clicking outside
+    document.getElementById('confirmModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeConfirmModal();
+      }
+    });
+    
+    // Auto-attach confirmation to forms with class "confirm-form"
+    document.addEventListener('DOMContentLoaded', function() {
+      document.querySelectorAll('.confirm-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          const title = this.dataset.confirmTitle || 'Konfirmasi Tindakan';
+          const message = this.dataset.confirmMessage || 'Apakah Anda yakin data sudah benar dan ingin melanjutkan?';
+          
+          showConfirmModal(title, message, () => {
+            this.submit();
+          });
+        });
+      });
+      
+      // Auto-attach to buttons with class "confirm-button"
+      document.querySelectorAll('.confirm-button').forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const title = this.dataset.confirmTitle || 'Konfirmasi Tindakan';
+          const message = this.dataset.confirmMessage || 'Apakah Anda yakin ingin melanjutkan?';
+          const href = this.getAttribute('href');
+          
+          showConfirmModal(title, message, () => {
+            if (href) window.location.href = href;
+          });
+        });
+      });
+    });
+
     // Mobile sidebar toggle
     const sidebarToggle = document.getElementById('sidebarToggle');
     const sidebar = document.getElementById('sidebar');
@@ -924,6 +989,38 @@
     // Auto-print struk after checkout
     @if(session('print_struk'))
       window.open('{{ session('print_struk') }}', '_blank');
+    @endif
+    
+    // Auto-open struk in new tab after checkout (with popup blocker detection)
+    @if(session('open_struk'))
+      setTimeout(function() {
+        const strukWindow = window.open('{{ session('open_struk') }}', '_blank');
+        
+        // Check if popup was blocked
+        if (!strukWindow || strukWindow.closed || typeof strukWindow.closed === 'undefined') {
+          // Popup was blocked, show notification with manual button
+          const notification = document.createElement('div');
+          notification.innerHTML = `
+            <div style="position: fixed; top: 100px; left: 50%; transform: translateX(-50%); z-index: 9999; background: white; padding: 20px 30px; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); max-width: 500px; text-align: center; border: 3px solid #3b82f6;">
+              <div style="font-size: 18px; font-weight: bold; color: #1e293b; margin-bottom: 12px;">
+                <i class="fas fa-exclamation-triangle" style="color: #f59e0b; margin-right: 8px;"></i>
+                Popup Diblokir Browser
+              </div>
+              <p style="color: #64748b; margin-bottom: 20px; font-size: 14px;">
+                Browser memblokir pembukaan struk otomatis. Klik tombol di bawah untuk membuka struk:
+              </p>
+              <a href="{{ session('open_struk') }}" target="_blank" style="display: inline-block; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white; padding: 12px 32px; border-radius: 12px; text-decoration: none; font-weight: bold; font-size: 16px; box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);">
+                <i class="fas fa-receipt" style="margin-right: 8px;"></i>
+                Buka Struk Sekarang
+              </a>
+              <button onclick="this.parentElement.remove()" style="display: block; margin: 15px auto 0; background: transparent; border: none; color: #94a3b8; cursor: pointer; font-size: 13px; text-decoration: underline;">
+                Tutup
+              </button>
+            </div>
+          `;
+          document.body.appendChild(notification);
+        }
+      }, 500);
     @endif
   </script>
 

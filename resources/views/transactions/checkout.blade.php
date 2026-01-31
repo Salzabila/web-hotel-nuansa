@@ -31,7 +31,7 @@
       </ul>
     </div>
   @endif
-  <form method="POST" action="{{ route('transactions.processCheckout', $tx->id) }}">
+  <form method="POST" action="{{ route('transactions.processCheckout', $tx->id) }}" class="confirm-form" data-confirm-title="Konfirmasi Checkout" data-confirm-message="Pastikan pembayaran dan pengembalian jaminan sudah benar. Lanjutkan checkout?">
     @csrf
     
     <!-- Guest Information Card -->
@@ -72,7 +72,7 @@
         </div>
       @endif
 
-      <!-- KTP WARNING -->
+      <!-- JAMINAN IDENTITAS WARNING -->
       @if($tx->is_ktp_held)
         <div class="mt-6 bg-amber-50 border-2 border-amber-300 rounded-xl p-5">
           <div class="flex items-start gap-3">
@@ -80,10 +80,30 @@
               <i class="fas fa-exclamation-triangle text-white text-lg"></i>
             </div>
             <div class="flex-1">
-              <p class="text-base font-bold text-amber-900 mb-2">⚠️ PERHATIAN - JAMINAN KTP</p>
-              <p class="text-sm text-amber-800 leading-relaxed">
-                Mohon kembalikan <strong>KTP atas nama {{ $tx->guest_name }}</strong> kepada pelanggan sebelum menyelesaikan transaksi ini.
+              <p class="text-base font-bold text-amber-900 mb-2">⚠️ PERHATIAN - JAMINAN IDENTITAS</p>
+              <p class="text-sm text-amber-800 leading-relaxed mb-3">
+                Mohon kembalikan <strong>{{ $tx->guarantee_type ?? 'KTP' }} atas nama {{ $tx->guest_name }}</strong> kepada pelanggan sebelum menyelesaikan transaksi ini.
               </p>
+              
+              <!-- Checkbox Konfirmasi Pengembalian -->
+              <div class="bg-white border-2 border-amber-400 rounded-lg p-3 mt-3">
+                <div class="flex items-start gap-3">
+                  <input type="hidden" name="guarantee_returned" value="0">
+                  <input 
+                    type="checkbox" 
+                    name="guarantee_returned" 
+                    id="guarantee_returned" 
+                    value="1"
+                    class="w-5 h-5 text-amber-600 rounded cursor-pointer mt-0.5 flex-shrink-0" 
+                    required>
+                  <label for="guarantee_returned" class="text-sm font-bold text-amber-900 cursor-pointer flex-1">
+                    ✓ Saya sudah mengembalikan {{ $tx->guarantee_type ?? 'KTP' }} kepada pelanggan
+                    <p class="text-xs text-amber-700 font-normal mt-1">
+                      Wajib dicentang untuk melanjutkan checkout
+                    </p>
+                  </label>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -91,7 +111,7 @@
         <div class="mt-6 bg-slate-50 border border-slate-200 rounded-xl p-4">
           <p class="text-sm text-slate-600 flex items-center gap-2">
             <i class="fas fa-info-circle text-slate-400"></i>
-            Tidak ada jaminan KTP untuk transaksi ini.
+            Tidak ada jaminan identitas untuk transaksi ini.
           </p>
         </div>
       @endif

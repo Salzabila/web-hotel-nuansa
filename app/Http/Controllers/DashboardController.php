@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Room;
 use App\Models\Transaction;
+use App\Models\OperationalExpense;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -56,6 +57,24 @@ class DashboardController extends Controller
             $chartTransactions[] = $dailyTransactions;
         }
 
+        // Data untuk Pie Chart - Rekap Bulan Ini
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+        
+        $monthlyRevenue = Transaction::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->where('status', 'finished')
+            ->sum('total_price');
+            
+        $monthlyExpenses = OperationalExpense::whereBetween('expense_date', [$startOfMonth, $endOfMonth])
+            ->sum('amount');
+            
+        $monthlyTCCommission = Transaction::whereBetween('created_at', [$startOfMonth, $endOfMonth])
+            ->where('status', 'finished')
+            ->where('is_tc', true)
+            ->sum('tc_nominal');
+            
+        $monthlyProfit = $monthlyRevenue - ($monthlyExpenses + $monthlyTCCommission);
+
         return view('dashboard', compact(
             'rooms',
             'activeTransactions',
@@ -67,7 +86,11 @@ class DashboardController extends Controller
             'todayRevenue',
             'chartLabels',
             'chartData',
-            'chartTransactions'
+            'chartTransactions',
+            'monthlyRevenue',
+            'monthlyExpenses',
+            'monthlyTCCommission',
+            'monthlyProfit'
         ));
     }
 

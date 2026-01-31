@@ -170,6 +170,19 @@
             <span class="text-sm text-blue-800">Harga per Malam</span>
             <span class="text-sm font-semibold text-blue-900">Rp {{ number_format($tx->room->price_per_night, 0, ',', '.') }}</span>
           </div>
+          <div class="flex justify-between items-center">
+            <span class="text-sm text-blue-800">Metode Pembayaran</span>
+            <span class="text-sm font-semibold text-blue-900">
+              @if($tx->paymentMethod)
+                <span class="inline-flex items-center gap-1.5">
+                  <i class="fas fa-{{ $tx->paymentMethod->bank_name == 'Cash' ? 'money-bill-wave' : ($tx->paymentMethod->bank_name == 'QRIS' ? 'qrcode' : 'university') }} text-xs"></i>
+                  {{ $tx->paymentMethod->bank_name }}
+                </span>
+              @else
+                -
+              @endif
+            </span>
+          </div>
           
           <div class="border-t-2 border-blue-300 pt-4">
             <div class="flex justify-between items-center">
@@ -184,19 +197,19 @@
       <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
         <h3 class="text-sm font-bold text-slate-800 mb-4 uppercase tracking-wider">Aksi</h3>
         <div class="space-y-3">
-          <a href="{{ route('transactions.struk', $tx->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md">
+          <a href="{{ route('transactions.struk', $tx->id) }}" target="_blank" class="w-full flex items-center justify-center gap-2 text-white font-bold py-3 rounded-xl transition-all shadow-lg hover:shadow-xl" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); text-decoration: none;">
             <i class="fas fa-print"></i>
             Cetak Struk
           </a>
           
           @if($tx->status === 'active')
             <!-- Extend Stay Button -->
-            <button onclick="showExtendModal()" class="w-full flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md">
+            <button onclick="showExtendModal()" class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 rounded-xl transition-all shadow-md" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; cursor: pointer;">
               <i class="fas fa-calendar-plus"></i>
               Perpanjang Menginap
             </button>
             
-            <a href="{{ route('transactions.checkout', $tx->id) }}" class="w-full flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-xl transition-all shadow-md">
+            <a href="{{ route('transactions.checkout', $tx->id) }}" class="w-full flex items-center justify-center gap-2 text-white font-semibold py-3 rounded-xl transition-all shadow-md" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); text-decoration: none;">
               <i class="fas fa-sign-out-alt"></i>
               Check-out
             </a>

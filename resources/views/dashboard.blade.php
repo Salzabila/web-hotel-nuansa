@@ -1,112 +1,221 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="h-full">
-  <!-- Header -->
+<div class="container-fluid px-4 md:px-6 lg:px-8 py-6">
+  <!-- Header with Quick Actions -->
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-slate-800">Selamat datang, {{ auth()->user()->name }}! 👋</h1>
+      <p class="text-slate-500 mt-1 text-sm">Dashboard Hotel Nuansa</p>
+    </div>
+    <!-- Quick Actions -->
+    <div class="flex gap-3">
+      <a href="{{ route('transactions.index') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-all shadow-sm hover:shadow-md" aria-label="Transaksi">
+        <i class="fas fa-receipt"></i>
+        <span class="hidden md:inline">Transaksi</span>
+      </a>
+      <a href="{{ route('expenses.index') }}" class="inline-flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-lg transition-all shadow-sm hover:shadow-md" style="background-color: #f97316; hover:background-color: #ea580c;" aria-label="Pengeluaran">
+        <i class="fas fa-money-bill-wave"></i>
+        <span class="hidden md:inline">Pengeluaran</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-slate-800">Selamat datang, {{ auth()->user()->name }}! 👋</h1>
-    <p class="text-slate-500 mt-2 text-base">Dashboard Hotel Nuansa</p>
-  </div>
-
-  <!-- Summary Stats -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-    <!-- Stat Card 1: Teal -->
-    <div class="bg-white hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border border-slate-100">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
-          <p class="text-slate-500 text-sm font-medium mb-2">Total Kamar</p>
-          <p class="text-4xl font-bold text-slate-800">{{ $totalRooms }}</p>
-          <p class="text-sm text-slate-400 mt-2">Kapasitas Hotel</p>
-        </div>
-        <div class="w-14 h-14 bg-teal-50 rounded-xl flex items-center justify-center">
-          <i class="fas fa-door-open text-2xl text-teal-500"></i>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Total Kamar -->
+      <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex-1">
+            <p class="text-slate-500 text-xs font-medium">Total Kamar</p>
+            <p class="text-2xl font-bold text-slate-800 my-1">{{ $totalRooms }}</p>
+            <p class="text-xs text-slate-400">Kapasitas Hotel</p>
+          </div>
+          <div class="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-door-open text-lg text-teal-500"></i>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Stat Card 2: Emerald -->
-    <div class="bg-white hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border border-slate-100">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
-          <p class="text-slate-500 text-sm font-medium mb-2">Kamar Tersedia</p>
-          <p class="text-4xl font-bold text-slate-800">{{ $availableRooms }}</p>
-          <p class="text-sm text-slate-400 mt-2">Siap Ditempati</p>
-        </div>
-        <div class="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center">
-          <i class="fas fa-check-circle text-2xl text-emerald-500"></i>
+      <!-- Kamar Tersedia -->
+      <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex-1">
+            <p class="text-slate-500 text-xs font-medium">Kamar Tersedia</p>
+            <p class="text-2xl font-bold text-slate-800 my-1">{{ $availableRooms }}</p>
+            <p class="text-xs text-slate-400">Siap Ditempati</p>
+          </div>
+          <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-check-circle text-lg text-emerald-500"></i>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Stat Card 3: Rose -->
-    <div class="bg-white hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border border-slate-100">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
-          <p class="text-slate-500 text-sm font-medium mb-2">Kamar Terisi</p>
-          <p class="text-4xl font-bold text-slate-800">{{ $occupiedRooms }}</p>
-          <p class="text-sm text-slate-400 mt-2">Sedang Dihuni</p>
-        </div>
-        <div class="w-14 h-14 bg-rose-50 rounded-xl flex items-center justify-center">
-          <i class="fas fa-user text-2xl text-rose-500"></i>
+      <!-- Kamar Terisi -->
+      <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex-1">
+            <p class="text-slate-500 text-xs font-medium">Kamar Terisi</p>
+            <p class="text-2xl font-bold text-slate-800 my-1">{{ $occupiedRooms }}</p>
+            <p class="text-xs text-slate-400">Sedang Dihuni</p>
+          </div>
+          <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-user text-lg text-rose-500"></i>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Stat Card 4: Amber (Dirty) -->
-    <div class="bg-white hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border border-slate-100">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
-          <p class="text-slate-500 text-sm font-medium mb-2">Perlu Cleaning</p>
-          <p class="text-4xl font-bold text-slate-800">{{ $dirtyRooms }}</p>
-        </div>
-        <div class="w-14 h-14 bg-amber-50 rounded-xl flex items-center justify-center">
-          <i class="fas fa-broom text-2xl text-amber-600"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Stat Card 5: Blue -->
-    <div class="bg-white hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border border-slate-100">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
-          <p class="text-slate-500 text-sm font-medium mb-2">Omset Hari Ini</p>
-          <p class="text-2xl font-bold text-slate-800">Rp {{ number_format($todayRevenue, 0, ',', '.') }}</p>
-          <p class="text-sm text-slate-400 mt-2">Total Pendapatan</p>
-        </div>
-        <div class="w-14 h-14 bg-blue-50 rounded-xl flex items-center justify-center">
-          <i class="fas fa-money-bill-wave text-2xl text-blue-500"></i>
+      <!-- Perlu Cleaning -->
+      <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex-1">
+            <p class="text-slate-500 text-xs font-medium">Perlu Cleaning</p>
+            <p class="text-2xl font-bold text-slate-800 my-1">{{ $dirtyRooms }}</p>
+            <p class="text-xs text-slate-400">Butuh Pembersihan</p>
+          </div>
+          <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <i class="fas fa-broom text-lg text-amber-600"></i>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Bar Chart Section -->
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-    <!-- Revenue Chart -->
-    <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
-      <div class="mb-2">
-        <h2 class="text-sm font-bold text-slate-800">Grafik Pendapatan</h2>
-        <p class="text-slate-500 text-xs mt-0.5">Revenue 7 hari terakhir</p>
-      </div>
-      <div class="chart-container" style="position: relative; height: 250px; width: 100%;">
-        <canvas id="revenueChart"></canvas>
-      </div>
-    </div>
-
-    <!-- Transactions Chart -->
-    <div class="bg-white p-3 rounded-xl shadow-sm border border-slate-100">
-      <div class="mb-2">
-        <h2 class="text-sm font-bold text-slate-800">Grafik Transaksi</h2>
-        <p class="text-slate-500 text-xs mt-0.5">Jumlah transaksi selesai 7 hari terakhir</p>
-      </div>
-      <div class="chart-container" style="position: relative; height: 250px; width: 100%;">
-        <canvas id="transactionsChart"></canvas>
+  <!-- Financial Highlight -->
+  <div class="mb-8">
+    <div class="bg-blue-600 hover:shadow-xl transition-all duration-300 p-6 rounded-xl shadow-md border border-blue-500">
+      <div class="flex items-center justify-between">
+        <div class="flex-1">
+          <p class="text-blue-100 text-sm font-medium mb-2">Omset Hari Ini</p>
+          <p class="text-3xl md:text-4xl font-black text-white mb-1">Rp {{ number_format($todayRevenue, 0, ',', '.') }}</p>
+          <p class="text-blue-100 text-sm">Total pendapatan hari ini</p>
+        </div>
+        <div class="w-16 h-16 md:w-20 md:h-20 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
+          <i class="fas fa-money-bill-wave text-4xl text-white"></i>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Room Grid -->
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+  <!-- Main Content Grid: Charts + Financial Panel -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
+    <!-- LEFT: Charts Area (col-md-8) -->
+    <div class="lg:col-span-8">
+      <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-200">
+        <!-- Tabs Navigation -->
+        <div class="flex gap-2 mb-4 border-b border-slate-200 pb-3">
+          <button onclick="switchTab('revenue')" id="tab-revenue" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-blue-500 text-white">
+            <i class="fas fa-chart-line mr-2"></i>Grafik Pendapatan
+          </button>
+          <button onclick="switchTab('transactions')" id="tab-transactions" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
+            <i class="fas fa-chart-bar mr-2"></i>Grafik Transaksi
+          </button>
+        </div>
+
+        <!-- Revenue Chart Tab -->
+        <div id="content-revenue" class="tab-content">
+          <div class="mb-3">
+            <h2 class="text-lg font-bold text-slate-800">Pendapatan Harian</h2>
+            <p class="text-slate-500 text-sm mt-0.5">Total pendapatan 7 hari terakhir</p>
+          </div>
+          <div class="relative w-full h-64 md:h-80">
+            @if(empty($chartData) || array_sum($chartData) == 0)
+              <!-- Empty State -->
+              <div class="flex flex-col items-center justify-center h-full text-slate-400">
+                <i class="fas fa-chart-line text-6xl mb-4 opacity-20"></i>
+                <p class="text-lg font-semibold text-slate-500">Belum ada data pendapatan</p>
+                <p class="text-sm text-slate-400 mt-1">Data akan muncul setelah ada transaksi selesai</p>
+              </div>
+            @else
+              <canvas id="revenueChart"></canvas>
+            @endif
+          </div>
+        </div>
+
+        <!-- Transactions Chart Tab -->
+        <div id="content-transactions" class="tab-content hidden">
+          <div class="mb-3">
+            <h2 class="text-lg font-bold text-slate-800">Transaksi Harian</h2>
+            <p class="text-slate-500 text-sm mt-0.5">Jumlah transaksi selesai 7 hari terakhir</p>
+          </div>
+          <div class="relative w-full h-64 md:h-80">
+            @if(empty($chartTransactions) || array_sum($chartTransactions) == 0)
+              <!-- Empty State -->
+              <div class="flex flex-col items-center justify-center h-full text-slate-400">
+                <i class="fas fa-chart-bar text-6xl mb-4 opacity-20"></i>
+                <p class="text-lg font-semibold text-slate-500">Belum ada data transaksi</p>
+                <p class="text-sm text-slate-400 mt-1">Data akan muncul setelah ada transaksi selesai</p>
+              </div>
+            @else
+              <canvas id="transactionsChart"></canvas>
+            @endif
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Financial Recap Panel (col-md-4) -->
+    <div class="lg:col-span-4">
+      <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-200 h-full">
+        <div class="mb-4">
+          <h2 class="text-lg font-bold text-slate-800">Rekap Bulan Ini</h2>
+          <p class="text-slate-500 text-sm mt-0.5">{{ \Carbon\Carbon::now()->format('F Y') }}</p>
+        </div>
+        
+        <div class="relative w-full h-48 mb-4">
+          @if($monthlyRevenue == 0 && $monthlyExpenses == 0 && $monthlyTCCommission == 0)
+            <!-- Empty State -->
+            <div class="flex flex-col items-center justify-center h-full text-slate-400">
+              <i class="fas fa-chart-pie text-5xl mb-3 opacity-20"></i>
+              <p class="text-sm font-semibold text-slate-500">Belum ada data bulan ini</p>
+            </div>
+          @else
+            <canvas id="monthlyPieChart"></canvas>
+          @endif
+        </div>
+        
+        <!-- Enhanced Legend with Better Spacing -->
+        <div class="space-y-3 mt-5">
+          <div class="flex items-center justify-between p-3 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors">
+            <div class="flex items-center gap-2.5">
+              <span class="w-3 h-3 bg-emerald-500 rounded-full shadow-sm"></span>
+              <span class="text-sm font-semibold text-slate-700">Pendapatan</span>
+            </div>
+            <span class="text-sm font-bold text-emerald-700">Rp {{ number_format($monthlyRevenue, 0, ',', '.') }}</span>
+          </div>
+          
+          <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors">
+            <div class="flex items-center gap-2.5">
+              <span class="w-3 h-3 bg-orange-500 rounded-full shadow-sm"></span>
+              <span class="text-sm font-semibold text-slate-700">Pengeluaran</span>
+            </div>
+            <span class="text-sm font-bold text-orange-700">Rp {{ number_format($monthlyExpenses, 0, ',', '.') }}</span>
+          </div>
+          
+          <div class="flex items-center justify-between p-3 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors">
+            <div class="flex items-center gap-2.5">
+              <span class="w-3 h-3 bg-purple-500 rounded-full shadow-sm"></span>
+              <span class="text-sm font-semibold text-slate-700">Komisi TC</span>
+            </div>
+            <span class="text-sm font-bold text-purple-700">Rp {{ number_format($monthlyTCCommission, 0, ',', '.') }}</span>
+          </div>
+          
+          <!-- Laba Bersih -->
+          <div class="flex items-center justify-between p-4 {{ $monthlyProfit >= 0 ? 'bg-blue-50 border-2 border-blue-200' : 'bg-red-50 border-2 border-red-200' }} rounded-xl mt-4">
+            <div class="flex items-center gap-2.5">
+              <span class="w-4 h-4 {{ $monthlyProfit >= 0 ? 'bg-blue-500' : 'bg-red-500' }} rounded-full shadow-md"></span>
+              <span class="text-base font-bold {{ $monthlyProfit >= 0 ? 'text-blue-800' : 'text-red-800' }}">Laba Bersih</span>
+            </div>
+            <span class="text-lg font-black {{ $monthlyProfit >= 0 ? 'text-blue-800' : 'text-red-800' }}">{{ $monthlyProfit >= 0 ? '+' : '' }}Rp {{ number_format($monthlyProfit, 0, ',', '.') }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Master Kamar Section (with proper top margin) -->
+  <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 mt-8">
     <div class="flex justify-between items-center mb-6">
       <div>
         <h2 class="text-xl font-bold text-slate-800">Master Kamar</h2>
@@ -136,15 +245,15 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
       @foreach($rooms->take(8) as $room)
         @php
           $statusColor = match($room->status) {
-            'available' => 'bg-gradient-to-br from-green-400 to-green-600 hover:from-green-500 hover:to-green-700',
-            'occupied' => 'bg-gradient-to-br from-red-400 to-red-600 hover:from-red-500 hover:to-red-700',
-            'dirty' => 'bg-gradient-to-br from-gray-400 to-gray-500 hover:from-gray-500 hover:to-gray-600',
-            'maintenance' => 'bg-gradient-to-br from-yellow-400 to-yellow-600 hover:from-yellow-500 hover:to-yellow-700',
-            default => 'bg-gradient-to-br from-gray-400 to-gray-600'
+            'available' => 'bg-green-500 hover:bg-green-600',
+            'occupied' => 'bg-red-500 hover:bg-red-600',
+            'dirty' => 'bg-slate-400 hover:bg-slate-500',
+            'maintenance' => 'bg-yellow-500 hover:bg-yellow-600',
+            default => 'bg-slate-500'
           };
           $statusText = match($room->status) {
             'available' => 'Tersedia',
@@ -153,16 +262,17 @@
             'maintenance' => 'Pemeliharaan',
             default => 'Unknown'
           };
+          
         @endphp
         @if($room->status === 'available')
-          <a href="{{ route('transactions.create', $room->id) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition shadow-lg hover:shadow-2xl transform hover:-translate-y-1">
+          <a href="{{ route('transactions.create', $room->id) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 cursor-pointer" aria-label="Book room {{ $room->room_number }}">
             <div class="text-3xl mb-3 font-bold"><i class="fas fa-door-open"></i></div>
             <div class="font-bold text-base">{{ $room->room_number }}</div>
             <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
             <div class="text-sm opacity-80 mt-2 font-semibold">Rp {{ number_format($room->price_per_night, 0, ',', '.') }}</div>
           </a>
         @else
-          <a href="{{ route('rooms.edit', $room) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition shadow-lg hover:shadow-2xl transform hover:-translate-y-1 cursor-pointer">
+          <a href="{{ route('rooms.edit', $room) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 cursor-pointer" aria-label="Edit room {{ $room->room_number }}">
             <div class="text-3xl mb-3 font-bold"><i class="fas fa-door-open"></i></div>
             <div class="font-bold text-base">{{ $room->room_number }}</div>
             <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
@@ -174,10 +284,10 @@
   </div>
 
   <!-- Active Transactions -->
-  <div class="card p-8 rounded-2xl bg-white shadow-lg">
-    <div class="mb-8">
-      <h2 class="text-3xl font-bold text-gray-900">Transaksi Aktif</h2>
-      <p class="text-gray-600 text-sm mt-2">Daftar pelanggan yang sedang menginap</p>
+  <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 mt-8">
+    <div class="mb-6">
+      <h2 class="text-xl md:text-2xl font-bold text-slate-800">Transaksi Aktif</h2>
+      <p class="text-slate-500 text-sm mt-1">Daftar pelanggan yang sedang menginap</p>
     </div>
     
     @php
@@ -192,7 +302,7 @@
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
           <thead>
-            <tr class="border-b-2 border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
+            <tr class="border-b-2 border-slate-200 bg-slate-50">
               <th class="text-left py-5 px-6 font-bold text-gray-900">Invoice</th>
               <th class="text-left py-5 px-6 font-bold text-gray-900">Pelanggan</th>
               <th class="text-left py-5 px-6 font-bold text-gray-900">Kamar</th>
@@ -204,7 +314,7 @@
           </thead>
           <tbody class="divide-y divide-gray-100">
             @foreach($activeTransactions as $tx)
-              <tr class="hover:bg-blue-50 transition-colors duration-150 border-b border-gray-100 last:border-0">
+              <tr class="hover:bg-slate-50 transition-colors duration-200 border-b border-slate-100 last:border-0">
                 <td class="py-5 px-6 font-bold text-blue-600 text-base">{{ $tx->invoice_code }}</td>
                 <td class="py-5 px-6 text-gray-900 font-semibold">{{ $tx->guest_name }}</td>
                 <td class="py-5 px-6 text-gray-900 font-medium">{{ $tx->room->room_number }}</td>
@@ -240,167 +350,239 @@
 <!-- Chart.js Library -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-  // Revenue Chart
-  const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-  const revenueChart = new Chart(revenueCtx, {
-    type: 'bar',
-    data: {
-      labels: {!! json_encode($chartLabels) !!},
-      datasets: [{
-        label: 'Pendapatan (Rp)',
-        data: {!! json_encode($chartData) !!},
-        backgroundColor: 'rgba(59, 130, 246, 0.8)',
-        borderColor: 'rgba(59, 130, 246, 1)',
-        borderWidth: 2,
-        borderRadius: {
-          topLeft: 8,
-          topRight: 8,
-          bottomLeft: 0,
-          bottomRight: 0
-        },
-        borderSkipped: false,
-        maxBarThickness: 50,
-        categoryPercentage: 0.8,
-        barPercentage: 0.9
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          padding: 12,
-          titleFont: {
-            size: 14,
-            weight: 'bold'
-          },
-          bodyFont: {
-            size: 13
-          },
-          callbacks: {
-            label: function(context) {
-              return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            callback: function(value) {
-              return 'Rp ' + (value / 1000).toFixed(0) + 'k';
-            },
-            font: {
-              size: 11
-            },
-            padding: 10
-          },
-          grid: {
-            color: 'rgba(200, 200, 200, 0.2)',
-            borderDash: [5, 5],
-            drawBorder: false
-          }
-        },
-        x: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            font: {
-              size: 11,
-              weight: '600'
-            }
-          }
-        }
-      }
+  document.addEventListener('DOMContentLoaded', function() {
+    // ===== STEP 1: Check if Chart.js Library is Loaded =====
+    if (typeof Chart === 'undefined') {
+      console.error("❌ Chart.js Library NOT FOUND!");
+      alert("Error: Chart.js belum terinstall atau gagal dimuat.");
+      return;
     }
-  });
+    console.log("✅ Chart.js Library loaded successfully.");
 
-  // Transactions Chart
-  const transactionsCtx = document.getElementById('transactionsChart').getContext('2d');
-  const transactionsChart = new Chart(transactionsCtx, {
-    type: 'bar',
-    data: {
-      labels: {!! json_encode($chartLabels) !!},
-      datasets: [{
-        label: 'Jumlah Transaksi',
-        data: {!! json_encode($chartTransactions) !!},
-        backgroundColor: 'rgba(16, 185, 129, 0.8)',
-        borderColor: 'rgba(16, 185, 129, 1)',
-        borderWidth: 2,
-        borderRadius: {
-          topLeft: 8,
-          topRight: 8,
-          bottomLeft: 0,
-          bottomRight: 0
+    // ===== STEP 2: REVENUE CHART (DUMMY DATA) =====
+    const revenueCanvas = document.getElementById('revenueChart');
+    if (revenueCanvas) {
+      console.log("✅ Revenue Canvas element found.");
+      const revenueCtx = revenueCanvas.getContext('2d');
+      
+      const revenueChart = new Chart(revenueCtx, {
+        type: 'bar',
+        data: {
+          // DUMMY DATA - Hardcoded untuk testing
+          labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+          datasets: [{
+            label: 'Pendapatan Test (Dummy Data)',
+            data: [500000, 750000, 300000, 900000, 1200000, 600000, 850000], // Angka Manual
+            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 2,
+            borderRadius: 5
+          }]
         },
-        borderSkipped: false,
-        maxBarThickness: 50,
-        categoryPercentage: 0.8,
-        barPercentage: 0.9
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        tooltip: {
-          enabled: true,
-          mode: 'index',
-          intersect: false,
-          backgroundColor: 'rgba(0, 0, 0, 0.8)',
-          padding: 12,
-          titleFont: {
-            size: 13
-          },
-          bodyFont: {
-            size: 14,
-            weight: 'bold'
-          },
-          callbacks: {
-            label: function(context) {
-              return context.parsed.y + ' transaksi';
-            }
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          ticks: {
-            stepSize: 1,
-            font: {
-              size: 11
+        options: {
+          responsive: true,
+          maintainAspectRatio: false, // WAJIB: Agar tinggi mengikuti container
+          plugins: {
+            legend: {
+              display: true, // Tampilkan legend
+              position: 'top',
+              labels: {
+                font: { size: 12, weight: 'bold' }
+              }
             },
-            padding: 10
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: { size: 14, weight: 'bold' },
+              bodyFont: { size: 13 },
+              callbacks: {
+                label: function(context) {
+                  return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
+                }
+              }
+            }
           },
-          grid: {
-            color: 'rgba(200, 200, 200, 0.2)',
-            borderDash: [5, 5],
-            drawBorder: false
-          }
-        },
-        x: {
-          grid: {
-            display: false
-          },
-          ticks: {
-            font: {
-              size: 11,
-              weight: '600'
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return 'Rp ' + (value / 1000).toFixed(0) + 'k';
+                },
+                font: { size: 11 }
+              },
+              grid: {
+                color: 'rgba(200, 200, 200, 0.2)',
+                borderDash: [5, 5]
+              }
+            },
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { size: 11, weight: '600' }
+              }
             }
           }
         }
-      }
+      });
+      console.log("✅ Revenue Chart rendered with DUMMY DATA.");
+    } else {
+      console.warn("⚠️ Revenue Canvas element NOT FOUND!");
     }
-  });
+
+    // ===== STEP 3: TRANSACTIONS CHART (DUMMY DATA) =====
+    const transactionsCanvas = document.getElementById('transactionsChart');
+    if (transactionsCanvas) {
+      console.log("✅ Transactions Canvas element found.");
+      const transactionsCtx = transactionsCanvas.getContext('2d');
+      
+      const transactionsChart = new Chart(transactionsCtx, {
+        type: 'bar',
+        data: {
+          // DUMMY DATA - Hardcoded untuk testing
+          labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+          datasets: [{
+            label: 'Jumlah Transaksi Test (Dummy)',
+            data: [5, 7, 3, 9, 12, 6, 8], // Angka Manual
+            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+            borderColor: 'rgba(16, 185, 129, 1)',
+            borderWidth: 2,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                font: { size: 12, weight: 'bold' }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              padding: 12,
+              titleFont: { size: 13 },
+              bodyFont: { size: 12 }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1,
+                font: { size: 11 }
+              },
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              }
+            },
+            x: {
+              grid: { display: false },
+              ticks: {
+                font: { size: 11 }
+              }
+            }
+          }
+        }
+      });
+      console.log("✅ Transactions Chart rendered with DUMMY DATA.");
+    } else {
+      console.warn("⚠️ Transactions Canvas element NOT FOUND!");
+    }
+
+    // ===== STEP 4: MONTHLY PIE CHART (DUMMY DATA) =====
+    const monthlyPieCanvas = document.getElementById('monthlyPieChart');
+    if (monthlyPieCanvas) {
+      console.log("✅ Monthly Pie Canvas element found.");
+      const monthlyPieCtx = monthlyPieCanvas.getContext('2d');
+      
+      const monthlyPieChart = new Chart(monthlyPieCtx, {
+        type: 'doughnut',
+        data: {
+          // DUMMY DATA - Hardcoded untuk testing
+          labels: ['Pendapatan', 'Pengeluaran', 'Komisi TC', 'Laba Bersih'],
+          datasets: [{
+            label: 'Rekap Keuangan Test',
+            data: [5000000, 1500000, 500000, 3000000], // Angka Manual
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.85)',  // Green - Revenue
+              'rgba(249, 115, 22, 0.85)',  // Orange - Expenses
+              'rgba(168, 85, 247, 0.85)',  // Purple - TC Commission
+              'rgba(59, 130, 246, 0.85)'   // Blue - Profit
+            ],
+            borderColor: '#fff',
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '60%',
+          plugins: {
+            legend: {
+              display: false // Legend manual di HTML lebih baik
+            },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.9)',
+              padding: 14,
+              titleFont: { size: 14, weight: 'bold' },
+              bodyFont: { size: 13, weight: '600' },
+              callbacks: {
+                label: function(context) {
+                  let label = context.label || '';
+                  if (label) {
+                    label += ': ';
+                  }
+                  const value = context.parsed || 0;
+                  label += 'Rp ' + value.toLocaleString('id-ID');
+                  
+                  // Calculate percentage
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = ((value / total) * 100).toFixed(1);
+                  label += ' (' + percentage + '%)';
+                  
+                  return label;
+                }
+              }
+            }
+          },
+          animation: {
+            animateRotate: true,
+            animateScale: true,
+            duration: 1000
+          }
+        }
+      });
+      console.log("✅ Monthly Pie Chart rendered with DUMMY DATA.");
+    } else {
+      console.warn("⚠️ Monthly Pie Canvas element NOT FOUND!");
+    }
+  
+  }); // End DOMContentLoaded
+
+  // Tab Switching Function
+  function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+      content.classList.add('hidden');
+    });
+    
+    // Reset all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.classList.remove('bg-blue-500', 'text-white');
+      btn.classList.add('bg-slate-100', 'text-slate-600');
+    });
+    
+    // Show selected tab content
+    document.getElementById('content-' + tabName).classList.remove('hidden');
+    
+    // Highlight selected tab button
+    const activeBtn = document.getElementById('tab-' + tabName);
+    activeBtn.classList.remove('bg-slate-100', 'text-slate-600');
+    activeBtn.classList.add('bg-blue-500', 'text-white');
+  }
 </script>
 @endsection

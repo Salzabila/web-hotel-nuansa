@@ -9,7 +9,7 @@ return new class extends Migration {
     {
         Schema::create('feedbacks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('transaction_id')->constrained()->onDelete('cascade');
+            $table->foreignId('transaction_id')->constrained()->onDelete('restrict');
             $table->integer('rating')->comment('1-5 stars');
             $table->text('comment')->nullable();
             $table->timestamps();

@@ -76,6 +76,7 @@
       <tr><td style="width: 65px;">Check-in</td><td>: {{ $tx->check_in->format('d/m/Y') }} ({{ $tx->check_in->format('H:i') }})</td></tr>
       <tr><td>Check-out</td><td>: {{ $tx->check_out->format('d/m/Y') }} ({{ $tx->check_out->format('H:i') }})</td></tr>
       <tr><td>Waktu</td><td>: {{ $durationDays }} malam</td></tr>
+      <tr><td>Metode</td><td>: <span class="bold">{{ $tx->paymentMethod ? $tx->paymentMethod->bank_name : 'Cash' }}</span></td></tr>
     </table>
   </div>
   
@@ -137,6 +138,13 @@
   <div class="center" style="font-size: 9px; margin: 8px 0 4px 0;">
     Kasir: <span class="bold">{{ $tx->cashier_name ?? $tx->user->name }}</span>
   </div>
+
+  <!-- TC Status (PRIVACY: No nominal shown) -->
+  @if($tx->is_tc)
+  <div class="center" style="font-size: 8px; margin: 4px 0; padding: 3px; border: 1px dashed #666; background: #f0f0f0;">
+    <span class="bold">Reff: TC</span> • Agent: Yes
+  </div>
+  @endif
   
   <div class="center" style="font-size: 8px; margin: 8px 0 4px 0;">Barang hilang/rusak bukan tanggung jawab kami</div>
   <div class="center" style="font-size: 8px; margin-bottom: 6px;">Simpan struk ini sebagai bukti pembayaran</div>

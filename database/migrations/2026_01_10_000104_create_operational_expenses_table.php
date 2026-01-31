@@ -10,7 +10,7 @@ return new class extends Migration {
         if (!Schema::hasTable('operational_expenses')) {
             Schema::create('operational_expenses', function (Blueprint $table) {
                 $table->id();
-                $table->foreignId('user_id')->constrained()->onDelete('cascade');
+                $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
                 $table->enum('category', ['maintenance', 'utilities', 'supplies', 'other']);
                 $table->string('description');
                 $table->decimal('amount', 12, 2);

@@ -11,7 +11,7 @@ class ReportController extends Controller
 {
     public function transactions()
     {
-        $transactions = Transaction::with('room','user','feedback')
+        $transactions = Transaction::with('room','user','feedback','paymentMethod')
             ->orderByDesc('check_in')
             ->paginate(20);
         

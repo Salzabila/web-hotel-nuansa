@@ -2,9 +2,22 @@
 
 @section('content')
 <div class="h-full">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-slate-800">Riwayat Transaksi</h1>
-    <p class="text-slate-500 mt-2 text-base">Daftar semua transaksi hotel</p>
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-slate-800">Riwayat Transaksi</h1>
+      <p class="text-slate-500 mt-2 text-base">Daftar semua transaksi hotel</p>
+    </div>
+    <!-- Quick Export Buttons -->
+    <div class="flex gap-2">
+      <a href="{{ route('export.transactions.pdf') }}" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-sm" target="_blank" title="Export PDF">
+        <i class="fas fa-file-pdf"></i>
+        <span class="hidden md:inline">PDF</span>
+      </a>
+      <a href="{{ route('export.transactions.excel') }}" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-sm" title="Export Excel">
+        <i class="fas fa-file-excel"></i>
+        <span class="hidden md:inline">Excel</span>
+      </a>
+    </div>
   </div>
 
   <!-- Search & Filter Bar -->
@@ -51,6 +64,7 @@
             <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Kamar</th>
             <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Check-in</th>
             <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Check-out</th>
+            <th class="text-left py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Metode Bayar</th>
             <th class="text-right py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Total</th>
             <th class="text-center py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Status</th>
             <th class="text-center py-4 px-6 font-bold text-slate-400 text-xs uppercase tracking-wider bg-transparent">Aksi</th>
@@ -68,6 +82,16 @@
                   {{ $tx->check_out->format('d/m/y H:i') }}
                 @else
                   <span class="text-slate-400 italic">Belum checkout</span>
+                @endif
+              </td>
+              <td class="py-4 px-6 text-slate-700 text-sm">
+                @if($tx->paymentMethod)
+                  <span class="inline-flex items-center gap-1.5">
+                    <i class="fas fa-{{ $tx->paymentMethod->bank_name == 'Cash' ? 'money-bill-wave' : ($tx->paymentMethod->bank_name == 'QRIS' ? 'qrcode' : 'university') }} text-blue-500 text-xs"></i>
+                    <span class="font-medium">{{ $tx->paymentMethod->bank_name }}</span>
+                  </span>
+                @else
+                  <span class="text-slate-400 italic text-xs">-</span>
                 @endif
               </td>
               <td class="py-4 px-6 text-right font-semibold text-slate-800 text-sm">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</td>

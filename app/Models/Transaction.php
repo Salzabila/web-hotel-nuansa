@@ -15,6 +15,7 @@ class Transaction extends Model
         'guest_phone',
         'guest_nik',
         'guest_address',
+        'is_guest_data_complete',
         'check_in',
         'check_out',
         'duration',
@@ -24,10 +25,20 @@ class Transaction extends Model
         'paid_amount',
         'status',
         'is_ktp_held',
+        'guarantee_type',
+        'guarantee_returned',
+        'is_tc',
+        'tc_nominal',
+        'cashier_name',
+        'shift',
+        'payment_method_id',
     ];
 
     protected $casts = [
         'is_ktp_held' => 'boolean',
+        'guarantee_returned' => 'boolean',
+        'is_tc' => 'boolean',
+        'is_guest_data_complete' => 'boolean',
         'check_in' => 'datetime',
         'check_out' => 'datetime',
     ];
@@ -40,6 +51,11 @@ class Transaction extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class);
+    }
+
+    public function paymentMethod(): BelongsTo
+    {
+        return $this->belongsTo(PaymentMethod::class);
     }
 
     public function feedback(): \Illuminate\Database\Eloquent\Relations\HasOne

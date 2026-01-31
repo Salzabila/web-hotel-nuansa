@@ -6,9 +6,22 @@
 
 @section('content')
 <div>
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-gray-900">Laporan Keuangan</h1>
-    <p class="text-gray-600 mt-1">Ringkasan pendapatan dan pengeluaran</p>
+  <div class="mb-8 flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-slate-800">Laporan Keuangan</h1>
+      <p class="text-slate-500 mt-1 text-sm">Ringkasan pendapatan dan pengeluaran</p>
+    </div>
+    <!-- Export Buttons -->
+    <div class="flex gap-2">
+      <a href="{{ route('export.financial.pdf') }}?start_date={{ $startDate->format('Y-m-d') }}&end_date={{ $endDate->format('Y-m-d') }}" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-sm" target="_blank">
+        <i class="fas fa-file-pdf"></i>
+        <span class="hidden md:inline">PDF</span>
+      </a>
+      <a href="{{ route('export.financial.excel') }}?start_date={{ $startDate->format('Y-m-d') }}&end_date={{ $endDate->format('Y-m-d') }}" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-sm">
+        <i class="fas fa-file-excel"></i>
+        <span class="hidden md:inline">Excel</span>
+      </a>
+    </div>
   </div>
 
   <!-- Filter Section -->
@@ -34,78 +47,111 @@
     </form>
   </div>
 
-  <!-- Summary Cards - Layout Horizontal -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-    <!-- Kiri: Total Pelanggan -->
-    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-l-4 border-purple-500 hover:shadow-xl transition-all">
-      <div class="flex items-start justify-between gap-4">
+  <!-- BARIS 1: RINGKASAN UTAMA - 3 Cards Besar -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+    <!-- Total Pendapatan -->
+    <div class="rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+      <div class="flex items-start justify-between">
         <div class="flex-1">
-          <p class="text-purple-700 text-xs font-semibold uppercase tracking-wide">Total Pelanggan</p>
-          <p class="text-5xl font-extrabold text-purple-900 mt-3">{{ $totalCustomers }}</p>
-          <p class="text-xs text-purple-600 mt-2">{{ $startDate->format('d M') }} - {{ $endDate->format('d M Y') }}</p>
+          <div class="flex items-center gap-2 mb-3">
+            <i class="fas fa-wallet text-white text-2xl"></i>
+            <p class="text-white text-sm font-semibold uppercase tracking-wide">Total Pendapatan</p>
+          </div>
+          <p class="text-white text-4xl font-extrabold mb-2">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
+          <p class="text-white opacity-80 text-xs">{{ $startDate->format('d M') }} - {{ $endDate->format('d M Y') }}</p>
         </div>
-        <div class="text-6xl text-purple-300 opacity-60">
-          <i class="fas fa-users"></i>
+        <div class="text-white opacity-20 text-6xl">
+          <i class="fas fa-arrow-trend-up"></i>
         </div>
       </div>
     </div>
 
-    <!-- Kanan: Total Pendapatan/Omset -->
-    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-green-50 to-green-100 border-l-4 border-green-500 hover:shadow-xl transition-all">
-      <div class="flex items-start justify-between gap-4">
+    <!-- Total Pengeluaran -->
+    <div class="rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1" style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+      <div class="flex items-start justify-between">
         <div class="flex-1">
-          <p class="text-green-700 text-xs font-semibold uppercase tracking-wide">Total Pendapatan</p>
-          <p class="text-4xl font-extrabold text-green-900 mt-3">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</p>
-          <p class="text-xs text-green-600 mt-2">Omset Kotor</p>
+          <div class="flex items-center gap-2 mb-3">
+            <i class="fas fa-coins text-white text-2xl"></i>
+            <p class="text-white text-sm font-semibold uppercase tracking-wide">Total Pengeluaran</p>
+          </div>
+          <p class="text-white text-4xl font-extrabold mb-2">Rp {{ number_format($operationalCost + $employeeSalary + ($totalTCCommission ?? 0), 0, ',', '.') }}</p>
+          <p class="text-white opacity-80 text-xs">Gaji + Operasional + TC</p>
         </div>
-        <div class="text-6xl text-green-300 opacity-60">
-          <i class="fas fa-money-bill-wave"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Card Biaya, Gaji, Laba Bersih -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-    <!-- Biaya Operasional -->
-    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-amber-50 to-amber-100 border-l-4 border-amber-500 hover:shadow-xl transition-all">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
-          <p class="text-amber-700 text-xs font-semibold uppercase tracking-wide">Biaya Operasional</p>
-          <p class="text-3xl font-extrabold text-amber-900 mt-3">Rp {{ number_format($operationalCost, 0, ',', '.') }}</p>
-          <p class="text-xs text-amber-600 mt-2">Listrik, Air, dll</p>
-        </div>
-        <div class="text-5xl text-amber-300 opacity-60">
-          <i class="fas fa-bolt"></i>
-        </div>
-      </div>
-    </div>
-
-    <!-- Total Gaji -->
-    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-l-4 border-blue-500 hover:shadow-xl transition-all">
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex-1">
-          <p class="text-blue-700 text-xs font-semibold uppercase tracking-wide">Total Gaji</p>
-          <p class="text-3xl font-extrabold text-blue-900 mt-3">Rp {{ number_format($employeeSalary, 0, ',', '.') }}</p>
-          <p class="text-xs text-blue-600 mt-2">Gaji Karyawan</p>
-        </div>
-        <div class="text-5xl text-blue-300 opacity-60">
-          <i class="fas fa-users"></i>
+        <div class="text-white opacity-20 text-6xl">
+          <i class="fas fa-arrow-trend-down"></i>
         </div>
       </div>
     </div>
 
     <!-- Laba Bersih -->
-    <div class="stat-card rounded-2xl p-6 bg-gradient-to-br from-emerald-50 to-emerald-100 border-l-4 border-emerald-500 hover:shadow-xl transition-all">
-      <div class="flex items-start justify-between gap-4">
+    <div class="rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1" style="background: linear-gradient(135deg, {{ $netProfit >= 0 ? '#2563eb 0%, #1e40af' : '#dc2626 0%, #b91c1c' }} 100%);">
+      <div class="flex items-start justify-between">
         <div class="flex-1">
-          <p class="text-emerald-700 text-xs font-semibold uppercase tracking-wide">Laba Bersih</p>
-          <p class="text-3xl font-extrabold {{ $netProfit >= 0 ? 'text-emerald-900' : 'text-red-900' }} mt-3">Rp {{ number_format($netProfit, 0, ',', '.') }}</p>
-          <p class="text-xs {{ $netProfit >= 0 ? 'text-emerald-600' : 'text-red-600' }} mt-2">{{ $netProfit >= 0 ? '✓ Positif' : '✗ Negatif' }}</p>
+          <div class="flex items-center gap-2 mb-3">
+            <i class="fas fa-chart-line text-white text-2xl"></i>
+            <p class="text-white text-sm font-bold uppercase tracking-wide">LABA BERSIH</p>
+          </div>
+          <p class="text-white text-4xl font-black mb-2">Rp {{ number_format($netProfit, 0, ',', '.') }}</p>
+          <p class="text-white opacity-80 text-xs font-semibold">
+            {{ $netProfit >= 0 ? '✓ Profit Positif' : '✗ Mengalami Rugi' }}
+          </p>
         </div>
-        <div class="text-5xl {{ $netProfit >= 0 ? 'text-emerald-300' : 'text-red-300' }} opacity-60">
-          <i class="fas fa-chart-line"></i>
+        <div class="text-white opacity-20 text-6xl">
+          <i class="fas fa-sack-dollar"></i>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BARIS 2: DETAIL BREAKDOWN - 4 Cards Kecil -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <!-- Biaya Operasional -->
+    <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-slate-100 hover:shadow-md hover:border-amber-300 transition-all">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-14 h-14 bg-amber-100 rounded-full flex items-center justify-center mb-3">
+          <i class="fas fa-bolt text-amber-600 text-2xl"></i>
+        </div>
+        <p class="text-slate-600 text-xs font-semibold uppercase tracking-wider mb-2">Biaya Operasional</p>
+        <p class="text-slate-900 text-2xl font-bold mb-1">Rp {{ number_format($operationalCost, 0, ',', '.') }}</p>
+        <p class="text-slate-500 text-xs">Listrik / Air</p>
+      </div>
+    </div>
+
+    <!-- Gaji Karyawan -->
+    <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-slate-100 hover:shadow-md hover:border-blue-300 transition-all">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-3">
+          <i class="fas fa-user-tie text-blue-600 text-2xl"></i>
+        </div>
+        <p class="text-slate-600 text-xs font-semibold uppercase tracking-wider mb-2">Gaji Karyawan</p>
+        <p class="text-slate-900 text-2xl font-bold mb-1">Rp {{ number_format($employeeSalary, 0, ',', '.') }}</p>
+        <p class="text-slate-500 text-xs">Total Gaji</p>
+      </div>
+    </div>
+
+    <!-- Komisi TC -->
+    <div class="bg-white rounded-xl p-5 shadow-sm border-2 border-slate-100 hover:shadow-md hover:border-purple-300 transition-all">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+          <i class="fas fa-handshake text-purple-600 text-2xl"></i>
+        </div>
+        <p class="text-slate-600 text-xs font-semibold uppercase tracking-wider mb-2">
+          <i class="fas fa-lock text-xs"></i> Komisi TC
+        </p>
+        <p class="text-slate-900 text-2xl font-bold mb-1">Rp {{ number_format($totalTCCommission ?? 0, 0, ',', '.') }}</p>
+        <p class="text-slate-500 text-xs">Makelar</p>
+      </div>
+    </div>
+
+    <!-- Total Pelanggan -->
+    <div class="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-5 shadow-sm border-2 border-slate-200 hover:shadow-md transition-all">
+      <div class="flex flex-col items-center text-center">
+        <div class="w-14 h-14 bg-slate-200 rounded-full flex items-center justify-center mb-3">
+          <i class="fas fa-users text-slate-600 text-2xl"></i>
+        </div>
+        <p class="text-slate-600 text-xs font-semibold uppercase tracking-wider mb-2">Total Pelanggan</p>
+        <p class="text-slate-900 text-2xl font-bold mb-1">{{ $totalCustomers }}</p>
+        <p class="text-slate-500 text-xs">Orang</p>
       </div>
     </div>
   </div>

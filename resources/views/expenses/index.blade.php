@@ -3,7 +3,7 @@
 @section('content')
 <div class="h-full">
   <div class="mb-8">
-    <h1 class="text-3xl font-bold text-slate-800">Biaya Operasional</h1>
+    <h1 class="text-2xl md:text-3xl font-bold text-slate-800">Biaya Operasional</h1>
     <p class="text-slate-500 mt-2 text-base">Kelola pengeluaran operasional hotel</p>
   </div>
 
@@ -22,44 +22,44 @@
   @endif
 
 <!-- Summary Stats -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
   <!-- Total Pengeluaran -->
-  <div class="bg-white hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border border-slate-100">
-    <div class="flex items-start justify-between gap-4">
+  <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+    <div class="flex items-center justify-between gap-2">
       <div class="flex-1">
-        <p class="text-slate-500 text-sm font-medium mb-2">Total Pengeluaran</p>
-        <p class="text-3xl font-bold text-slate-800">Rp {{ number_format($expenses->sum('amount'),0,',','.') }}</p>
+        <p class="text-slate-500 text-xs font-medium mb-1">Total Pengeluaran</p>
+        <p class="text-2xl font-bold text-slate-800">Rp {{ number_format($expenses->sum('amount'),0,',','.') }}</p>
       </div>
-      <div class="w-14 h-14 bg-rose-50 rounded-xl flex items-center justify-center">
-        <i class="fas fa-receipt text-2xl text-rose-500"></i>
+      <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-receipt text-lg text-rose-500"></i>
       </div>
     </div>
   </div>
 
   <!-- Pengeluaran Bulan Ini -->
-  <div class="bg-white hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border border-slate-100">
-    <div class="flex items-start justify-between gap-4">
+  <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+    <div class="flex items-center justify-between gap-2">
       <div class="flex-1">
-        <p class="text-slate-500 text-sm font-medium mb-2">Bulan Ini</p>
-        <p class="text-3xl font-bold text-slate-800">
+        <p class="text-slate-500 text-xs font-medium mb-1">Bulan Ini</p>
+        <p class="text-2xl font-bold text-slate-800">
           Rp {{ number_format(\App\Models\Expense::whereYear('date', date('Y'))->whereMonth('date', date('m'))->sum('amount'),0,',','.') }}
         </p>
       </div>
-      <div class="w-14 h-14 bg-indigo-50 rounded-xl flex items-center justify-center">
-        <i class="fas fa-calendar text-2xl text-indigo-500"></i>
+      <div class="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-calendar text-lg text-indigo-500"></i>
       </div>
     </div>
   </div>
 
   <!-- Jumlah Item -->
-  <div class="bg-white hover:shadow-lg transition-all p-6 rounded-2xl shadow-sm border border-slate-100">
-    <div class="flex items-start justify-between gap-4">
+  <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
+    <div class="flex items-center justify-between gap-2">
       <div class="flex-1">
-        <p class="text-slate-500 text-sm font-medium mb-2">Jumlah Item</p>
-        <p class="text-3xl font-bold text-slate-800">{{ $expenses->count() }}</p>
+        <p class="text-slate-500 text-xs font-medium mb-1">Jumlah Item</p>
+        <p class="text-2xl font-bold text-slate-800">{{ $expenses->count() }}</p>
       </div>
-      <div class="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center">
-        <i class="fas fa-list text-2xl text-emerald-500"></i>
+      <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0">
+        <i class="fas fa-list text-lg text-emerald-500"></i>
       </div>
     </div>
   </div>

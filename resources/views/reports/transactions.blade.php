@@ -3,10 +3,17 @@
 @section('content')
 <div>
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold"><i class="fas fa-receipt mr-2"></i>Laporan Transaksi</h1>
-    <a href="{{ route('reports.exportTransactions') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-      <i class="fas fa-download mr-2"></i>Export CSV
-    </a>
+    <h1 class="text-2xl md:text-3xl font-bold text-slate-800"><i class="fas fa-receipt mr-2"></i>Laporan Transaksi</h1>
+    <div class="flex gap-2">
+      <a href="{{ route('export.transactions.pdf') }}?start_date={{ request('start_date') }}&end_date={{ request('end_date') }}" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-sm" target="_blank">
+        <i class="fas fa-file-pdf"></i>
+        <span class="hidden md:inline">Export PDF</span>
+      </a>
+      <a href="{{ route('export.transactions.excel') }}?start_date={{ request('start_date') }}&end_date={{ request('end_date') }}" class="inline-flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-lg transition-all shadow-sm">
+        <i class="fas fa-file-excel"></i>
+        <span class="hidden md:inline">Export Excel</span>
+      </a>
+    </div>
   </div>
 
   <!-- Filter -->
@@ -38,6 +45,7 @@
             <th class="p-3 text-left">Kamar</th>
             <th class="p-3 text-left">Check-in</th>
             <th class="p-3 text-left">Check-out</th>
+            <th class="p-3 text-left">Metode</th>
             <th class="p-3 text-right">Total</th>
             <th class="p-3 text-center">Status</th>
             <th class="p-3 text-center">KTP</th>
@@ -52,6 +60,16 @@
               <td class="p-3"><span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">{{ $tx->room->room_number }}</span></td>
               <td class="p-3 text-sm">{{ $tx->check_in->format('d/m/Y H:i') }}</td>
               <td class="p-3 text-sm">{{ $tx->check_out->format('d/m/Y H:i') }}</td>
+              <td class="p-3 text-sm">
+                @if($tx->paymentMethod)
+                  <span class="inline-flex items-center gap-1 text-xs">
+                    <i class="fas fa-{{ $tx->paymentMethod->bank_name == 'Cash' ? 'money-bill-wave' : ($tx->paymentMethod->bank_name == 'QRIS' ? 'qrcode' : 'university') }}"></i>
+                    {{ $tx->paymentMethod->bank_name }}
+                  </span>
+                @else
+                  <span class="text-gray-400">-</span>
+                @endif
+              </td>
               <td class="p-3 text-right font-semibold">Rp {{ number_format($tx->total_price,0,',','.') }}</td>
               <td class="p-3 text-center">
                 <span class="px-2 py-1 rounded text-sm {{ $tx->status === 'finished' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">

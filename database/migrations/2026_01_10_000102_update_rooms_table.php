@@ -19,7 +19,7 @@ return new class extends Migration {
         
         Schema::table('rooms', function (Blueprint $table) {
             if (!Schema::hasColumn('rooms', 'type')) {
-                $table->enum('type', ['Standard (Kipas)', 'Deluxe (AC)'])->after('room_number');
+                $table->enum('type', ['Standard (Kipas)', 'Standard Plus (Kipas)', 'Deluxe (AC)', 'Suite (AC + TV)'])->after('room_number');
             }
         });
     }

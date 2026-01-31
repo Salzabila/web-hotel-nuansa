@@ -41,6 +41,15 @@ class FinancialReportController extends Controller
         $totalExpenses = OperationalExpense::whereBetween('expense_date', [$startDate, $endDate])
             ->sum('amount');
         
+        // CRITICAL: Tambahkan komisi TC sebagai expense (Option B - Query langsung dari transactions)
+        $totalTCCommission = Transaction::whereBetween('created_at', [$startDate, $endDate])
+            ->where('status', 'finished')
+            ->where('is_tc', true)
+            ->sum('tc_nominal');
+        
+        // Total Expenses = Operational Expenses + TC Commission
+        $totalExpenses += $totalTCCommission;
+        
         // Manual input untuk biaya operasional dan gaji (dari form)
         $operationalCost = $request->get('operational_cost', 0);
         $employeeSalary = $request->get('employee_salary', 0);
@@ -50,8 +59,8 @@ class FinancialReportController extends Controller
             ->where('status', 'finished')
             ->count();
 
-        // Laba Bersih = Total Pendapatan - (Biaya Ops + Gaji)
-        $netProfit = $totalRevenue - ($operationalCost + $employeeSalary);
+        // Laba Bersih = Total Pendapatan - (Total Expenses + Biaya Ops + Gaji)
+        $netProfit = $totalRevenue - ($totalExpenses + $operationalCost + $employeeSalary);
 
         return view('reports.financial', compact(
             'transactions',
@@ -60,6 +69,7 @@ class FinancialReportController extends Controller
             'endDate',
             'totalRevenue',
             'totalExpenses',
+            'totalTCCommission',
             'netProfit',
             'operationalCost',
             'employeeSalary',
