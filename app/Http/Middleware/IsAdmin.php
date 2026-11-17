@@ -20,7 +20,7 @@ class IsAdmin
         }
 
         if (auth()->check() && auth()->user()->role === 'kasir') {
-            return redirect('/dashboard')->with('warning', 'Anda tidak memiliki akses ke halaman ini');
+            return redirect()->route('dashboard')->with('warning', 'Anda tidak memiliki akses ke halaman ini');
         }
 
         return redirect('/login');
