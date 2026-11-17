@@ -2,376 +2,117 @@
 <html lang="id">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <title>Masuk - Hotel Nuansa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Hotel Nuansa</title>
+
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'Inter', 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    
-    .login-wrapper {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      max-width: 1200px;
-      width: 100%;
-      background: white;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
-      min-height: 680px;
-    }
-
-    @media (max-width: 968px) {
-      .login-wrapper {
-        grid-template-columns: 1fr;
-        max-width: 500px;
-      }
-      .illustration-panel {
-        display: none;
-      }
-    }
-
-    /* LEFT PANEL - Hotel Image with Overlay */
-    .illustration-panel {
-      background-image: linear-gradient(135deg, rgba(30, 58, 138, 0.85) 0%, rgba(37, 99, 235, 0.75) 100%),
-                        url('/images/logo nuansa - background.jpg');
-      background-size: cover;
-      background-position: center;
-      position: relative;
-      overflow: hidden;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 40px;
-    }
-
-    .illustration-panel::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      animation: pulse 8s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1) rotate(0deg); }
-      50% { transform: scale(1.1) rotate(180deg); }
-    }
-
-    .hotel-logo {
-      position: relative;
-      z-index: 10;
-      text-align: center;
-      color: white;
-      padding: 40px;
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      border: 2px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .hotel-logo img {
-      max-width: 200px;
-      height: auto;
-      filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5)) brightness(1.2);
-      margin-bottom: 20px;
-    }
-
-    .hotel-logo h2 {
-      font-family: 'Playfair Display', serif;
-      font-size: 32px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
-      letter-spacing: 1px;
-    }
-
-    .hotel-logo p {
-      font-size: 14px;
-      font-weight: 300;
-      opacity: 0.95;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-    }
-
-    /* RIGHT PANEL - Clean White Form */
-    .form-panel {
-      background: #ffffff;
-      padding: 60px 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .form-container {
-      width: 100%;
-      max-width: 400px;
-    }
-
-    .form-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 36px;
-      font-weight: 600;
-      color: #1e293b;
-      margin-bottom: 10px;
-      text-align: center;
-      letter-spacing: -0.5px;
-    }
-
-    .form-subtitle {
-      text-align: center;
-      color: #64748b;
-      font-size: 14px;
-      font-weight: 400;
-      margin-bottom: 40px;
-    }
-
-    /* Modern Material Design Input */
-    .input-wrapper {
-      position: relative;
-      margin-bottom: 24px;
-    }
-
-    .input-wrapper i.left-icon {
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      font-size: 16px;
-      z-index: 1;
-      transition: color 0.3s;
-    }
-
-    .input-wrapper i.right-icon {
-      position: absolute;
-      right: 18px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      font-size: 16px;
-      z-index: 3;
-      cursor: pointer;
-      transition: color 0.3s;
-    }
-
-    .input-wrapper i.right-icon:hover {
-      color: #1e3a8a;
-    }
-
-    .input-wrapper input {
-      width: 100%;
-      padding: 16px 50px 16px 50px;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 15px;
-      background: #f8fafc;
-      color: #1e293b;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      font-family: 'Inter', sans-serif;
-    }
-
-    .input-wrapper input::placeholder {
-      color: #cbd5e1;
-      font-weight: 400;
-    }
-
-    .input-wrapper input:focus {
-      outline: none;
-      border-color: #3b82f6;
-      background: white;
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-    }
-
-    .input-wrapper input:focus + i.left-icon {
-      color: #3b82f6;
-    }
-
-    .remember-forgot {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 32px;
-    }
-
-    .remember-me {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: #475569;
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    .remember-me input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      accent-color: #3b82f6;
-      cursor: pointer;
-    }
-
-    .forgot-password {
-      color: #3b82f6;
-      font-weight: 600;
-      font-size: 14px;
-      text-decoration: none;
-      transition: color 0.3s;
-    }
-
-    .forgot-password:hover {
-      color: #1e40af;
-      text-decoration: underline;
-    }
-
-    .btn-login {
-      width: 100%;
-      padding: 16px;
-      background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
-    }
-
-    .btn-login:hover {
-      background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 30px rgba(59, 130, 246, 0.4);
-    }
-
-    .btn-login:active {
-      transform: translateY(0);
-    }
-
-    .footer-text {
-      text-align: center;
-      margin-top: 32px;
-      color: #94a3b8;
-      font-size: 12px;
-      font-weight: 400;
-      padding-top: 24px;
-      border-top: 1px solid #e2e8f0;
-    }
-
-    .error-message {
-      background: #fef2f2;
-      border-left: 4px solid #ef4444;
-      color: #991b1b;
-      padding: 16px;
-      border-radius: 12px;
-      margin-bottom: 24px;
-      font-weight: 500;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 14px;
-    }
+    * { font-family: 'Plus Jakarta Sans', sans-serif; }
+    body { background-color: #F5EFE6; }
   </style>
 </head>
-<body>
-  <div class="login-wrapper">
-    <!-- Left Panel: Hotel Image with Overlay -->
-    <div class="illustration-panel">
-      <div class="hotel-logo">
-        <img src="/images/logo nuansa.jpg" alt="Hotel Nuansa">
-        <h2>Hotel Nuansa</h2>
-        <p>Management System</p>
+<body class="min-h-screen bg-[#F5EFE6] flex flex-col items-center justify-center p-4">
+
+  <div class="max-w-md w-full">
+    
+    <!-- BRAND LOGO & TITLE -->
+    <div class="text-center mb-8">
+      <div class="inline-flex w-14 h-14 rounded-2xl bg-[#F5A623] text-[#0B192C] font-black text-3xl items-center justify-center shadow-lg shadow-amber-500/20 mb-3.5">
+        N
       </div>
+      <h1 class="text-2xl md:text-3xl font-extrabold text-[#0B192C] tracking-tight">Hotel Nuansa</h1>
+      <p class="text-slate-400 text-xs font-semibold tracking-wider uppercase mt-1">Front Office System</p>
     </div>
 
-    <!-- Right Panel: Form -->
-    <div class="form-panel">
-      <div class="form-container">
-        <h1 class="form-title">Welcome Back</h1>
-        <p class="form-subtitle">Please login to your account</p>
-
-        <form method="POST" action="{{ url('login') }}" id="loginForm">
-          @csrf
-          
-          @if($errors->any())
-            <div class="error-message">
-              <i class="fas fa-exclamation-circle"></i>
-              <span>{{ $errors->first('phone') ?? 'Username atau password salah' }}</span>
-            </div>
-          @endif
-
-          <!-- Username Input with Icon -->
-          <div class="input-wrapper">
-            <input 
-              type="text" 
-              name="phone" 
-              id="phone"
-              placeholder="Username"
-              value="{{ old('phone') }}"
-              required
-              autofocus
-            >
-            <i class="fas fa-user left-icon"></i>
-          </div>
-
-          <!-- Password Input with Toggle Visibility -->
-          <div class="input-wrapper">
-            <input 
-              type="password" 
-              name="password" 
-              id="password"
-              placeholder="Password"
-              required
-            >
-            <i class="fas fa-lock left-icon"></i>
-            <i class="fas fa-eye right-icon" id="togglePassword"></i>
-          </div>
-
-          <div class="remember-forgot">
-            <label class="remember-me">
-              <input type="checkbox" name="remember" id="remember">
-              <span>Remember me</span>
-            </label>
-            <a href="#" class="forgot-password">Forgot password?</a>
-          </div>
-
-          <button type="submit" class="btn-login">Login</button>
-
-          <div class="footer-text">
-            © 2026 Nuansa Hotel Management System
-          </div>
-        </form>
+    <!-- LOGIN CARD -->
+    <div class="bg-white rounded-3xl p-7 md:p-9 shadow-xl border border-stone-200/60">
+      
+      <div class="mb-6">
+        <h2 class="text-lg font-bold text-[#0B192C]">Masuk ke Akun</h2>
+        <p class="text-xs text-slate-500 font-medium mt-0.5">Masukkan No. HP atau ID staf terdaftar</p>
       </div>
+
+      @if($errors->any())
+        <div class="p-3.5 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold mb-5 flex items-center gap-2.5">
+          <i class="fas fa-circle-exclamation text-rose-500 text-sm shrink-0"></i>
+          <span>{{ $errors->first('phone') ?? 'Nomor telepon atau password yang Anda masukkan salah.' }}</span>
+        </div>
+      @endif
+
+      <form method="POST" action="{{ url('login') }}" class="space-y-4">
+        @csrf
+
+        <!-- No. HP / Username -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">No. HP / Username</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+              <i class="fas fa-user"></i>
+            </span>
+            <input type="text" name="phone" id="loginPhone" required autofocus value="{{ old('phone') }}"
+                   placeholder="admin atau 08123456789"
+                   class="w-full pl-11 pr-4 py-3 rounded-2xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 font-semibold text-[#0B192C] bg-[#FAFAF8] focus:bg-white transition-all">
+          </div>
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 mb-1.5">Password</label>
+          <div class="relative">
+            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+              <i class="fas fa-lock"></i>
+            </span>
+            <input type="password" name="password" id="loginPassword" required
+                   placeholder="••••••••"
+                   class="w-full pl-11 pr-11 py-3 rounded-2xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 font-semibold text-[#0B192C] bg-[#FAFAF8] focus:bg-white transition-all">
+            <button type="button" id="togglePasswordBtn" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <i class="fas fa-eye text-sm" id="togglePasswordIcon"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2">
+          <button type="submit" 
+                  class="w-full bg-[#F5A623] hover:bg-[#e29515] text-[#0B192C] font-extrabold py-3.5 rounded-full text-sm shadow-md transition-all active:scale-95 flex items-center justify-center gap-2">
+            <span>Masuk</span>
+            <i class="fas fa-arrow-right text-xs"></i>
+          </button>
+        </div>
+
+      </form>
+
     </div>
+
+    <!-- FOOTER -->
+    <p class="text-center text-xs text-slate-400 font-medium mt-6">
+      © {{ date('Y') }} Hotel Nuansa · All rights reserved
+    </p>
+
   </div>
 
   <script>
-    // Toggle Password Visibility
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    
-    togglePassword.addEventListener('click', function() {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      
-      // Toggle icon
-      this.classList.toggle('fa-eye');
-      this.classList.toggle('fa-eye-slash');
+    const toggleBtn = document.getElementById('togglePasswordBtn');
+    const pwdInput = document.getElementById('loginPassword');
+    const pwdIcon = document.getElementById('togglePasswordIcon');
+
+    toggleBtn.addEventListener('click', () => {
+      if (pwdInput.type === 'password') {
+        pwdInput.type = 'text';
+        pwdIcon.classList.remove('fa-eye');
+        pwdIcon.classList.add('fa-eye-slash');
+      } else {
+        pwdInput.type = 'password';
+        pwdIcon.classList.remove('fa-eye-slash');
+        pwdIcon.classList.add('fa-eye');
+      }
     });
   </script>
 </body>

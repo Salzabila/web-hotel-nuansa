@@ -5,7 +5,7 @@
     <title>{{ $title }}</title>
     <style>
         @page {
-            margin: 2cm;
+            margin: 8mm 8mm;
             size: A4 portrait;
         }
         * {
@@ -13,82 +13,90 @@
             padding: 0;
             box-sizing: border-box;
         }
+        html, body {
+            width: 100%;
+            height: auto;
+            min-height: 297mm;
+        }
         body {
             font-family: 'DejaVu Sans', sans-serif;
             font-size: 9pt;
-            color: #1a1a1a;
-            line-height: 1.5;
+            color: #111827;
+            line-height: 1.45;
+        }
+        table {
+            border-collapse: collapse;
+            table-layout: fixed;
+            width: 100%;
+        }
+        th, td {
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
         .document-header {
             text-align: center;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #1a1a1a;
-            margin-bottom: 20px;
+            padding: 8px 0 14px 0;
+            border-bottom: 2px solid #0f172a;
+            margin-bottom: 18px;
         }
         .document-header .company-name {
             font-size: 18pt;
             font-weight: bold;
-            color: #1a1a1a;
             letter-spacing: 1px;
+            color: #0f172a;
             margin-bottom: 4px;
         }
+        .document-header .address {
+            font-size: 7.5pt;
+            color: #475569;
+            margin-top: 2px;
+        }
         .document-header .document-title {
+            margin-top: 10px;
             font-size: 12pt;
             font-weight: bold;
-            color: #333;
-            margin-top: 8px;
-        }
-        .document-header .address {
-            font-size: 8pt;
-            color: #666;
-            margin-top: 3px;
+            color: #1f2937;
+            letter-spacing: 0.5px;
         }
         .info-section {
-            margin-bottom: 20px;
-            background: #f9fafb;
-            padding: 12px;
-            border: 1px solid #e5e7eb;
-        }
-        .info-section table {
-            width: 100%;
-            border-collapse: collapse;
+            background: #f8fafc;
+            border: 1px solid #dfe7f1;
+            padding: 12px 14px;
+            margin-bottom: 16px;
         }
         .info-section td {
             padding: 4px 0;
             font-size: 9pt;
-            border: none;
         }
         .info-section .label {
-            width: 150px;
-            color: #4b5563;
+            width: 140px;
+            color: #475569;
             font-weight: 600;
         }
         .info-section .separator {
-            width: 20px;
+            width: 18px;
             text-align: center;
-            color: #4b5563;
-        }
-        .info-section .value {
-            color: #1a1a1a;
+            color: #64748b;
         }
         .financial-summary {
             margin: 20px 0;
             background: #ecfdf5;
-            padding: 15px;
             border-left: 4px solid #10b981;
+            padding: 14px;
         }
         .financial-summary .title {
             font-size: 10pt;
             font-weight: bold;
-            color: #1a1a1a;
-            margin-bottom: 12px;
+            letter-spacing: 0.6px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #0f172a;
+            margin-bottom: 10px;
         }
         .summary-table {
             width: 100%;
-            border-collapse: collapse;
-            background: white;
+            background: #ffffff;
+            border: 1px solid #dfe7f1;
         }
         .summary-table tr {
             border-bottom: 1px solid #e5e7eb;
@@ -98,114 +106,100 @@
             font-size: 9pt;
         }
         .summary-table .label-cell {
-            color: #4b5563;
+            color: #475569;
             font-weight: 600;
             width: 60%;
         }
         .summary-table .value-cell {
             text-align: right;
             font-weight: bold;
-            color: #1a1a1a;
+            color: #111827;
             width: 40%;
         }
         .summary-table .total-row {
             background: #f3f4f6;
-            border-top: 2px solid #374151;
-            border-bottom: 2px solid #374151;
+            border-top: 2px solid #0f172a;
+            border-bottom: 2px solid #0f172a;
         }
         .summary-table .total-row td {
             padding: 12px;
             font-size: 10pt;
         }
-        .summary-table .profit-positive {
-            color: #047857;
-        }
-        .summary-table .profit-negative {
-            color: #dc2626;
-        }
+        .summary-table .profit-positive { color: #047857; }
+        .summary-table .profit-negative { color: #dc2626; }
         .section-title {
             font-size: 10pt;
             font-weight: bold;
-            color: #1a1a1a;
-            margin: 25px 0 12px 0;
-            padding-bottom: 6px;
-            border-bottom: 2px solid #374151;
+            color: #0f172a;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin: 22px 0 10px 0;
+            padding-bottom: 6px;
+            border-bottom: 2px solid #0f172a;
         }
         .data-table {
             width: 100%;
-            border-collapse: collapse;
-            margin: 15px 0;
+            margin: 12px 0 0 0;
             font-size: 8pt;
+            border: 1px solid #dfe7f1;
         }
-        .data-table thead {
-            background: #374151;
-            color: white;
-        }
-        .data-table th {
-            padding: 10px 6px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 8pt;
+        .data-table thead th {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 8px 6px;
+            font-size: 7.8pt;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            border-right: 1px solid #4b5563;
+            letter-spacing: 0.2px;
+            text-align: left;
+            border-right: 1px solid #334155;
         }
-        .data-table th:last-child {
-            border-right: none;
-        }
-        .data-table tbody tr {
+        .data-table tbody td {
+            padding: 7px 6px;
+            border-right: 1px solid #e5e7eb;
             border-bottom: 1px solid #e5e7eb;
+            color: #1f2937;
         }
         .data-table tbody tr:nth-child(even) {
-            background: #f9fafb;
+            background: #f8fafc;
         }
-        .data-table td {
-            padding: 8px 6px;
-            border-right: 1px solid #f3f4f6;
-        }
-        .data-table td:last-child {
-            border-right: none;
-        }
-        .text-right {
-            text-align: right;
-        }
-        .text-center {
-            text-align: center;
-        }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
         .signature-area {
-            margin-top: 40px;
+            margin-top: 28px;
         }
         .signature-grid {
-            display: table;
             width: 100%;
+            display: table;
+            border-collapse: collapse;
         }
         .signature-cell {
             display: table-cell;
             width: 50%;
             text-align: center;
-            padding: 0 20px;
+            padding: 0 24px;
         }
         .signature-role {
+            font-size: 8.8pt;
             font-weight: bold;
-            margin-bottom: 60px;
-            font-size: 9pt;
+            margin-bottom: 42px;
+            color: #374151;
         }
         .signature-name {
-            border-top: 1px solid #1a1a1a;
-            padding-top: 5px;
-            font-weight: bold;
             display: inline-block;
-            min-width: 150px;
+            min-width: 160px;
+            border-top: 1px solid #0f172a;
+            padding-top: 6px;
+            font-size: 8.5pt;
+            color: #111827;
         }
         .document-footer {
-            margin-top: 30px;
+            margin-top: 20px;
             padding-top: 10px;
-            border-top: 1px solid #e5e7eb;
+            border-top: 1px solid #dfe7f1;
             text-align: center;
             font-size: 7pt;
-            color: #6b7280;
+            color: #64748b;
         }
     </style>
 </head>
@@ -275,7 +269,7 @@
             @forelse($expenses as $index => $expense)
             <tr>
                 <td class="text-center">{{ $index + 1 }}</td>
-                <td class="text-center">{{ $expense->expense_date->format('d/m/Y') }}</td>
+                <td class="text-center">{{ \Carbon\Carbon::parse($expense->date ?? $expense->expense_date)->format('d/m/Y') }}</td>
                 <td>{{ ucfirst($expense->category) }}</td>
                 <td>{{ $expense->description }}</td>
                 <td class="text-right"><strong>Rp {{ number_format($expense->amount, 0, ',', '.') }}</strong></td>

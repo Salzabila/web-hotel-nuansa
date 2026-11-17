@@ -1,76 +1,75 @@
 @extends('layouts.app')
 
+@section('title', 'Edit Kamar - Hotel Nuansa')
+@section('page_title', 'Kamar')
+
 @section('content')
-<div class="w-full">
-  <!-- Header -->
-  <div class="mb-5">
-    <a href="{{ route('rooms.index') }}" class="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 font-medium mb-2 transition">
-      <i class="fas fa-arrow-left"></i>
-      <span>Kembali</span>
-    </a>
-    <h1 class="text-2xl font-bold text-slate-800">Edit Kamar {{ $room->room_number }}</h1>
-    <p class="text-slate-500 mt-1 text-sm">Perbarui informasi kamar</p>
-  </div>
+<div class="max-w-2xl mx-auto space-y-6">
+
+  <!-- Back button -->
+  <a href="{{ route('rooms.index') }}" class="inline-flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-[#0B192C] transition-all">
+    <i class="fas fa-arrow-left"></i>
+    <span>Kembali ke Daftar Kamar</span>
+  </a>
 
   <!-- Form Card -->
-  <div class="card p-6">
-    <form method="POST" action="{{ route('rooms.update', $room) }}" class="space-y-4 confirm-form" data-confirm-title="Konfirmasi Update Kamar" data-confirm-message="Apakah perubahan data kamar sudah benar? Lanjutkan update?">
-      @csrf @method('PUT')
+  <div class="bg-white rounded-3xl p-6 md:p-8 shadow-sm border border-stone-200/50">
+    <h3 class="text-lg font-bold text-[#0B192C] mb-1">Edit Kamar {{ $room->room_number }}</h3>
+    <p class="text-xs text-slate-400 mb-6">Ubah data tarif atau status operasional kamar</p>
 
-      <!-- Harga -->
+    <form method="POST" action="{{ route('rooms.update', $room) }}" class="space-y-5">
+      @csrf
+      @method('PUT')
+
+      <!-- No. Kamar (Read only) -->
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1.5">Harga per Malam (Rp) <span class="text-red-500">*</span></label>
-        <div class="relative">
-          <span class="absolute left-3 top-2 text-slate-600 font-medium text-sm pointer-events-none">Rp</span>
-          <input 
-            type="text" 
-            id="price_display" 
-            class="w-full px-3 py-2 pl-9 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent {{ $errors->has('price_per_night') ? 'border-red-500' : '' }}" 
-            value="{{ number_format($room->price_per_night, 0, ',', '.') }}"
-            oninput="formatRupiahInput(this, 'price_per_night')">
-          <input type="hidden" name="price_per_night" id="price_per_night" value="{{ $room->price_per_night }}" required>
-        </div>
-        @error('price_per_night')<span class="block mt-1 text-xs text-red-600"><i class="fas fa-times-circle"></i> {{ $message }}</span>@enderror
+        <label class="block text-xs font-bold text-slate-700 mb-1.5">Nomor Kamar</label>
+        <input type="text" disabled value="{{ $room->room_number }}" 
+               class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm bg-stone-100 text-slate-500 font-bold">
       </div>
 
-      <script>
-        function formatRupiahInput(input, hiddenId) {
-          let value = input.value.replace(/\D/g, '');
-          let formatted = '';
-          if (value) {
-            let reversed = value.split('').reverse().join('');
-            for (let i = 0; i < reversed.length; i++) {
-              if (i > 0 && i % 3 === 0) {
-                formatted = '.' + formatted;
-              }
-              formatted = reversed[i] + formatted;
-            }
-          }
-          input.value = formatted;
-          document.getElementById(hiddenId).value = value || '';
-        }
-      </script>
+      <!-- Tipe Kamar (Read only) -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1.5">Tipe Kamar</label>
+        <input type="text" disabled value="{{ $room->type }}" 
+               class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm bg-stone-100 text-slate-500 font-semibold">
+      </div>
+
+      <!-- Tarif per Malam -->
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1.5">Tarif per Malam (Rp) <span class="text-rose-500">*</span></label>
+        <input type="number" name="price_per_night" id="price_per_night" required min="0" 
+               value="{{ old('price_per_night', $room->price_per_night) }}"
+               class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm font-bold text-[#0B192C] focus:outline-none focus:ring-2 focus:ring-amber-400">
+        @error('price_per_night')<span class="block mt-1 text-xs text-rose-500 font-semibold">{{ $message }}</span>@enderror
+      </div>
 
       <!-- Status -->
       <div>
-        <label class="block text-sm font-medium text-slate-700 mb-1.5">Status Kamar</label>
-        <select name="status" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-          <option value="available" {{ $room->status === 'available' ? 'selected' : '' }}>Tersedia</option>
-          <option value="occupied" {{ $room->status === 'occupied' ? 'selected' : '' }}>Terisi</option>
-          <option value="maintenance" {{ $room->status === 'maintenance' ? 'selected' : '' }}>Maintenance</option>
+        <label class="block text-xs font-bold text-slate-700 mb-1.5">Status Kamar</label>
+        <select name="status" 
+                class="w-full px-4 py-2.5 rounded-2xl border border-stone-200 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-amber-400">
+          <option value="available" {{ old('status', $room->status) === 'available' ? 'selected' : '' }}>Available (Siap Ditempati)</option>
+          <option value="occupied" {{ old('status', $room->status) === 'occupied' ? 'selected' : '' }}>Occupied (Sedang Dihuni)</option>
+          <option value="dirty" {{ old('status', $room->status) === 'dirty' ? 'selected' : '' }}>Dirty (Butuh Pembersihan)</option>
+          <option value="maintenance" {{ old('status', $room->status) === 'maintenance' ? 'selected' : '' }}>Maintenance (Perawatan)</option>
         </select>
       </div>
 
-      <!-- Buttons -->
-      <div class="flex gap-3 pt-3">
-        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm">
-          <i class="fas fa-check"></i> Simpan Perubahan
-        </button>
-        <a href="{{ route('rooms.index') }}" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
-          <i class="fas fa-times"></i> Batal
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-3 pt-4 border-t border-stone-100">
+        <a href="{{ route('rooms.index') }}" 
+           class="px-6 py-2.5 rounded-full border border-stone-300 bg-white hover:bg-stone-50 text-slate-700 font-bold text-xs shadow-xs transition-all">
+          Batal
         </a>
+        <button type="submit" 
+                class="bg-[#F5A623] hover:bg-[#e29515] text-[#0B192C] font-extrabold px-7 py-2.5 rounded-full text-xs shadow-md transition-all active:scale-95">
+          Perbarui Kamar
+        </button>
       </div>
+
     </form>
   </div>
+
 </div>
 @endsection

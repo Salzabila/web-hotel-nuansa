@@ -40,7 +40,7 @@ class ExpensesDetailSheet implements FromCollection, WithHeadings, WithMapping, 
     public function map($expense): array
     {
         return [
-            Carbon::parse($expense->expense_date)->format('d/m/Y'),
+            Carbon::parse($expense->date ?? $expense->expense_date)->format('d/m/Y'),
             ucfirst($expense->category),
             $expense->description,
             'Rp ' . number_format($expense->amount, 0, ',', '.'),

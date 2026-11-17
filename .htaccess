@@ -1,0 +1,16 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Blokir akses langsung ke file sensitif (.env, .git, dll)
+    <FilesMatch "^\.(env|git|gitignore|editorconfig)">
+        Order allow,deny
+        Deny from all
+    </FilesMatch>
+
+    # Blokir akses ke direktori internal Laravel
+    RewriteRule ^(app|bootstrap|config|database|resources|routes|storage|tests)/ - [F,L,NC]
+
+    # Teruskan seluruh trafik ke folder public/
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

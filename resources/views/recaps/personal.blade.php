@@ -1,173 +1,147 @@
 @extends('layouts.app')
 
-@section('title', 'Rekapitulasi Shift Saya')
+@section('title', 'Rekapitulasi Shift Saya - Hotel Nuansa')
+@section('page_title', 'Shift Saya')
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <!-- Header -->
-    <div class="mb-8">
-        <h1 class="text-3xl font-bold text-slate-800">📊 Rekapitulasi Shift Saya</h1>
-        <p class="text-slate-600 mt-2">{{ $userName }} | {{ $today->isoFormat('dddd, D MMMM Y') }}</p>
+<div class="space-y-6">
+
+  <!-- TOP HEADER -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h2 class="text-xl md:text-2xl font-extrabold text-[#0B192C]">Rekapitulasi Shift Saya</h2>
+      <p class="text-xs md:text-sm text-slate-500 font-medium mt-0.5">
+        Petugas: <strong>{{ $userName }}</strong> | {{ $today->isoFormat('dddd, D MMMM YYYY') }}
+      </p>
     </div>
 
-    <!-- Summary Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-slate-600 text-sm mb-1">Total Pendapatan</p>
-                    <p class="text-2xl font-bold text-emerald-600">
-                        Rp {{ number_format($totalCashIn, 0, ',', '.') }}
-                    </p>
-                </div>
-                <div class="bg-emerald-100 rounded-full p-3">
-                    <i class="fas fa-sack-dollar text-emerald-600 text-2xl"></i>
-                </div>
-            </div>
-        </div>
+    <!-- Print Button -->
+    <button onclick="window.print()" 
+            class="bg-white border border-stone-300 hover:bg-stone-50 text-[#0B192C] font-bold px-5 py-2 rounded-full text-xs shadow-xs transition-all flex items-center gap-2 self-start sm:self-auto">
+      <i class="fas fa-print"></i>
+      <span>Cetak Laporan Shift</span>
+    </button>
+  </div>
 
-        <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-slate-600 text-sm mb-1">Total Transaksi</p>
-                    <p class="text-2xl font-bold text-blue-600">{{ $totalTransactions }}</p>
-                </div>
-                <div class="bg-blue-100 rounded-full p-3">
-                    <i class="fas fa-receipt text-blue-600 text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-slate-600 text-sm mb-1">Transaksi Selesai</p>
-                    <p class="text-2xl font-bold text-green-600">{{ $finishedTransactions }}</p>
-                </div>
-                <div class="bg-green-100 rounded-full p-3">
-                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-md p-6 border border-slate-200">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-slate-600 text-sm mb-1">Transaksi Aktif</p>
-                    <p class="text-2xl font-bold text-amber-600">{{ $activeTransactions }}</p>
-                </div>
-                <div class="bg-amber-100 rounded-full p-3">
-                    <i class="fas fa-hourglass-half text-amber-600 text-2xl"></i>
-                </div>
-            </div>
-        </div>
+  <!-- SUMMARY CARDS -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- Total Kas Masuk -->
+    <div class="bg-[#1D58B8] text-white rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+      <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white mb-2">
+        <i class="fas fa-money-bill-wave text-base"></i>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-blue-100">Total Uang Masuk</p>
+        <h3 class="text-2xl md:text-3xl font-black tracking-tight mt-1">
+          Rp {{ number_format($totalCashIn, 0, ',', '.') }}
+        </h3>
+        <p class="text-[11px] text-blue-200 mt-0.5">Uang tunai shift ini</p>
+      </div>
     </div>
 
-    <!-- Transactions List -->
-    <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
-        <div class="px-6 py-4 bg-slate-50 border-b border-slate-200">
-            <h2 class="text-lg font-semibold text-slate-800">
-                <i class="fas fa-list mr-2"></i>Transaksi Hari Ini
-            </h2>
-        </div>
-
-        @if($transactions->isEmpty())
-            <div class="text-center py-12 text-slate-500">
-                <i class="fas fa-inbox text-5xl mb-4"></i>
-                <p class="text-lg">Belum ada transaksi hari ini</p>
-            </div>
-        @else
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                No. Invoice
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                Pelanggan
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                Kamar
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                Check-in
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                Check-out
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th class="px-6 py-3 text-right text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                Total
-                            </th>
-                            <th class="px-6 py-3 text-center text-xs font-semibold text-slate-600 uppercase tracking-wider">
-                                Aksi
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-slate-200">
-                        @foreach($transactions as $tx)
-                        <tr class="hover:bg-slate-50 transition">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm font-mono text-slate-700">{{ $tx->invoice_code }}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-slate-800">{{ $tx->guest_name }}</div>
-                                <div class="text-xs text-slate-500">{{ $tx->guest_phone }}</div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="text-sm font-semibold text-slate-700">
-                                    <i class="fas fa-door-open text-slate-500 mr-1"></i>{{ $tx->room->room_number }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                {{ \Carbon\Carbon::parse($tx->check_in)->format('d/m/Y H:i') }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
-                                @if($tx->check_out)
-                                    {{ \Carbon\Carbon::parse($tx->check_out)->format('d/m/Y H:i') }}
-                                @else
-                                    <span class="text-slate-400">-</span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($tx->status === 'active')
-                                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-700">
-                                        <i class="fas fa-clock mr-1"></i>Aktif
-                                    </span>
-                                @else
-                                    <span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-700">
-                                        <i class="fas fa-check mr-1"></i>Selesai
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right">
-                                <span class="text-sm font-bold text-slate-800">
-                                    Rp {{ number_format($tx->total_price, 0, ',', '.') }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <a href="{{ route('transactions.show', $tx->id) }}" 
-                                   class="inline-flex items-center px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition">
-                                    <i class="fas fa-eye mr-1"></i>Detail
-                                </a>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
+    <!-- Total Transaksi -->
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200/50 flex flex-col justify-between">
+      <div class="w-10 h-10 rounded-2xl bg-stone-100 flex items-center justify-center text-slate-600 mb-2">
+        <i class="fas fa-receipt text-base"></i>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-400">Total Transaksi</p>
+        <h3 class="text-2xl md:text-3xl font-black text-[#0B192C] mt-1">{{ $totalTransactions }}</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Ditangani oleh Anda</p>
+      </div>
     </div>
 
-    <!-- Back Button -->
-    <div class="mt-6">
-        <a href="{{ route('dashboard') }}" 
-           class="inline-flex items-center px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition">
-            <i class="fas fa-arrow-left mr-2"></i>Kembali ke Dashboard
-        </a>
+    <!-- Transaksi Selesai -->
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200/50 flex flex-col justify-between">
+      <div class="w-10 h-10 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600 mb-2">
+        <i class="fas fa-check-circle text-base"></i>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-400">Checkout Selesai</p>
+        <h3 class="text-2xl md:text-3xl font-black text-emerald-600 mt-1">{{ $finishedTransactions }}</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Tamu sudah selesai</p>
+      </div>
     </div>
+
+    <!-- Transaksi Aktif -->
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200/50 flex flex-col justify-between">
+      <div class="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-600 mb-2">
+        <i class="fas fa-bed text-base"></i>
+      </div>
+      <div>
+        <p class="text-xs font-semibold text-slate-400">Kamar Masih Aktif</p>
+        <h3 class="text-2xl md:text-3xl font-black text-amber-600 mt-1">{{ $activeTransactions }}</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Sedang menginap</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRANSACTIONS TABLE CARD -->
+  <div class="bg-white rounded-3xl shadow-sm border border-stone-200/50 overflow-hidden">
+    <div class="p-6 border-b border-stone-100 flex items-center justify-between">
+      <h3 class="text-base font-bold text-[#0B192C]">Rincian Transaksi Shift Hari Ini</h3>
+      <span class="text-xs font-semibold text-slate-400">{{ count($transactions) }} Transaksi</span>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left text-xs md:text-sm">
+        <thead class="bg-[#F8F5EF] text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+          <tr>
+            <th class="py-3.5 px-6">Invoice</th>
+            <th class="py-3.5 px-6">Nama Tamu</th>
+            <th class="py-3.5 px-6">Kamar</th>
+            <th class="py-3.5 px-6">Waktu Masuk</th>
+            <th class="py-3.5 px-6">Durasi</th>
+            <th class="py-3.5 px-6">Total Tagihan</th>
+            <th class="py-3.5 px-6 text-center">Status</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-stone-100 font-medium">
+          @forelse($transactions as $tx)
+            <tr class="hover:bg-[#FBF9F5] transition-colors">
+              <td class="py-4 px-6 font-extrabold text-[#0B192C]">
+                {{ $tx->invoice_code }}
+              </td>
+              <td class="py-4 px-6 font-bold text-slate-800">
+                {{ $tx->guest_name }}
+              </td>
+              <td class="py-4 px-6">
+                <span class="bg-stone-100 text-[#0B192C] font-bold px-2.5 py-1 rounded-xl text-xs">
+                  {{ $tx->room->room_number ?? '-' }}
+                </span>
+              </td>
+              <td class="py-4 px-6 text-slate-600 text-xs">
+                {{ $tx->created_at->format('H:i') }} WIB
+              </td>
+              <td class="py-4 px-6 text-slate-600 text-xs">
+                {{ $tx->duration }} malam
+              </td>
+              <td class="py-4 px-6 font-black text-[#0B192C]">
+                Rp {{ number_format($tx->total_price, 0, ',', '.') }}
+              </td>
+              <td class="py-4 px-6 text-center">
+                @if($tx->status === 'finished')
+                  <span class="bg-[#DCFCE7] text-[#16A34A] font-bold px-3 py-1 rounded-full text-[11px]">
+                    Selesai
+                  </span>
+                @else
+                  <span class="bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded-full text-[11px]">
+                    Aktif
+                  </span>
+                @endif
+              </td>
+            </tr>
+          @empty
+            <tr>
+              <td colspan="7" class="py-12 text-center text-slate-400 text-xs font-medium">
+                Belum ada transaksi yang ditangani pada shift ini.
+              </td>
+            </tr>
+          @endforelse
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>
 @endsection

@@ -15,20 +15,28 @@ class HotelSeeder extends Seeder
     public function run(): void
     {
         // 1 Admin User
-        $admin = User::create([
-            'name' => 'Admin Nuansa',
-            'phone' => 'admin',
-            'password' => Hash::make('admin123'),
-            'role' => 'admin',
-        ]);
+        $admin = User::firstOrCreate(
+            ['phone' => 'admin'],
+            [
+                'name' => 'Admin Nuansa',
+                'email' => 'admin@nuansa.local',
+                'phone' => 'admin',
+                'password' => Hash::make('admin123'),
+                'role' => 'admin',
+            ]
+        );
 
         // 1 Kasir User
-        $kasir = User::create([
-            'name' => 'Kasir Nuansa',
-            'phone' => 'kasir',
-            'password' => Hash::make('kasir123'),
-            'role' => 'kasir',
-        ]);
+        $kasir = User::firstOrCreate(
+            ['phone' => 'kasir'],
+            [
+                'name' => 'Kasir Nuansa',
+                'email' => 'kasir@nuansa.local',
+                'phone' => 'kasir',
+                'password' => Hash::make('kasir123'),
+                'role' => 'kasir',
+            ]
+        );
 
         // 32 Kamar Hotel Nuansa
         $rooms = [

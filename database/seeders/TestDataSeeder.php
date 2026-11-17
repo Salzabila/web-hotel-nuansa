@@ -20,16 +20,16 @@ class TestDataSeeder extends Seeder
         // Create users
         $admin = User::create([
             'name' => 'Admin Hotel',
-            'username' => 'admin',
-            'email' => 'admin@hotelnuansa.com',
+            'phone' => '08100000001',
+            'username' => '08100000001',
             'password' => Hash::make('password123'),
             'role' => 'admin',
         ]);
 
         $kasir = User::create([
             'name' => 'Kasir 1',
-            'username' => 'kasir1',
-            'email' => 'kasir1@hotelnuansa.com',
+            'phone' => '08100000002',
+            'username' => '08100000002',
             'password' => Hash::make('password123'),
             'role' => 'kasir',
         ]);

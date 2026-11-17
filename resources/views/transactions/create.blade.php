@@ -15,19 +15,6 @@
     </p>
   </div>
 
-  <!-- Express Check-in Banner -->
-  <div class="bg-gradient-to-r from-emerald-500 to-teal-600 rounded-2xl p-6 mb-6 text-white shadow-lg">
-    <div class="flex items-center gap-4">
-      <div class="w-14 h-14 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm">
-        <i class="fas fa-bolt text-3xl"></i>
-      </div>
-      <div>
-        <h2 class="text-2xl font-bold mb-1">Express Check-in</h2>
-        <p class="text-emerald-50 text-sm">Cetak struk dulu, isi buku tamu nanti! Tamu tidak perlu menunggu lama.</p>
-      </div>
-    </div>
-  </div>
-
   <form method="POST" action="{{ route('transactions.store', $room->id) }}" enctype="multipart/form-data" id="checkInForm">
     @csrf
     
@@ -251,12 +238,20 @@
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex gap-4">
+    <div class="flex gap-3 flex-wrap">
       <button 
         type="submit" 
-        class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
+        class="flex-1 min-w-[220px] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-5 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
         <i class="fas fa-bolt text-2xl"></i>
-        <span class="text-xl">Express Check-in - Cetak Struk</span>
+        <span class="text-xl">Check-in - Cetak Struk</span>
+      </button>
+      <button 
+        type="button" 
+        id="doneBtn"
+        onclick="submitFormWithoutPrint()"
+        class="flex-1 min-w-[180px] bg-blue-600 hover:bg-blue-700 text-white font-bold py-5 rounded-xl transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
+        <i class="fas fa-check-circle text-2xl"></i>
+        <span class="text-xl">Selesai</span>
       </button>
       <a 
         href="{{ route('dashboard') }}" 
@@ -361,6 +356,20 @@
       icon.classList.remove('fa-chevron-up');
       icon.classList.add('fa-chevron-down');
     }
+  }
+
+  // Submit form without printing (Selesai button)
+  function submitFormWithoutPrint() {
+    // Set a hidden input to indicate we're not printing
+    const form = document.getElementById('checkInForm');
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'skip_print';
+    input.value = '1';
+    form.appendChild(input);
+    
+    // Submit the form
+    form.submit();
   }
   
   // Initialize on page load

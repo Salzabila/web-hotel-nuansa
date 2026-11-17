@@ -199,6 +199,26 @@
             <i class="fas fa-exclamation-circle mr-1"></i>Wajib diisi - Masukkan jumlah uang tunai yang diterima dari pelanggan
           </p>
         </div>
+
+        <!-- Metode Pembayaran Checkout -->
+        <div>
+          <label class="block text-sm font-semibold text-slate-700 mb-2">
+            <i class="fas fa-wallet text-amber-500 mr-1"></i>
+            Metode Pembayaran
+          </label>
+          <select 
+            name="payment_method_id" 
+            class="w-full px-4 py-3 border-2 border-slate-200 bg-white rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-base font-medium">
+            @foreach($paymentMethods as $pm)
+              <option value="{{ $pm->id }}" {{ (old('payment_method_id', $tx->payment_method_id) == $pm->id) ? 'selected' : '' }}>
+                {{ $pm->bank_name ?: $pm->name }}@if(!empty($pm->account_number)) - {{ $pm->account_number }}@endif
+              </option>
+            @endforeach
+          </select>
+          <p class="text-xs text-slate-500 mt-1.5 font-medium">
+            Metode pembayaran awal: <strong>{{ $tx->paymentMethod->bank_name ?? $tx->paymentMethod->name ?? 'Cash' }}</strong>. Anda dapat mengubahnya jika pelanggan menyelesaikan pembayaran dengan metode lain.
+          </p>
+        </div>
         <!-- Cashier Selection -->
         <div>
           <label class="block text-sm font-semibold text-slate-700 mb-2">

@@ -19,6 +19,16 @@ class PaymentMethod extends Model
         'is_active' => 'boolean'
     ];
 
+    protected $appends = ['name'];
+
+    /**
+     * Accessor agar $pm->name mengembalikan bank_name
+     */
+    public function getNameAttribute(): string
+    {
+        return $this->bank_name ?? '';
+    }
+
     /**
      * Get transactions with this payment method
      */

@@ -2,56 +2,37 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Cashier;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class CashierController extends Controller
 {
     /**
-     * Display list of cashiers
+     * Legacy compatibility wrapper.
+     * Kasir di aplikasi ini dikelola melalui tabel users dengan role = kasir.
      */
     public function index()
     {
-        $cashiers = Cashier::where('is_active', true)->orderBy('name')->get();
-        return view('cashiers.index', compact('cashiers'));
+        return redirect()->route('users.index')->with('error', 'Kasir dikelola melalui Manajemen User.');
     }
 
-    /**
-     * Store new cashier
-     */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:100|unique:cashiers,name',
-        ]);
-
-        Cashier::create([
-            'name' => $data['name'],
-            'is_active' => true,
-        ]);
-
-        return redirect()->route('cashiers.index')->with('success', '✓ Kasir "' . $data['name'] . '" berhasil ditambahkan!');
+        return redirect()->route('users.create')->with('error', 'Buat akun kasir baru melalui form user.');
     }
 
-    /**
-     * Delete cashier (soft delete by setting is_active = false)
-     */
-    public function destroy(Cashier $cashier)
+    public function destroy(User $user)
     {
-        $cashier->update(['is_active' => false]);
-        
-        return redirect()->route('cashiers.index')->with('success', '✓ Kasir "' . $cashier->name . '" berhasil dihapus!');
+        return redirect()->route('users.index')->with('error', 'Hapus kasir melalui menu Manajemen User.');
     }
 
     /**
-     * API endpoint to get active cashiers for dropdown
+     * Compatibility API: return active cashier users only.
      */
     public function getActiveCashiers()
     {
-        $cashiers = Cashier::where('is_active', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
-        
+        $cashiers = User::where('role', 'kasir')->orderBy('name')->get(['id', 'name']);
+
         return response()->json($cashiers);
     }
 }

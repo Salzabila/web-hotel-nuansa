@@ -9,7 +9,7 @@ class ExpenseController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Expense::query();
+        $query = Expense::with('user');
 
         // Search by description
         if ($request->filled('search')) {
@@ -29,7 +29,7 @@ class ExpenseController extends Controller
             $query->whereDate('date', '<=', $request->date_to);
         }
 
-        $expenses = $query->orderByDesc('date')->paginate(20);
+        $expenses = $query->orderByDesc('date')->paginate(15);
         
         return view('expenses.index', compact('expenses'));
     }
@@ -43,12 +43,14 @@ class ExpenseController extends Controller
     {
         $data = $request->validate([
             'category' => 'required|in:maintenance,utilities,supplies,other',
-            'description' => 'nullable|string',
+            'description' => 'nullable|string|max:255',
             'amount' => 'required|numeric|min:0',
             'date' => 'required|date',
         ]);
 
+        $data['user_id'] = auth()->id();
+
         Expense::create($data);
-        return redirect()->route('expenses.index')->with('success','Pengeluaran dicatat.');
+        return redirect()->route('expenses.index')->with('success','✓ Pengeluaran operasional berhasil dicatat.');
     }
 }

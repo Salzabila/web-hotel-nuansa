@@ -35,21 +35,80 @@ class TransactionController extends Controller
         return 'Malam';
     }
 
+    public function frontOffice(Request $request)
+    {
+        $availableRooms = Room::where('status', 'available')->orderBy('room_number')->get();
+        $allRooms = Room::orderBy('room_number')->get();
+        $paymentMethods = PaymentMethod::active()->get();
+
+        $activeTransactions = Transaction::with(['room', 'user', 'paymentMethod'])
+            ->where('status', 'active')
+            ->orderBy('check_in', 'desc')
+            ->get();
+
+        $selectedTxId = $request->get('tx_id');
+        $selectedTx = null;
+        if ($selectedTxId) {
+            $selectedTx = $activeTransactions->firstWhere('id', $selectedTxId);
+        }
+        if (!$selectedTx && $activeTransactions->isNotEmpty()) {
+            $selectedTx = $activeTransactions->first();
+        }
+
+        $selectedRoomId = $request->get('room_id');
+        $selectedRoom = null;
+        if ($selectedRoomId) {
+            $selectedRoom = $availableRooms->firstWhere('id', $selectedRoomId);
+        }
+        if (!$selectedRoom && $availableRooms->isNotEmpty()) {
+            $selectedRoom = $availableRooms->first();
+        }
+
+        $currentShift = $this->getCurrentShift();
+        $myTodayCashIn = Transaction::where('user_id', Auth::id())
+            ->whereDate('created_at', Carbon::today())
+            ->where('status', 'finished')
+            ->sum('total_price');
+
+        $incompleteGuests = Transaction::with(['room'])
+            ->where('status', 'active')
+            ->where('is_guest_data_complete', false)
+            ->get();
+        $incompleteGuestsCount = $incompleteGuests->count();
+
+        // Tamu yang mendekati waktu checkout / lewat checkout
+        $approachingCheckoutGuests = $activeTransactions->filter(function ($tx) {
+            return in_array($tx->checkout_urgency, ['overdue', 'imminent', 'today']);
+        });
+        $approachingCheckoutCount = $approachingCheckoutGuests->count();
+
+        $cashiers = \App\Models\User::orderBy('name')->get(['id', 'name']);
+
+        return view('transactions.front-office', compact(
+            'availableRooms',
+            'allRooms',
+            'paymentMethods',
+            'activeTransactions',
+            'selectedTx',
+            'selectedRoom',
+            'currentShift',
+            'myTodayCashIn',
+            'incompleteGuests',
+            'incompleteGuestsCount',
+            'approachingCheckoutGuests',
+            'approachingCheckoutCount',
+            'cashiers'
+        ));
+    }
+
     public function create($roomId)
     {
         $room = Room::findOrFail($roomId);
         if ($room->status !== 'available') {
-            return redirect()->route('dashboard')->with('error','Kamar tidak tersedia.');
+            return redirect()->route('dashboard')->with('error', "❌ Kamar {$room->room_number} tidak tersedia. Status: {$room->status}");
         }
 
-        // Cek apakah kamar sudah memiliki transaksi aktif
-        if (Transaction::where('room_id', $room->id)->where('status', 'active')->exists()) {
-            return redirect()->route('dashboard')->with('error', 'Kamar sudah terikat dengan transaksi aktif.');
-        }
-
-        $paymentMethods = PaymentMethod::active()->get();
-
-        return view('transactions.create', compact('room', 'paymentMethods'));
+        return redirect()->route('checkin', ['room_id' => $roomId]);
     }
 
     /**
@@ -89,7 +148,7 @@ class TransactionController extends Controller
             $duration = (int) $data['duration'];
 
             $checkInDate = Carbon::now();
-            $checkOutDate = $checkInDate->copy()->addDays($duration);
+            $checkOutDate = $checkInDate->copy()->addDays($duration)->setTime(12, 0, 0);
 
             // Auto-calculate Total = Room Price * Duration
             $total = $room->price_per_night * $duration;
@@ -133,6 +192,13 @@ class TransactionController extends Controller
             
             DB::commit();
 
+            // Check if skip_print flag is set
+            if ($request->has('skip_print') && $request->input('skip_print') == '1') {
+                // Redirect to dashboard without printing
+                return redirect()->route('dashboard')
+                    ->with('success', '✓ Check-in Berhasil! Invoice: ' . $transaction->invoice_code);
+            }
+
             // Redirect ke halaman print struk
             return redirect()->route('transactions.receipt', $transaction->id)
                 ->with('success', '✓ Check-in Berhasil! Invoice: ' . $transaction->invoice_code);
@@ -158,7 +224,7 @@ class TransactionController extends Controller
 
     public function showCheckout($id)
     {
-        $tx = Transaction::with('room', 'user')->findOrFail($id);
+        $tx = Transaction::with('room', 'user', 'paymentMethod')->findOrFail($id);
         
         if ($tx->status !== 'active') {
             return redirect()->route('dashboard')->with('error','Transaksi sudah selesai.');
@@ -166,8 +232,9 @@ class TransactionController extends Controller
 
         $currentShift = $this->getCurrentShift();
         $cashiers = \App\Models\User::orderBy('name')->get(['id', 'name']);
+        $paymentMethods = PaymentMethod::active()->get();
 
-        return view('transactions.checkout', compact('tx', 'currentShift', 'cashiers'));
+        return view('transactions.checkout', compact('tx', 'currentShift', 'cashiers', 'paymentMethods'));
     }
 
     /**
@@ -176,7 +243,7 @@ class TransactionController extends Controller
     public function getCheckoutData($id)
     {
         try {
-            $tx = Transaction::with('room', 'user')->findOrFail($id);
+            $tx = Transaction::with('room', 'user', 'paymentMethod')->findOrFail($id);
             
             if ($tx->status !== 'active') {
                 return response()->json([
@@ -212,6 +279,7 @@ class TransactionController extends Controller
                 'paid_amount' => 'required|numeric|min:0',
                 'cashier_name' => 'required|string|max:100',
                 'shift' => 'required|in:Pagi,Malam',
+                'payment_method_id' => 'nullable|exists:payment_methods,id',
             ];
             
             // If guarantee is held, require confirmation of return
@@ -222,6 +290,11 @@ class TransactionController extends Controller
             $data = $request->validate($validationRules);
 
             DB::beginTransaction();
+
+            // Update payment method if selected at checkout
+            if (!empty($data['payment_method_id'])) {
+                $tx->payment_method_id = $data['payment_method_id'];
+            }
 
             // Update additional charges
             $tx->additional_charges = $data['additional_charges'] ?? 0;
@@ -417,10 +490,11 @@ class TransactionController extends Controller
     public function updateGuestData(Request $request, $id)
     {
         try {
-            $tx = Transaction::findOrFail($id);
+            $tx = Transaction::with('room')->findOrFail($id);
             
-            // Validasi data tamu (REQUIRED untuk melengkapi data)
+            // Validasi data tamu
             $data = $request->validate([
+                'guest_name' => 'nullable|string|max:255',
                 'guest_nik' => 'required|string|max:50',
                 'guest_phone' => 'required|string|max:20',
                 'guest_address' => 'required|string',
@@ -428,18 +502,23 @@ class TransactionController extends Controller
                 'is_ktp_held' => 'nullable|boolean',
             ]);
             
-            // Update data tamu (nama tetap dari check-in awal)
-            $tx->update([
+            $payload = [
                 'guest_nik' => $data['guest_nik'],
                 'guest_phone' => $data['guest_phone'],
                 'guest_address' => $data['guest_address'],
                 'guarantee_type' => $data['guarantee_type'],
                 'is_ktp_held' => $request->has('is_ktp_held') || ($data['is_ktp_held'] ?? false),
                 'is_guest_data_complete' => true, // Mark as complete
-            ]);
+            ];
+
+            if (!empty($data['guest_name'])) {
+                $payload['guest_name'] = $data['guest_name'];
+            }
             
-            return redirect()->route('transactions.guestBook', $tx->id)
-                ->with('success', '✓ Data tamu berhasil dilengkapi! Buku tamu telah diperbarui.');
+            $tx->update($payload);
+            
+            return redirect()->route('front-office')
+                ->with('success', '✓ Data identitas tamu Kamar ' . ($tx->room->room_number ?? '') . ' (' . $tx->guest_name . ') berhasil dilengkapi!');
             
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->withErrors($e->validator)->withInput()

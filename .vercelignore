@@ -1,0 +1,8 @@
+.git
+.github
+tests
+hotel-nuansa-cpanel.zip
+*.log
+.phpunit.result.cache
+Homestead.json
+Homestead.yaml

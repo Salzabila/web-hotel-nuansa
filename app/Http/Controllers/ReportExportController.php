@@ -41,11 +41,14 @@ class ReportExportController extends Controller
         ];
 
         $pdf = Pdf::loadView('exports.transactions-pdf', $data)
-            ->setPaper('a4', 'portrait')
+            ->setPaper('A4', 'portrait')
             ->setOptions([
                 'isHtml5ParserEnabled' => true,
                 'isPhpEnabled' => true,
-                'defaultFont' => 'sans-serif'
+                'defaultFont' => 'sans-serif',
+                'dpi' => 150,
+                'chroot' => public_path(),
+                'isRemoteEnabled' => true,
             ]);
 
         return $pdf->download('Laporan-Transaksi-' . Carbon::now()->format('Y-m-d') . '.pdf');
@@ -64,17 +67,18 @@ class ReportExportController extends Controller
             ->whereBetween('check_in', [$startDate, $endDate])
             ->sum('total_price');
 
-        // Pengeluaran Operasional
-        $expenses = OperationalExpense::whereBetween('expense_date', [$startDate, $endDate])
+        // Pengeluaran Operasional (Unified Expense Model)
+        $expenses = Expense::with('user')
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
             ->get();
         
         $totalExpenses = $expenses->sum('amount');
 
         // Komisi TC
         $tcCommission = Transaction::where('status', 'finished')
-            ->where('payment_method', 'travel_company')
-            ->whereBetween('check_in', [$startDate, $endDate])
-            ->sum('tc_commission');
+            ->where('is_tc', true)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->sum('tc_nominal');
 
         // Laba Bersih
         $netProfit = $revenue - $totalExpenses - $tcCommission;
@@ -99,11 +103,14 @@ class ReportExportController extends Controller
         ];
 
         $pdf = Pdf::loadView('exports.financial-pdf', $data)
-            ->setPaper('a4', 'portrait')
+            ->setPaper('A4', 'portrait')
             ->setOptions([
                 'isHtml5ParserEnabled' => true,
                 'isPhpEnabled' => true,
-                'defaultFont' => 'sans-serif'
+                'defaultFont' => 'sans-serif',
+                'dpi' => 150,
+                'chroot' => public_path(),
+                'isRemoteEnabled' => true,
             ]);
 
         return $pdf->download('Laporan-Keuangan-' . Carbon::now()->format('Y-m-d') . '.pdf');
@@ -141,13 +148,15 @@ class ReportExportController extends Controller
             ->whereBetween('check_in', [$startDate, $endDate])
             ->sum('total_price');
 
-        $expenses = OperationalExpense::whereBetween('expense_date', [$startDate, $endDate])->get();
+        $expenses = Expense::with('user')
+            ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+            ->get();
         $totalExpenses = $expenses->sum('amount');
 
         $tcCommission = Transaction::where('status', 'finished')
-            ->where('payment_method', 'travel_company')
-            ->whereBetween('check_in', [$startDate, $endDate])
-            ->sum('tc_commission');
+            ->where('is_tc', true)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->sum('tc_nominal');
 
         $netProfit = $revenue - $totalExpenses - $tcCommission;
 

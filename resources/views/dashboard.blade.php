@@ -1,899 +1,702 @@
 @extends('layouts.app')
 
+@section('title', 'Dashboard - Hotel Nuansa')
+@section('page_title', 'Dashboard')
+
 @section('content')
-<div class="container-fluid px-4 md:px-6 lg:px-8 py-6">
-  <!-- Header with Quick Actions -->
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-    <div>
-      <h1 class="text-2xl md:text-3xl font-bold text-slate-800">Selamat datang, {{ auth()->user()->name }}! 👋</h1>
-      <p class="text-slate-500 mt-1 text-sm">Dashboard Hotel Nuansa</p>
-    </div>
-    <!-- Quick Actions -->
-    <div class="flex gap-3">
-      <a href="{{ route('transactions.index') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-lg transition-all shadow-sm hover:shadow-md" aria-label="Transaksi">
-        <i class="fas fa-receipt"></i>
-        <span class="hidden md:inline">Transaksi</span>
-      </a>
-      <a href="{{ route('expenses.index') }}" class="inline-flex items-center gap-2 text-white font-semibold px-4 py-2.5 rounded-lg transition-all shadow-sm hover:shadow-md" style="background-color: #f97316; hover:background-color: #ea580c;" aria-label="Pengeluaran">
-        <i class="fas fa-money-bill-wave"></i>
-        <span class="hidden md:inline">Pengeluaran</span>
-      </a>
-    </div>
-  </div>
+<div class="space-y-6">
 
-  <!-- Stats Cards -->
-  <div class="mb-8">
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      <!-- Total Kamar -->
-      <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex-1">
-            <p class="text-slate-500 text-xs font-medium">Total Kamar</p>
-            <p class="text-2xl font-bold text-slate-800 my-1">{{ $totalRooms }}</p>
-            <p class="text-xs text-slate-400">Kapasitas Hotel</p>
-          </div>
-          <div class="w-10 h-10 bg-teal-50 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-door-open text-lg text-teal-500"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Kamar Tersedia -->
-      <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex-1">
-            <p class="text-slate-500 text-xs font-medium">Kamar Tersedia</p>
-            <p class="text-2xl font-bold text-slate-800 my-1">{{ $availableRooms }}</p>
-            <p class="text-xs text-slate-400">Siap Ditempati</p>
-          </div>
-          <div class="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-check-circle text-lg text-emerald-500"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Kamar Terisi -->
-      <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex-1">
-            <p class="text-slate-500 text-xs font-medium">Kamar Terisi</p>
-            <p class="text-2xl font-bold text-slate-800 my-1">{{ $occupiedRooms }}</p>
-            <p class="text-xs text-slate-400">Sedang Dihuni</p>
-          </div>
-          <div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-user text-lg text-rose-500"></i>
-          </div>
-        </div>
-      </div>
-
-      <!-- Perlu Cleaning -->
-      <div class="bg-white hover:shadow-lg transition-all duration-300 p-5 rounded-xl shadow-sm border border-slate-200 hover:border-slate-300">
-        <div class="flex items-center justify-between gap-2">
-          <div class="flex-1">
-            <p class="text-slate-500 text-xs font-medium">Perlu Cleaning</p>
-            <p class="text-2xl font-bold text-slate-800 my-1">{{ $dirtyRooms }}</p>
-            <p class="text-xs text-slate-400">Butuh Pembersihan</p>
-          </div>
-          <div class="w-10 h-10 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
-            <i class="fas fa-broom text-lg text-amber-600"></i>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Financial Highlight -->
-  <div class="mb-8">
-    <div class="bg-blue-600 hover:shadow-xl transition-all duration-300 p-6 rounded-xl shadow-md border border-blue-500">
-      <div class="flex items-center justify-between">
-        <div class="flex-1">
-          <p class="text-blue-100 text-sm font-medium mb-2">Omset Hari Ini</p>
-          <p class="text-3xl md:text-4xl font-black text-white mb-1">Rp {{ number_format($todayRevenue, 0, ',', '.') }}</p>
-          <p class="text-blue-100 text-sm">Total pendapatan hari ini</p>
-        </div>
-        <div class="w-16 h-16 md:w-20 md:h-20 bg-white bg-opacity-20 rounded-2xl flex items-center justify-center">
-          <i class="fas fa-money-bill-wave text-4xl text-white"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Main Content Grid: Charts + Financial Panel -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-8">
-    <!-- LEFT: Charts Area (col-md-8) -->
-    <div class="lg:col-span-8">
-      <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-200">
-        <!-- Tabs Navigation -->
-        <div class="flex gap-2 mb-4 border-b border-slate-200 pb-3">
-          <button onclick="switchTab('revenue')" id="tab-revenue" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-blue-500 text-white">
-            <i class="fas fa-chart-line mr-2"></i>Grafik Pendapatan
-          </button>
-          <button onclick="switchTab('transactions')" id="tab-transactions" class="tab-btn px-4 py-2 rounded-lg font-semibold text-sm transition-all bg-slate-100 text-slate-600 hover:bg-slate-200">
-            <i class="fas fa-chart-bar mr-2"></i>Grafik Transaksi
-          </button>
-        </div>
-
-        <!-- Revenue Chart Tab -->
-        <div id="content-revenue" class="tab-content">
-          <div class="mb-3">
-            <h2 class="text-lg font-bold text-slate-800">Pendapatan Harian</h2>
-            <p class="text-slate-500 text-sm mt-0.5">Total pendapatan 7 hari terakhir</p>
-          </div>
-          <div class="relative w-full h-64 md:h-80">
-            @if(empty($chartData) || array_sum($chartData) == 0)
-              <!-- Empty State -->
-              <div class="flex flex-col items-center justify-center h-full text-slate-400">
-                <i class="fas fa-chart-line text-6xl mb-4 opacity-20"></i>
-                <p class="text-lg font-semibold text-slate-500">Belum ada data pendapatan</p>
-                <p class="text-sm text-slate-400 mt-1">Data akan muncul setelah ada transaksi selesai</p>
-              </div>
-            @else
-              <canvas id="revenueChart"></canvas>
-            @endif
-          </div>
-        </div>
-
-        <!-- Transactions Chart Tab -->
-        <div id="content-transactions" class="tab-content hidden">
-          <div class="mb-3">
-            <h2 class="text-lg font-bold text-slate-800">Transaksi Harian</h2>
-            <p class="text-slate-500 text-sm mt-0.5">Jumlah transaksi selesai 7 hari terakhir</p>
-          </div>
-          <div class="relative w-full h-64 md:h-80">
-            @if(empty($chartTransactions) || array_sum($chartTransactions) == 0)
-              <!-- Empty State -->
-              <div class="flex flex-col items-center justify-center h-full text-slate-400">
-                <i class="fas fa-chart-bar text-6xl mb-4 opacity-20"></i>
-                <p class="text-lg font-semibold text-slate-500">Belum ada data transaksi</p>
-                <p class="text-sm text-slate-400 mt-1">Data akan muncul setelah ada transaksi selesai</p>
-              </div>
-            @else
-              <canvas id="transactionsChart"></canvas>
-            @endif
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- RIGHT: Financial Recap Panel (col-md-4) -->
-    <div class="lg:col-span-4">
-      <div class="bg-white p-5 rounded-2xl shadow-lg border border-slate-200 h-full">
-        <div class="mb-4">
-          <h2 class="text-lg font-bold text-slate-800">Rekap Bulan Ini</h2>
-          <p class="text-slate-500 text-sm mt-0.5">{{ \Carbon\Carbon::now()->format('F Y') }}</p>
-        </div>
-        
-        <div class="relative w-full h-48 mb-4">
-          @if($monthlyRevenue == 0 && $monthlyExpenses == 0 && $monthlyTCCommission == 0)
-            <!-- Empty State -->
-            <div class="flex flex-col items-center justify-center h-full text-slate-400">
-              <i class="fas fa-chart-pie text-5xl mb-3 opacity-20"></i>
-              <p class="text-sm font-semibold text-slate-500">Belum ada data bulan ini</p>
-            </div>
-          @else
-            <canvas id="monthlyPieChart"></canvas>
-          @endif
-        </div>
-        
-        <!-- Enhanced Legend with Better Spacing -->
-        <div class="space-y-3 mt-5">
-          <div class="flex items-center justify-between p-3 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors">
-            <div class="flex items-center gap-2.5">
-              <span class="w-3 h-3 bg-emerald-500 rounded-full shadow-sm"></span>
-              <span class="text-sm font-semibold text-slate-700">Pendapatan</span>
-            </div>
-            <span class="text-sm font-bold text-emerald-700">Rp {{ number_format($monthlyRevenue, 0, ',', '.') }}</span>
-          </div>
-          
-          <div class="flex items-center justify-between p-3 bg-orange-50 rounded-xl hover:bg-orange-100 transition-colors">
-            <div class="flex items-center gap-2.5">
-              <span class="w-3 h-3 bg-orange-500 rounded-full shadow-sm"></span>
-              <span class="text-sm font-semibold text-slate-700">Pengeluaran</span>
-            </div>
-            <span class="text-sm font-bold text-orange-700">Rp {{ number_format($monthlyExpenses, 0, ',', '.') }}</span>
-          </div>
-          
-          <div class="flex items-center justify-between p-3 bg-purple-50 rounded-xl hover:bg-purple-100 transition-colors">
-            <div class="flex items-center gap-2.5">
-              <span class="w-3 h-3 bg-purple-500 rounded-full shadow-sm"></span>
-              <span class="text-sm font-semibold text-slate-700">Komisi TC</span>
-            </div>
-            <span class="text-sm font-bold text-purple-700">Rp {{ number_format($monthlyTCCommission, 0, ',', '.') }}</span>
-          </div>
-          
-          <!-- Laba Bersih -->
-          <div class="flex items-center justify-between p-4 {{ $monthlyProfit >= 0 ? 'bg-blue-50 border-2 border-blue-200' : 'bg-red-50 border-2 border-red-200' }} rounded-xl mt-4">
-            <div class="flex items-center gap-2.5">
-              <span class="w-4 h-4 {{ $monthlyProfit >= 0 ? 'bg-blue-500' : 'bg-red-500' }} rounded-full shadow-md"></span>
-              <span class="text-base font-bold {{ $monthlyProfit >= 0 ? 'text-blue-800' : 'text-red-800' }}">Laba Bersih</span>
-            </div>
-            <span class="text-lg font-black {{ $monthlyProfit >= 0 ? 'text-blue-800' : 'text-red-800' }}">{{ $monthlyProfit >= 0 ? '+' : '' }}Rp {{ number_format($monthlyProfit, 0, ',', '.') }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Master Kamar Section (with proper top margin) -->
-  <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 mt-8">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h2 class="text-xl font-bold text-slate-800">Master Kamar</h2>
-        <p class="text-slate-500 text-sm mt-1">Status dan ketersediaan kamar</p>
-      </div>
-       <a href="{{ route('rooms.index') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all shadow-lg">
-        <i class="fas fa-external-link-alt"></i> Lihat Semua
-      </a>
-    </div>
+  <!-- HERO BANNER -->
+  <div class="relative overflow-hidden rounded-3xl p-7 md:p-9 text-white shadow-xl"
+       style="background: linear-gradient(135deg, #09172B 0%, #0F2A52 50%, #1A4482 100%);">
     
-    <div class="flex flex-wrap gap-6 mb-6 text-sm bg-slate-50 p-5 rounded-xl">
-      <div class="flex items-center gap-3">
-        <span class="w-6 h-6 bg-green-500 rounded-full shadow-md"></span>
-        <span class="text-gray-800 font-semibold">Tersedia</span>
+    <!-- Decorative background curves -->
+    <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-blue-500/10 blur-2xl pointer-events-none"></div>
+    <div class="absolute right-40 -top-20 w-60 h-60 rounded-full bg-amber-400/10 blur-xl pointer-events-none"></div>
+
+    <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <!-- Left Greeting & Actions -->
+      <div class="max-w-xl">
+        <p class="text-slate-300 text-xs md:text-sm font-semibold tracking-wide mb-1.5">
+          Selamat pagi, {{ auth()->user()->name }}
+        </p>
+        <h2 class="text-2xl md:text-4xl font-extrabold tracking-tight leading-snug mb-6">
+          Okupansi hari ini sedang berjalan baik
+        </h2>
+        <div class="flex items-center gap-3.5">
+          <a href="{{ route('checkin') }}" 
+             class="bg-[#F5A623] hover:bg-[#e29515] text-[#0B192C] font-extrabold px-6 py-2.5 rounded-full text-sm shadow-md transition-all hover:scale-105 active:scale-95">
+            Check-in Baru
+          </a>
+          <a href="{{ route('reports.finance') }}" 
+             class="border border-white/40 hover:bg-white/10 hover:border-white text-white font-semibold px-6 py-2.5 rounded-full text-sm transition-all">
+            Lihat Laporan
+          </a>
+        </div>
       </div>
-      <div class="flex items-center gap-3">
-        <span class="w-6 h-6 bg-red-500 rounded-full shadow-md"></span>
-        <span class="text-gray-800 font-semibold">Terisi</span>
+
+      <!-- Right Donut & Room Count Gauge -->
+      <div class="flex items-center gap-6 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 self-start md:self-auto">
+        <!-- SVG Donut Chart -->
+        <div class="relative w-24 h-24 flex items-center justify-center">
+          <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            <!-- Background circle track -->
+            <circle cx="50" cy="50" r="38" stroke="#1E3A68" stroke-width="9" fill="transparent" />
+            <!-- Progress circle -->
+            @php
+              $circumference = 2 * 3.14159 * 38;
+              $dashoffset = $circumference - ($circumference * ($occupancyRate ?? 0) / 100);
+            @endphp
+            <circle cx="50" cy="50" r="38" stroke="#F5A623" stroke-width="9" stroke-linecap="round"
+                    stroke-dasharray="{{ $circumference }}" stroke-dashoffset="{{ $dashoffset }}"
+                    fill="transparent" style="transition: stroke-dashoffset 1s ease-in-out;" />
+          </svg>
+          <div class="absolute inset-0 flex items-center justify-center text-center">
+            <span class="text-white font-black text-lg md:text-xl">{{ $occupancyRate ?? 0 }}%</span>
+          </div>
+        </div>
+
+        <!-- Legend Numbers -->
+        <div class="space-y-1.5 text-xs md:text-sm">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-400"></span>
+            <span class="text-slate-200">Terisi: <strong class="text-white font-bold">{{ $occupiedRooms ?? 0 }}</strong> kamar</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span class="text-slate-200">Tersedia: <strong class="text-white font-bold">{{ $availableRooms ?? 0 }}</strong> kamar</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+            <span class="text-slate-200">Kotor: <strong class="text-white font-bold">{{ $dirtyRooms ?? 0 }}</strong> kamar</span>
+          </div>
+        </div>
       </div>
-      <div class="flex items-center gap-3">
-        <span class="w-6 h-6 bg-slate-400 rounded-full shadow-md"></span>
-        <span class="text-gray-800 font-semibold">Kotor/Cleaning</span>
+    </div>
+  </div>
+
+  <!-- WARNING BANNER: INCOMPLETE GUEST DATA -->
+  @if(($incompleteGuestsCount ?? 0) > 0)
+    <div class="bg-gradient-to-r from-amber-500/15 via-amber-500/10 to-amber-500/5 border-2 border-amber-400 rounded-3xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-start sm:items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-[#F5A623] text-[#0B192C] flex items-center justify-center shrink-0 shadow-md">
+          <i class="fas fa-exclamation-triangle text-xl animate-pulse"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h4 class="text-sm md:text-base font-extrabold text-[#0B192C]">
+              Perhatian: Ada {{ $incompleteGuestsCount }} Tamu Belum Melengkapi Identitas!
+            </h4>
+            <span class="bg-rose-500 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              Express Check-in
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            Terdapat tamu aktif dengan data NIK & identitas belum lengkap. Harap segera lengkapi di Front Office agar tertib administrasi hotel.
+          </p>
+        </div>
       </div>
-      <div class="flex items-center gap-3">
-        <span class="w-6 h-6 bg-yellow-500 rounded-full shadow-md"></span>
-        <span class="text-gray-800 font-semibold">Pemeliharaan</span>
+      <a href="{{ route('front-office') }}#buku-tamu-section" 
+         class="bg-[#F5A623] hover:bg-[#e29515] text-[#0B192C] font-extrabold text-xs px-6 py-3 rounded-full shadow-md transition-all active:scale-95 whitespace-nowrap self-start md:self-auto flex items-center gap-2">
+        <i class="fas fa-user-edit"></i>
+        <span>Lengkapi di Front Office</span>
+      </a>
+    </div>
+  @endif
+
+  <!-- WARNING BANNER: APPROACHING / OVERDUE CHECKOUT -->
+  @if(($approachingCheckoutCount ?? 0) > 0)
+    <div class="bg-gradient-to-r from-rose-500/15 via-amber-500/10 to-transparent border-2 border-rose-400 rounded-3xl p-5 md:p-6 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-start sm:items-center gap-4">
+        <div class="w-12 h-12 rounded-2xl bg-rose-500 text-white flex items-center justify-center shrink-0 shadow-md">
+          <i class="fas fa-bell text-xl animate-bounce"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h4 class="text-sm md:text-base font-extrabold text-[#0B192C]">
+              Peringatan Checkout: Ada {{ $approachingCheckoutCount }} Kamar Mendekati / Melewati Waktu Checkout!
+            </h4>
+            <span class="bg-rose-600 text-white text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase tracking-wider">
+              Batas 12:00
+            </span>
+          </div>
+          <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+            @php
+              $overdueList = $approachingCheckoutGuests->filter(fn($g) => $g->checkout_urgency === 'overdue');
+              $imminentList = $approachingCheckoutGuests->filter(fn($g) => $g->checkout_urgency === 'imminent');
+            @endphp
+            @if($overdueList->isNotEmpty())
+              <strong class="text-rose-600">{{ $overdueList->count() }} kamar sudah melewati jam 12:00:</strong> Kamar {{ $overdueList->map(fn($g) => $g->room->room_number)->join(', ') }}.
+            @endif
+            @if($imminentList->isNotEmpty())
+              <span class="text-amber-800 font-semibold">{{ $imminentList->count() }} kamar sisa waktu < 2 jam: Kamar {{ $imminentList->map(fn($g) => $g->room->room_number)->join(', ') }}.</span>
+            @endif
+            Harap segera hubungi tamu atau proses checkout / extend stay di Front Office.
+          </p>
+        </div>
+      </div>
+      <a href="{{ route('front-office') }}" 
+         class="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs px-6 py-3 rounded-full shadow-md transition-all active:scale-95 whitespace-nowrap self-start md:self-auto flex items-center gap-2">
+        <i class="fas fa-arrow-right-from-bracket"></i>
+        <span>Buka Front Office</span>
+      </a>
+    </div>
+  @endif
+
+  <!-- 4 STAT CARDS ROW -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
+    
+    <!-- Card 1: Total Pendapatan (Solid Royal Blue) -->
+    <div class="bg-[#1D58B8] text-white rounded-3xl p-6 shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px]">
+      <div class="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center text-white mb-3">
+        <i class="fas fa-arrow-trend-up text-sm"></i>
+      </div>
+      <div>
+        <p class="text-blue-100 text-xs font-semibold">Total Pendapatan</p>
+        <h3 class="text-2xl md:text-3xl font-extrabold tracking-tight mt-1 mb-0.5">
+          Rp {{ number_format($monthlyRevenue ?? 0, 0, ',', '.') }}
+        </h3>
+        <p class="text-blue-200 text-xs font-medium">Bulan ini</p>
       </div>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
-      @foreach($rooms->take(8) as $room)
+    <!-- Card 2: Total Pengeluaran (White Card) -->
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200/50 flex flex-col justify-between min-h-[140px]">
+      <div class="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center text-slate-600 mb-3">
+        <i class="fas fa-wallet text-sm"></i>
+      </div>
+      <div>
+        <p class="text-slate-500 text-xs font-semibold">Total Pengeluaran</p>
+        <h3 class="text-2xl md:text-3xl font-extrabold text-[#0B192C] tracking-tight mt-1 mb-0.5">
+          Rp {{ number_format($monthlyExpenses ?? 0, 0, ',', '.') }}
+        </h3>
+        <p class="text-slate-400 text-xs font-medium">Bulan ini</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Komisi TC (White Card) -->
+    <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200/50 flex flex-col justify-between min-h-[140px]">
+      <div class="w-9 h-9 rounded-xl bg-stone-100 flex items-center justify-center text-slate-600 mb-3">
+        <i class="fas fa-user-tag text-sm"></i>
+      </div>
+      <div>
+        <p class="text-slate-500 text-xs font-semibold">Komisi TC</p>
+        <h3 class="text-2xl md:text-3xl font-extrabold text-[#0B192C] tracking-tight mt-1 mb-0.5">
+          Rp {{ number_format($monthlyTCCommission ?? 0, 0, ',', '.') }}
+        </h3>
+        <p class="text-slate-400 text-xs font-medium">Bulan ini</p>
+      </div>
+    </div>
+
+    <!-- Card 4: Estimasi Laba Bersih (Golden Amber) -->
+    <div class="bg-[#F6BA55] text-[#0B192C] rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[140px]">
+      <div class="w-9 h-9 rounded-xl bg-black/10 flex items-center justify-center text-[#0B192C] mb-3">
+        <i class="fas fa-coins text-sm"></i>
+      </div>
+      <div>
+        <p class="text-stone-800 text-xs font-bold">Estimasi Laba Bersih</p>
+        <h3 class="text-2xl md:text-3xl font-extrabold tracking-tight mt-1 mb-0.5">
+          Rp {{ number_format($monthlyProfit ?? 0, 0, ',', '.') }}
+        </h3>
+        <p class="text-stone-700 text-xs font-semibold">Auto-update</p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- MIDDLE ROW: TREN PENDAPATAN + TAMU MENGINAP AKTIF -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <!-- LEFT: Tren Pendapatan 7 Hari (Col 7) -->
+    <div class="lg:col-span-7 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/50 flex flex-col justify-between">
+      <div>
+        <h3 class="text-base font-bold text-[#0B192C] mb-6">Tren Pendapatan 7 Hari</h3>
+        
         @php
-          $statusColor = match($room->status) {
-            'available' => 'bg-green-500 hover:bg-green-600',
-            'occupied' => 'bg-red-500 hover:bg-red-600',
-            'dirty' => 'bg-slate-400 hover:bg-slate-500',
-            'maintenance' => 'bg-yellow-500 hover:bg-yellow-600',
-            default => 'bg-slate-500'
-          };
-          $statusText = match($room->status) {
-            'available' => 'Tersedia',
-            'occupied' => 'Terisi',
-            'dirty' => 'Kotor',
-            'maintenance' => 'Pemeliharaan',
-            default => 'Unknown'
-          };
-          
+          $maxRevenue = (!empty($chartData) && max($chartData) > 0) ? max($chartData) : 100000;
         @endphp
-        @if($room->status === 'available')
-          <a href="{{ route('transactions.create', $room->id) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 cursor-pointer" aria-label="Book room {{ $room->room_number }}">
-            <div class="text-3xl mb-3 font-bold"><i class="fas fa-door-open"></i></div>
-            <div class="font-bold text-base">{{ $room->room_number }}</div>
-            <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
-            <div class="text-sm opacity-80 mt-2 font-semibold">Rp {{ number_format($room->price_per_night, 0, ',', '.') }}</div>
+
+        <!-- Bar Chart Container -->
+        <div class="h-56 flex items-end justify-between gap-3 px-2 pt-6 pb-2">
+          @foreach($chartLabels as $idx => $label)
+            @php
+              $val = $chartData[$idx] ?? 0;
+              $heightPercent = $maxRevenue > 0 ? max(12, round(($val / $maxRevenue) * 100)) : 12;
+              $isHighest = ($val == $maxRevenue && $val > 0);
+            @endphp
+            <div class="flex-1 flex flex-col items-center h-full justify-end group relative">
+              <!-- Tooltip on hover -->
+              <div class="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-[#0B192C] text-white text-[11px] font-bold py-1 px-2.5 rounded-lg pointer-events-none whitespace-nowrap shadow-lg z-20">
+                Rp {{ number_format($val, 0, ',', '.') }}
+              </div>
+              
+              <!-- Bar -->
+              <div class="w-full max-w-[42px] rounded-t-xl transition-all duration-300 group-hover:scale-105 {{ $isHighest ? 'bg-[#F5A623] shadow-md shadow-amber-500/20' : 'bg-[#183A76] hover:bg-[#1E4B99]' }}"
+                   style="height: {{ $heightPercent }}%;"></div>
+              
+              <!-- Day Label -->
+              <span class="text-xs font-semibold text-slate-500 mt-3">{{ $label }}</span>
+            </div>
+          @endforeach
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Tamu Menginap Aktif (Col 5) -->
+    <div class="lg:col-span-5 bg-white rounded-3xl p-6 shadow-sm border border-stone-200/50 flex flex-col">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-base font-bold text-[#0B192C]">Tamu Menginap Aktif</h3>
+        <span class="text-xs font-bold text-slate-400">{{ count($activeTransactionsList ?? []) }} Tamu</span>
+      </div>
+
+      <div class="space-y-3 flex-1 overflow-y-auto max-h-[260px] pr-1">
+        @forelse($activeTransactionsList ?? [] as $tx)
+          <div class="flex items-center justify-between p-3.5 rounded-2xl bg-[#F8F5EF] hover:bg-[#F2ECE1] transition-all cursor-pointer"
+               onclick="openCheckoutModal({{ $tx->id }})">
+            <div>
+              <div class="flex items-center gap-2">
+                <p class="text-sm font-bold text-[#0B192C]">Kamar {{ $tx->room->room_number ?? '-' }}</p>
+                @if(!$tx->is_guest_data_complete)
+                  <span class="bg-rose-100 text-rose-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full inline-flex items-center gap-1 border border-rose-200" title="Data identitas tamu belum lengkap">
+                    <i class="fas fa-exclamation-circle text-rose-500"></i> Data ?
+                  </span>
+                @endif
+              </div>
+              <p class="text-xs text-slate-500 font-medium truncate max-w-[170px]">{{ $tx->guest_name }}</p>
+
+              <!-- Checkout Timing Urgency Indicator -->
+              <div class="flex flex-wrap items-center gap-1.5 mt-1">
+                @if($tx->checkout_urgency === 'overdue')
+                  <span class="bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-md inline-flex items-center gap-1 shadow-2xs animate-pulse">
+                    <i class="fas fa-clock"></i> {{ $tx->checkout_countdown_text }}
+                  </span>
+                @elseif($tx->checkout_urgency === 'imminent')
+                  <span class="bg-amber-400 text-[#0B192C] text-[10px] font-extrabold px-2 py-0.5 rounded-md inline-flex items-center gap-1 shadow-2xs">
+                    <i class="fas fa-hourglass-half text-amber-900"></i> {{ $tx->checkout_countdown_text }}
+                  </span>
+                @elseif($tx->checkout_urgency === 'today')
+                  <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-md inline-flex items-center gap-1">
+                    <i class="fas fa-calendar-day text-blue-600"></i> CO Hari Ini
+                  </span>
+                @endif
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              @if(!$tx->is_guest_data_complete)
+                <a href="{{ route('transactions.guestBook', $tx->id) }}" onclick="event.stopPropagation()"
+                   title="Lengkapi data tamu sekarang"
+                   class="bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-[10px] font-extrabold px-2 py-1 rounded-lg transition-all flex items-center gap-1">
+                  <i class="fas fa-edit text-amber-600"></i>
+                  <span>Isi</span>
+                </a>
+              @endif
+
+              @if($tx->payment_status === 'paid')
+                <span class="bg-[#DCFCE7] text-[#16A34A] text-xs font-bold px-3 py-1 rounded-full">Paid</span>
+              @elseif($tx->payment_status === 'partial')
+                <span class="bg-[#FEF3C7] text-[#D97706] text-xs font-bold px-3 py-1 rounded-full">Partial</span>
+              @else
+                <span class="bg-[#FEE2E2] text-[#DC2626] text-xs font-bold px-3 py-1 rounded-full">Unpaid</span>
+              @endif
+            </div>
+          </div>
+        @empty
+          <div class="py-12 text-center text-slate-400">
+            <i class="fas fa-bed text-3xl mb-2 opacity-30"></i>
+            <p class="text-xs font-medium">Tidak ada tamu yang sedang menginap</p>
+          </div>
+        @endforelse
+      </div>
+    </div>
+
+  </div>
+
+  <!-- BOTTOM: STATUS KAMAR REAL-TIME -->
+  <div class="bg-white rounded-3xl p-6 shadow-sm border border-stone-200/50">
+    
+    <!-- Legend Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-stone-100">
+      <h3 class="text-base font-bold text-[#0B192C]">Status Kamar Real-time</h3>
+      
+      <!-- Legends -->
+      <div class="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-600">
+        <div class="flex items-center gap-1.5 text-rose-500 font-bold">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse-dot"></span>
+          <span>LIVE</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
+          <span>Available</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#F43F5E]"></span>
+          <span>Occupied</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#F5A623]"></span>
+          <span>Dirty</span>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-[#64748B]"></span>
+          <span>Maintenance</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Room Cards Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5">
+      @foreach($rooms as $room)
+        @php
+          $status = $room->status;
+          $activeTx = $room->transactions->first();
+        @endphp
+
+        @if($status === 'available')
+          <!-- Available Room Card -->
+          <a href="{{ route('checkin', ['room_id' => $room->id]) }}" 
+             class="group rounded-2xl p-4 bg-[#E8F8F0] border border-[#A7F3D0] hover:shadow-md transition-all flex flex-col justify-between min-h-[110px]">
+            <div>
+              <p class="text-2xl font-extrabold text-[#10B981] group-hover:scale-105 transition-transform">{{ $room->room_number }}</p>
+              <p class="text-[11px] font-medium text-emerald-800/80 truncate">{{ $room->type }}</p>
+            </div>
+            <div class="mt-2 text-center">
+              <span class="text-[10px] font-bold text-emerald-700 bg-white/80 py-0.5 px-2.5 rounded-full inline-block shadow-xs">
+                Available
+              </span>
+            </div>
           </a>
+
+        @elseif($status === 'occupied')
+          @php
+            $isOverdue = ($activeTx && $activeTx->checkout_urgency === 'overdue');
+            $isImminent = ($activeTx && $activeTx->checkout_urgency === 'imminent');
+            $isIncomplete = ($activeTx && !$activeTx->is_guest_data_complete);
+
+            $cardBorder = 'border-[#FECDD3]';
+            $cardBg = 'bg-[#FDF2F2]';
+            if ($isOverdue) {
+              $cardBorder = 'border-rose-500 ring-2 ring-rose-300';
+              $cardBg = 'bg-rose-50/80';
+            } elseif ($isImminent) {
+              $cardBorder = 'border-amber-400 ring-2 ring-amber-300';
+              $cardBg = 'bg-amber-50/60';
+            } elseif ($isIncomplete) {
+              $cardBorder = 'border-amber-400';
+              $cardBg = 'bg-amber-50/50';
+            }
+          @endphp
+          <!-- Occupied Room Card -->
+          <div onclick="openCheckoutModal({{ $activeTx ? $activeTx->id : 0 }})" 
+               class="group rounded-2xl p-4 {{ $cardBg }} border {{ $cardBorder }} hover:shadow-md transition-all flex flex-col justify-between min-h-[110px] cursor-pointer relative">
+            <div>
+              <div class="flex items-center justify-between">
+                <p class="text-2xl font-extrabold text-[#F43F5E] group-hover:scale-105 transition-transform">{{ $room->room_number }}</p>
+                <div class="flex items-center gap-1">
+                  @if($isOverdue)
+                    <span class="text-[9px] font-black text-white bg-rose-600 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 animate-pulse" title="Melewati batas waktu checkout">
+                      <i class="fas fa-clock"></i> Overdue
+                    </span>
+                  @elseif($isImminent)
+                    <span class="text-[9px] font-black text-[#0B192C] bg-amber-400 px-1.5 py-0.5 rounded-md flex items-center gap-0.5" title="Mendekati checkout">
+                      <i class="fas fa-hourglass-half"></i> <2j
+                    </span>
+                  @endif
+                  @if($isIncomplete)
+                    <span class="text-[9px] font-black text-amber-800 bg-amber-300/90 px-1.5 py-0.5 rounded-md flex items-center gap-0.5 shadow-2xs" title="Data tamu belum lengkap">
+                      <i class="fas fa-exclamation-triangle text-amber-700"></i>
+                    </span>
+                  @endif
+                </div>
+              </div>
+              <p class="text-[11px] font-medium text-rose-800/80 truncate">{{ $room->type }}</p>
+            </div>
+            <div class="mt-2 text-center">
+              @if($isOverdue)
+                <span class="text-[9px] font-extrabold text-white bg-rose-600 py-0.5 px-2 rounded-full inline-block shadow-xs animate-pulse">
+                  🚨 {{ $activeTx->checkout_countdown_text }}
+                </span>
+              @elseif($isImminent)
+                <span class="text-[9px] font-extrabold text-amber-950 bg-amber-300 py-0.5 px-2 rounded-full inline-block shadow-xs">
+                  ⏳ {{ $activeTx->checkout_countdown_text }}
+                </span>
+              @elseif($isIncomplete)
+                <span class="text-[9px] font-extrabold text-amber-900 bg-amber-200/90 py-0.5 px-2 rounded-full inline-block shadow-xs">
+                  ⚠️ Data Belum Lengkap
+                </span>
+              @else
+                <span class="text-[10px] font-bold text-rose-700 bg-white/80 py-0.5 px-2.5 rounded-full inline-block shadow-xs">
+                  Occupied
+                </span>
+              @endif
+            </div>
+          </div>
+
+        @elseif($status === 'dirty')
+          <!-- Dirty Room Card (1-Click Mark Clean) -->
+          <form method="POST" action="{{ route('rooms.markClean', $room->id) }}" class="m-0">
+            @csrf
+            <button type="submit" 
+                    title="Klik untuk tandai kamar selesai dibersihkan"
+                    class="w-full text-left group rounded-2xl p-4 bg-[#FEF9EE] border border-[#FDE68A] hover:shadow-md transition-all flex flex-col justify-between min-h-[110px]">
+              <div>
+                <p class="text-2xl font-extrabold text-[#F5A623] group-hover:scale-105 transition-transform">{{ $room->room_number }}</p>
+                <p class="text-[11px] font-medium text-amber-800/80 truncate">{{ $room->type }}</p>
+              </div>
+              <div class="mt-2 text-center">
+                <span class="text-[10px] font-bold text-amber-800 bg-white/80 py-0.5 px-2.5 rounded-full inline-block shadow-xs">
+                  Dirty (Bersihkan)
+                </span>
+              </div>
+            </button>
+          </form>
+
         @else
-          <a href="{{ route('rooms.edit', $room) }}" class="{{ $statusColor }} text-white rounded-xl p-5 text-center transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 cursor-pointer" aria-label="Edit room {{ $room->room_number }}">
-            <div class="text-3xl mb-3 font-bold"><i class="fas fa-door-open"></i></div>
-            <div class="font-bold text-base">{{ $room->room_number }}</div>
-            <div class="text-sm opacity-90 mt-2">{{ $room->type }}</div>
-            <div class="text-sm opacity-80 mt-2 font-semibold">{{ $statusText }}</div>
-          </a>
+          <!-- Maintenance Room Card -->
+          <div class="rounded-2xl p-4 bg-[#F1F5F9] border border-[#E2E8F0] flex flex-col justify-between min-h-[110px] opacity-80">
+            <div>
+              <p class="text-2xl font-extrabold text-slate-500">{{ $room->room_number }}</p>
+              <p class="text-[11px] font-medium text-slate-500 truncate">{{ $room->type }}</p>
+            </div>
+            <div class="mt-2 text-center">
+              <span class="text-[10px] font-bold text-slate-600 bg-white/80 py-0.5 px-2.5 rounded-full inline-block shadow-xs">
+                Maintenance
+              </span>
+            </div>
+          </div>
         @endif
+
       @endforeach
     </div>
+
   </div>
 
-  <!-- Active Transactions -->
-  <div class="bg-white p-6 rounded-2xl shadow-lg border border-slate-200 mt-8">
-    <div class="mb-6">
-      <h2 class="text-xl md:text-2xl font-bold text-slate-800">Transaksi Aktif</h2>
-      <p class="text-slate-500 text-sm mt-1">Daftar pelanggan yang sedang menginap</p>
-    </div>
-    
-    @php
-      $activeTransactions = \App\Models\Transaction::with('room', 'user')
-        ->where('status', 'active')
-        ->orderBy('check_in', 'desc')
-        ->limit(10)
-        ->get();
-    @endphp
-
-    @if($activeTransactions->count() > 0)
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead>
-            <tr class="border-b-2 border-slate-200 bg-slate-50">
-              <th class="text-left py-5 px-6 font-bold text-gray-900">Invoice</th>
-              <th class="text-left py-5 px-6 font-bold text-gray-900">Pelanggan</th>
-              <th class="text-left py-5 px-6 font-bold text-gray-900">Kamar</th>
-              <th class="text-left py-5 px-6 font-bold text-gray-900">Check-in</th>
-              <th class="text-left py-5 px-6 font-bold text-gray-900">Check-out</th>
-              <th class="text-right py-5 px-6 font-bold text-gray-900">Total</th>
-              <th class="text-center py-5 px-6 font-bold text-gray-900">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            @foreach($activeTransactions as $tx)
-              <tr class="hover:bg-slate-50 transition-colors duration-200 border-b border-slate-100 last:border-0">
-                <td class="py-5 px-6 font-bold text-blue-600 text-base">{{ $tx->invoice_code }}</td>
-                <td class="py-5 px-6 text-gray-900 font-semibold">{{ $tx->guest_name }}</td>
-                <td class="py-5 px-6 text-gray-900 font-medium">{{ $tx->room->room_number }}</td>
-                <td class="py-5 px-6 text-gray-700">{{ $tx->check_in->format('d/m/y H:i') }}</td>
-                <td class="py-5 px-6 text-gray-700">
-                  @if($tx->check_out)
-                    {{ $tx->check_out->format('d/m/y H:i') }}
-                  @else
-                    <span class="text-yellow-600 font-semibold">Menginap</span>
-                  @endif
-                </td>
-                <td class="py-5 px-6 text-right font-bold text-gray-900">Rp {{ number_format($tx->total_price, 0, ',', '.') }}</td>
-                <td class="py-5 px-6 text-center">
-                  <button 
-                    onclick="openCheckoutModal({{ $tx->id }})" 
-                    class="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold text-sm px-5 py-2.5 rounded-xl transition-all shadow-lg">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Check-out</span>
-                  </button>
-                </td>
-              </tr>
-            @endforeach
-          </tbody>
-        </table>
-      </div>
-    @else
-      <div class="text-center py-12 text-gray-500">
-        <i class="fas fa-inbox text-4xl mb-4 opacity-30"></i>
-        <p class="text-lg">Tidak ada transaksi aktif saat ini</p>
-      </div>
-    @endif
-  </div>
 </div>
 
-<!-- Chart.js Library -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // ===== STEP 1: Check if Chart.js Library is Loaded =====
-    if (typeof Chart === 'undefined') {
-      console.error("❌ Chart.js Library NOT FOUND!");
-      alert("Error: Chart.js belum terinstall atau gagal dimuat.");
-      return;
-    }
-    console.log("✅ Chart.js Library loaded successfully.");
+<!-- CHECKOUT QUICK MODAL -->
+<div id="quickCheckoutModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl relative border border-stone-200">
+    <button onclick="closeCheckoutModal()" class="absolute right-5 top-5 text-slate-400 hover:text-slate-600 p-2">
+      <i class="fas fa-times text-lg"></i>
+    </button>
 
-    // ===== STEP 2: REVENUE CHART (DUMMY DATA) =====
-    const revenueCanvas = document.getElementById('revenueChart');
-    if (revenueCanvas) {
-      console.log("✅ Revenue Canvas element found.");
-      const revenueCtx = revenueCanvas.getContext('2d');
-      
-      const revenueChart = new Chart(revenueCtx, {
-        type: 'bar',
-        data: {
-          // DUMMY DATA - Hardcoded untuk testing
-          labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
-          datasets: [{
-            label: 'Pendapatan Test (Dummy Data)',
-            data: [500000, 750000, 300000, 900000, 1200000, 600000, 850000], // Angka Manual
-            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-            borderColor: 'rgba(59, 130, 246, 1)',
-            borderWidth: 2,
-            borderRadius: 5
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false, // WAJIB: Agar tinggi mengikuti container
-          plugins: {
-            legend: {
-              display: true, // Tampilkan legend
-              position: 'top',
-              labels: {
-                font: { size: 12, weight: 'bold' }
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              padding: 12,
-              titleFont: { size: 14, weight: 'bold' },
-              bodyFont: { size: 13 },
-              callbacks: {
-                label: function(context) {
-                  return 'Rp ' + context.parsed.y.toLocaleString('id-ID');
-                }
-              }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: function(value) {
-                  return 'Rp ' + (value / 1000).toFixed(0) + 'k';
-                },
-                font: { size: 11 }
-              },
-              grid: {
-                color: 'rgba(200, 200, 200, 0.2)',
-                borderDash: [5, 5]
-              }
-            },
-            x: {
-              grid: { display: false },
-              ticks: {
-                font: { size: 11, weight: '600' }
-              }
-            }
-          }
-        }
-      });
-      console.log("✅ Revenue Chart rendered with DUMMY DATA.");
-    } else {
-      console.warn("⚠️ Revenue Canvas element NOT FOUND!");
-    }
+    <h3 class="text-lg font-bold text-[#0B192C] mb-1" id="modalRoomTitle">Checkout Cepat</h3>
+    <p class="text-xs text-slate-400 mb-4" id="modalGuestInfo">Memuat data transaksi...</p>
 
-    // ===== STEP 3: TRANSACTIONS CHART (DUMMY DATA) =====
-    const transactionsCanvas = document.getElementById('transactionsChart');
-    if (transactionsCanvas) {
-      console.log("✅ Transactions Canvas element found.");
-      const transactionsCtx = transactionsCanvas.getContext('2d');
-      
-      const transactionsChart = new Chart(transactionsCtx, {
-        type: 'bar',
-        data: {
-          // DUMMY DATA - Hardcoded untuk testing
-          labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
-          datasets: [{
-            label: 'Jumlah Transaksi Test (Dummy)',
-            data: [5, 7, 3, 9, 12, 6, 8], // Angka Manual
-            backgroundColor: 'rgba(16, 185, 129, 0.8)',
-            borderColor: 'rgba(16, 185, 129, 1)',
-            borderWidth: 2,
-            borderRadius: 5
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              position: 'top',
-              labels: {
-                font: { size: 12, weight: 'bold' }
-              }
-            },
-            tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.8)',
-              padding: 12,
-              titleFont: { size: 13 },
-              bodyFont: { size: 12 }
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 1,
-                font: { size: 11 }
-              },
-              grid: {
-                color: 'rgba(0, 0, 0, 0.05)'
-              }
-            },
-            x: {
-              grid: { display: false },
-              ticks: {
-                font: { size: 11 }
-              }
-            }
-          }
-        }
-      });
-      console.log("✅ Transactions Chart rendered with DUMMY DATA.");
-    } else {
-      console.warn("⚠️ Transactions Canvas element NOT FOUND!");
-    }
+    <!-- Incomplete guest warning inside checkout modal -->
+    <div id="modalIncompleteWarning" class="hidden mb-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-300 text-rose-900 text-xs flex items-center justify-between gap-3 shadow-xs">
+      <div class="flex items-center gap-2.5">
+        <i class="fas fa-exclamation-triangle text-rose-500 text-sm shrink-0"></i>
+        <div>
+          <span class="font-bold block">Data Identitas Tamu Belum Lengkap!</span>
+          <span class="text-rose-700 text-[11px]">Tamu masuk via Express Check-in dan belum ada NIK.</span>
+        </div>
+      </div>
+      <a id="modalGuestBookLink" href="#" 
+         class="bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-[11px] px-3.5 py-1.5 rounded-xl whitespace-nowrap transition-all shrink-0">
+        Isi Sekarang
+      </a>
+    </div>
 
-    // ===== STEP 4: MONTHLY PIE CHART (DUMMY DATA) =====
-    const monthlyPieCanvas = document.getElementById('monthlyPieChart');
-    if (monthlyPieCanvas) {
-      console.log("✅ Monthly Pie Canvas element found.");
-      const monthlyPieCtx = monthlyPieCanvas.getContext('2d');
-      
-      const monthlyPieChart = new Chart(monthlyPieCtx, {
-        type: 'doughnut',
-        data: {
-          // DUMMY DATA - Hardcoded untuk testing
-          labels: ['Pendapatan', 'Pengeluaran', 'Komisi TC', 'Laba Bersih'],
-          datasets: [{
-            label: 'Rekap Keuangan Test',
-            data: [5000000, 1500000, 500000, 3000000], // Angka Manual
-            backgroundColor: [
-              'rgba(16, 185, 129, 0.85)',  // Green - Revenue
-              'rgba(249, 115, 22, 0.85)',  // Orange - Expenses
-              'rgba(168, 85, 247, 0.85)',  // Purple - TC Commission
-              'rgba(59, 130, 246, 0.85)'   // Blue - Profit
-            ],
-            borderColor: '#fff',
-            borderWidth: 2
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '60%',
-          plugins: {
-            legend: {
-              display: false // Legend manual di HTML lebih baik
-            },
-            tooltip: {
-              backgroundColor: 'rgba(0, 0, 0, 0.9)',
-              padding: 14,
-              titleFont: { size: 14, weight: 'bold' },
-              bodyFont: { size: 13, weight: '600' },
-              callbacks: {
-                label: function(context) {
-                  let label = context.label || '';
-                  if (label) {
-                    label += ': ';
-                  }
-                  const value = context.parsed || 0;
-                  label += 'Rp ' + value.toLocaleString('id-ID');
-                  
-                  // Calculate percentage
-                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                  const percentage = ((value / total) * 100).toFixed(1);
-                  label += ' (' + percentage + '%)';
-                  
-                  return label;
-                }
-              }
-            }
-          },
-          animation: {
-            animateRotate: true,
-            animateScale: true,
-            duration: 1000
-          }
-        }
-      });
-      console.log("✅ Monthly Pie Chart rendered with DUMMY DATA.");
-    } else {
-      console.warn("⚠️ Monthly Pie Canvas element NOT FOUND!");
-    }
-  
-  }); // End DOMContentLoaded
+    <!-- Approaching / Overdue checkout alert inside modal -->
+    <div id="modalCheckoutUrgencyWarning" class="hidden mb-4 p-3.5 rounded-2xl text-xs flex items-center justify-between gap-3 shadow-xs">
+      <div class="flex items-center gap-2.5">
+        <i id="modalCheckoutUrgencyIcon" class="text-sm shrink-0"></i>
+        <div>
+          <span class="font-bold block" id="modalCheckoutUrgencyTitle">Peringatan Checkout</span>
+          <span class="text-[11px] block" id="modalCheckoutUrgencySub">...</span>
+        </div>
+      </div>
+      <a id="modalExtendLink" href="#" class="bg-[#0B192C] hover:bg-[#152e4d] text-white font-extrabold text-[11px] px-3 py-1.5 rounded-xl whitespace-nowrap transition-all shrink-0">
+        Extend Stay
+      </a>
+    </div>
 
-  // Tab Switching Function
-  function switchTab(tabName) {
-    // Hide all tab contents
-    document.querySelectorAll('.tab-content').forEach(content => {
-      content.classList.add('hidden');
-    });
-    
-    // Reset all tab buttons
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.classList.remove('bg-blue-500', 'text-white');
-      btn.classList.add('bg-slate-100', 'text-slate-600');
-    });
-    
-    // Show selected tab content
-    document.getElementById('content-' + tabName).classList.remove('hidden');
-    
-    // Highlight selected tab button
-    const activeBtn = document.getElementById('tab-' + tabName);
-    activeBtn.classList.remove('bg-slate-100', 'text-slate-600');
-    activeBtn.classList.add('bg-blue-500', 'text-white');
-  }
-
-  // Checkout Modal Functions
-  function openCheckoutModal(transactionId) {
-    const modal = document.getElementById('checkoutModal');
-    
-    // Fetch transaction data
-    fetch(`/transactions/${transactionId}/checkout-data`, {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept': 'application/json'
-      }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Populate modal with transaction data
-        populateCheckoutModal(data.transaction);
-        modal.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-      } else {
-        alert('Gagal memuat data transaksi');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      alert('Terjadi kesalahan saat memuat data');
-    });
-  }
-
-  function closeCheckoutModal() {
-    const modal = document.getElementById('checkoutModal');
-    modal.classList.add('hidden');
-    document.body.style.overflow = 'auto';
-  }
-
-  function populateCheckoutModal(tx) {
-    // Update invoice code
-    document.getElementById('modalInvoiceCode').textContent = tx.invoice_code;
-    document.getElementById('modalGuestName').textContent = tx.guest_name;
-    document.getElementById('modalGuestNik').textContent = tx.guest_nik || '-';
-    document.getElementById('modalGuestPhone').textContent = tx.guest_phone || '-';
-    document.getElementById('modalRoomNumber').textContent = tx.room.room_number + ' - ' + tx.room.type;
-    
-    if (tx.guest_address) {
-      document.getElementById('modalGuestAddress').textContent = tx.guest_address;
-      document.getElementById('modalAddressSection').classList.remove('hidden');
-    } else {
-      document.getElementById('modalAddressSection').classList.add('hidden');
-    }
-    
-    // Check-in/out dates
-    document.getElementById('modalCheckIn').textContent = new Date(tx.check_in).toLocaleString('id-ID');
-    document.getElementById('modalCheckOut').textContent = new Date(tx.check_out).toLocaleString('id-ID');
-    document.getElementById('modalDuration').textContent = tx.duration + ' Malam';
-    
-    // Pricing
-    const pricePerNight = tx.total_price / tx.duration;
-    document.getElementById('modalPricePerNight').textContent = 'Rp ' + pricePerNight.toLocaleString('id-ID');
-    document.getElementById('modalSubtotal').textContent = 'Rp ' + tx.total_price.toLocaleString('id-ID');
-    document.getElementById('modalGrandTotal').textContent = 'Rp ' + tx.total_price.toLocaleString('id-ID');
-    
-    // Guarantee warning
-    if (tx.is_ktp_held) {
-      document.getElementById('modalGuaranteeWarning').classList.remove('hidden');
-      document.getElementById('modalGuaranteeType').textContent = tx.guarantee_type || 'KTP';
-      document.getElementById('modalGuaranteeName').textContent = tx.guest_name;
-      document.getElementById('guaranteeReturnedCheckbox').required = true;
-    } else {
-      document.getElementById('modalGuaranteeWarning').classList.add('hidden');
-      document.getElementById('guaranteeReturnedCheckbox').required = false;
-    }
-    
-    // Set form action
-    document.getElementById('checkoutForm').action = `/transactions/checkout/${tx.id}`;
-    
-    // Set cashiers
-    populateCashiers();
-  }
-
-  function populateCashiers() {
-    // Fetch cashiers if not already loaded
-    const cashierSelect = document.getElementById('modalCashierName');
-    if (cashierSelect.options.length <= 1) {
-      fetch('/api/cashiers', {
-        headers: {
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json'
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        data.forEach(cashier => {
-          const option = document.createElement('option');
-          option.value = cashier.name;
-          option.textContent = cashier.name;
-          cashierSelect.appendChild(option);
-        });
-      });
-    }
-  }
-
-  // Calculate total and change
-  function calculateTotal() {
-    const subtotal = parseFloat(document.getElementById('modalSubtotal').textContent.replace(/[^\d]/g, ''));
-    const additionalCharges = parseFloat(document.getElementById('additionalCharges').value) || 0;
-    const grandTotal = subtotal + additionalCharges;
-    document.getElementById('modalGrandTotal').textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
-    calculateChange();
-  }
-
-  function calculateChange() {
-    const grandTotal = parseFloat(document.getElementById('modalGrandTotal').textContent.replace(/[^\d]/g, ''));
-    const paidAmount = parseFloat(document.getElementById('paidAmount').value) || 0;
-    const change = Math.max(0, paidAmount - grandTotal);
-    document.getElementById('modalChangeAmount').textContent = 'Rp ' + change.toLocaleString('id-ID');
-  }
-
-  function formatCurrency(input, hiddenFieldId) {
-    let value = input.value.replace(/[^\d]/g, '');
-    input.value = value ? parseInt(value).toLocaleString('id-ID') : '';
-    document.getElementById(hiddenFieldId).value = value;
-    
-    if (hiddenFieldId === 'additionalCharges') {
-      calculateTotal();
-    } else if (hiddenFieldId === 'paidAmount') {
-      calculateChange();
-    }
-  }
-
-  // Close modal on outside click
-  document.addEventListener('click', function(e) {
-    const modal = document.getElementById('checkoutModal');
-    if (e.target === modal) {
-      closeCheckoutModal();
-    }
-  });
-</script>
-
-<!-- Checkout Modal -->
-<div id="checkoutModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-    <form id="checkoutForm" method="POST" action="">
+    <form id="modalCheckoutForm" method="POST" action="">
       @csrf
       
-      <!-- Modal Header -->
-      <div class="sticky top-0 bg-white border-b border-slate-200 p-6 flex items-center justify-between">
+      <div class="space-y-4">
         <div>
-          <h2 class="text-2xl font-bold text-slate-800">Konfirmasi Check-out</h2>
-          <p class="text-sm text-slate-500">Invoice: <span id="modalInvoiceCode" class="font-bold text-blue-600"></span></p>
-        </div>
-        <button type="button" onclick="closeCheckoutModal()" class="text-slate-400 hover:text-slate-600 text-2xl">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <!-- Modal Body -->
-      <div class="p-6 space-y-6">
-        <!-- Guest Info -->
-        <div class="bg-slate-50 p-4 rounded-xl">
-          <h3 class="font-bold text-slate-800 mb-3">Informasi Pelanggan</h3>
-          <div class="grid grid-cols-2 gap-4 text-sm">
-            <div>
-              <p class="text-slate-500">Nama</p>
-              <p id="modalGuestName" class="font-bold text-slate-800"></p>
-            </div>
-            <div>
-              <p class="text-slate-500">NIK</p>
-              <p id="modalGuestNik" class="font-semibold text-slate-700"></p>
-            </div>
-            <div>
-              <p class="text-slate-500">Telepon</p>
-              <p id="modalGuestPhone" class="font-semibold text-slate-700"></p>
-            </div>
-            <div>
-              <p class="text-slate-500">Kamar</p>
-              <p id="modalRoomNumber" class="font-bold text-slate-800"></p>
-            </div>
-          </div>
-          <div id="modalAddressSection" class="hidden mt-3 pt-3 border-t border-slate-200">
-            <p class="text-slate-500 text-sm">Alamat</p>
-            <p id="modalGuestAddress" class="text-sm text-slate-700"></p>
-          </div>
+          <label class="block text-xs font-bold text-slate-700 mb-1">Biaya Tambahan</label>
+          <input type="text" name="additional_charges_note" placeholder="Overtime / Minibar / Laundry"
+                 class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
         </div>
 
-        <!-- Guarantee Warning -->
-        <div id="modalGuaranteeWarning" class="hidden bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
-          <div class="flex items-start gap-3">
-            <i class="fas fa-exclamation-triangle text-amber-600 text-xl mt-1"></i>
-            <div class="flex-1">
-              <p class="font-bold text-amber-900 mb-2">⚠️ JAMINAN IDENTITAS</p>
-              <p class="text-sm text-amber-800 mb-3">Kembalikan <strong><span id="modalGuaranteeType"></span> atas nama <span id="modalGuaranteeName"></span></strong> kepada pelanggan.</p>
-              <div class="bg-white border border-amber-400 rounded-lg p-3">
-                <label class="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" id="guaranteeReturnedCheckbox" name="guarantee_returned" value="1" class="w-5 h-5 text-amber-600 rounded">
-                  <span class="text-sm font-bold text-amber-900">✓ Sudah mengembalikan jaminan</span>
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Bill Summary -->
-        <div class="bg-blue-50 p-4 rounded-xl">
-          <h3 class="font-bold text-slate-800 mb-3">Rincian Tagihan</h3>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between">
-              <span class="text-slate-600">Check-in</span>
-              <span id="modalCheckIn" class="font-semibold"></span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-600">Check-out</span>
-              <span id="modalCheckOut" class="font-semibold"></span>
-            </div>
-            <div class="flex justify-between">
-              <span class="text-slate-600">Durasi</span>
-              <span id="modalDuration" class="font-bold"></span>
-            </div>
-            <div class="border-t border-slate-200 pt-2 mt-2"></div>
-            <div class="flex justify-between">
-              <span class="text-slate-600">Harga/Malam</span>
-              <span id="modalPricePerNight" class="font-semibold"></span>
-            </div>
-            <div class="flex justify-between text-base font-bold">
-              <span>Subtotal</span>
-              <span id="modalSubtotal"></span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Additional Charges -->
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Biaya Tambahan (Opsional)
+          <label class="block text-xs font-bold text-slate-700 mb-1">Nominal Tambahan (Rp)</label>
+          <input type="number" name="additional_charges" id="modalAdditionalCharges" value="0" min="0"
+                 oninput="recalcModalTotal()"
+                 class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400">
+        </div>
+
+        <!-- Summary box -->
+        <div class="bg-[#F8F5EF] p-4 rounded-2xl space-y-1.5 text-xs">
+          <div class="flex justify-between text-slate-600">
+            <span>Tagihan Kamar:</span>
+            <strong class="text-slate-800" id="modalBasePrice">Rp 0</strong>
+          </div>
+          <div class="flex justify-between text-slate-600">
+            <span>Biaya Tambahan:</span>
+            <strong class="text-slate-800" id="modalAdditionalDisplay">Rp 0</strong>
+          </div>
+          <div class="flex justify-between items-center text-slate-600">
+            <span>Metode Bayar Awal:</span>
+            <strong class="text-slate-800" id="modalPaymentMethodText">Cash</strong>
+          </div>
+          <div class="flex justify-between text-slate-800 font-extrabold text-sm pt-2 border-t border-stone-200">
+            <span>Total Akhir:</span>
+            <span class="text-[#1D58B8]" id="modalFinalTotal">Rp 0</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Jumlah Dibayar (Rp)</label>
+            <input type="number" name="paid_amount" id="modalPaidAmount" required min="0"
+                   class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400">
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">Metode Bayar Checkout</label>
+            <select name="payment_method_id" id="modalPaymentMethodSelect"
+                    class="w-full px-4 py-2.5 rounded-xl border border-stone-200 text-xs md:text-sm bg-white font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-amber-400">
+              @foreach(\App\Models\PaymentMethod::active()->get() as $pm)
+                <option value="{{ $pm->id }}" class="text-slate-800 font-semibold py-1">
+                  {{ $pm->bank_name ?: $pm->name }}@if(!empty($pm->account_number)) - {{ $pm->account_number }}@endif
+                </option>
+              @endforeach
+            </select>
+          </div>
+        </div>
+
+        <!-- Hidden required checkout inputs -->
+        <input type="hidden" name="cashier_name" value="{{ auth()->user()->name }}">
+        <input type="hidden" name="shift" value="{{ (now()->hour >= 7 && now()->hour < 19) ? 'Pagi' : 'Malam' }}">
+
+        <!-- Guarantee return checkbox -->
+        <div class="pt-1">
+          <label class="flex items-center gap-2.5 text-xs text-slate-700 font-semibold cursor-pointer">
+            <input type="checkbox" name="guarantee_returned" value="1" required class="rounded text-[#F5A623] focus:ring-amber-400">
+            <span>Jaminan identitas (KTP/SIM) sudah dikembalikan — wajib</span>
           </label>
-          <input type="hidden" id="additionalCharges" name="additional_charges" value="0">
-          <input 
-            type="text" 
-            id="additionalChargesDisplay"
-            placeholder="0"
-            oninput="formatCurrency(this, 'additionalCharges')"
-            class="w-full px-4 py-3 border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
         </div>
 
-        <!-- Paid Amount -->
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Jumlah Dibayar <span class="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded text-xs">WAJIB</span>
-          </label>
-          <input type="hidden" id="paidAmount" name="paid_amount" required>
-          <input 
-            type="text" 
-            id="paidAmountDisplay"
-            placeholder="Masukkan jumlah pembayaran"
-            oninput="formatCurrency(this, 'paidAmount')"
-            required
-            class="w-full px-4 py-3 border-2 border-yellow-300 bg-yellow-50 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+        <!-- Action buttons -->
+        <div class="flex items-center gap-3 pt-3">
+          <button type="submit" 
+                  class="flex-1 bg-[#F5A623] hover:bg-[#e29515] text-[#0B192C] font-extrabold py-3 rounded-full text-sm shadow-md transition-all text-center">
+            Checkout & Buka Struk
+          </button>
         </div>
-
-        <!-- Cashier -->
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Nama Kasir <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs">WAJIB</span>
-          </label>
-          <select id="modalCashierName" name="cashier_name" required class="w-full px-4 py-3 border-2 border-yellow-300 bg-yellow-50 rounded-xl">
-            <option value="">-- Pilih Kasir --</option>
-          </select>
-        </div>
-
-        <!-- Shift -->
-        <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-2">
-            Shift <span class="bg-red-100 text-red-700 px-2 py-0.5 rounded text-xs">WAJIB</span>
-          </label>
-          <select name="shift" required class="w-full px-4 py-3 border-2 border-yellow-300 bg-yellow-50 rounded-xl">
-            @php
-              $hour = now()->hour;
-              $currentShift = ($hour >= 7 && $hour < 19) ? 'Pagi' : 'Malam';
-            @endphp
-            <option value="Pagi" {{ $currentShift === 'Pagi' ? 'selected' : '' }}>☀️ Pagi (07:00 - 19:00)</option>
-            <option value="Malam" {{ $currentShift === 'Malam' ? 'selected' : '' }}>🌙 Malam (19:00 - 07:00)</option>
-          </select>
-        </div>
-
-        <!-- Total & Change -->
-        <div class="bg-emerald-50 p-4 rounded-xl space-y-2">
-          <div class="flex justify-between text-lg font-bold">
-            <span>TOTAL</span>
-            <span id="modalGrandTotal" class="text-emerald-700"></span>
-          </div>
-          <div class="flex justify-between text-base">
-            <span class="text-slate-600">Kembalian</span>
-            <span id="modalChangeAmount" class="font-bold text-emerald-700">Rp 0</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Modal Footer -->
-      <div class="sticky bottom-0 bg-slate-50 border-t border-slate-200 p-6 flex gap-3">
-        <button type="button" onclick="closeCheckoutModal()" class="flex-1 px-6 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold rounded-xl transition">
-          Batal
-        </button>
-        <button type="submit" class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition">
-          <i class="fas fa-check mr-2"></i>
-          Konfirmasi Check-out
-        </button>
       </div>
     </form>
   </div>
 </div>
+
+@push('scripts')
+<script>
+  let currentTxBase = 0;
+
+  function openCheckoutModal(txId) {
+    if (!txId) {
+      window.location.href = "{{ route('checkin') }}";
+      return;
+    }
+    fetch(`/transactions/${txId}/checkout-data`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          alert('Transaksi tidak dapat diakses atau sudah selesai.');
+          return;
+        }
+        const tx = data.transaction;
+        document.getElementById('modalRoomTitle').innerText = `Checkout Cepat · Kamar ${tx.room.room_number}`;
+        document.getElementById('modalGuestInfo').innerText = `Tamu: ${tx.guest_name} | Durasi: ${tx.duration} malam`;
+        
+        // Show/hide incomplete guest warning
+        const warnEl = document.getElementById('modalIncompleteWarning');
+        const linkEl = document.getElementById('modalGuestBookLink');
+        if (warnEl && linkEl) {
+          if (!tx.is_guest_data_complete) {
+            warnEl.classList.remove('hidden');
+            linkEl.href = `/transactions/${tx.id}/guest-book`;
+          } else {
+            warnEl.classList.add('hidden');
+          }
+        }
+
+        // Show/hide checkout urgency warning
+        const urgencyEl = document.getElementById('modalCheckoutUrgencyWarning');
+        const urgencyTitle = document.getElementById('modalCheckoutUrgencyTitle');
+        const urgencySub = document.getElementById('modalCheckoutUrgencySub');
+        const urgencyIcon = document.getElementById('modalCheckoutUrgencyIcon');
+        const extendLink = document.getElementById('modalExtendLink');
+
+        if (urgencyEl && urgencyTitle && urgencySub && urgencyIcon && extendLink) {
+          if (tx.checkout_urgency === 'overdue') {
+            urgencyEl.className = 'mb-4 p-3.5 rounded-2xl bg-rose-50 border border-rose-400 text-rose-950 text-xs flex items-center justify-between gap-3 shadow-xs';
+            urgencyTitle.innerText = `🚨 Lewat Batas Checkout (${tx.checkout_countdown_text})!`;
+            urgencySub.innerText = `Batas checkout jam 12:00 WIB. Harap segera proses checkout atau perpanjang masa inap.`;
+            urgencyIcon.className = 'fas fa-clock text-rose-600 text-sm shrink-0 animate-pulse';
+            urgencyEl.classList.remove('hidden');
+            extendLink.href = `/front-office?tx_id=${tx.id}`;
+          } else if (tx.checkout_urgency === 'imminent') {
+            urgencyEl.className = 'mb-4 p-3.5 rounded-2xl bg-amber-50 border border-amber-400 text-amber-950 text-xs flex items-center justify-between gap-3 shadow-xs';
+            urgencyTitle.innerText = `⏳ Mendekati Waktu Checkout (${tx.checkout_countdown_text})!`;
+            urgencySub.innerText = `Batas waktu checkout kamar ini adalah pukul 12:00 WIB hari ini.`;
+            urgencyIcon.className = 'fas fa-hourglass-half text-amber-600 text-sm shrink-0';
+            urgencyEl.classList.remove('hidden');
+            extendLink.href = `/front-office?tx_id=${tx.id}`;
+          } else if (tx.checkout_urgency === 'today') {
+            urgencyEl.className = 'mb-4 p-3.5 rounded-2xl bg-blue-50 border border-blue-200 text-blue-950 text-xs flex items-center justify-between gap-3 shadow-xs';
+            urgencyTitle.innerText = `ℹ️ Jadwal Checkout Hari Ini`;
+            urgencySub.innerText = `Pukul 12:00 WIB (${tx.checkout_countdown_text}).`;
+            urgencyIcon.className = 'fas fa-info-circle text-blue-600 text-sm shrink-0';
+            urgencyEl.classList.remove('hidden');
+            extendLink.href = `/front-office?tx_id=${tx.id}`;
+          } else {
+            urgencyEl.classList.add('hidden');
+          }
+        }
+        
+        // Set payment method display & select
+        const pmText = document.getElementById('modalPaymentMethodText');
+        const pmSelect = document.getElementById('modalPaymentMethodSelect');
+        if (pmText) {
+          pmText.innerText = (tx.payment_method && (tx.payment_method.bank_name || tx.payment_method.name)) 
+            ? (tx.payment_method.bank_name || tx.payment_method.name) 
+            : 'Cash';
+        }
+        if (pmSelect && tx.payment_method_id) {
+          pmSelect.value = tx.payment_method_id;
+        }
+
+        currentTxBase = tx.room.price_per_night * tx.duration;
+        document.getElementById('modalBasePrice').innerText = 'Rp ' + currentTxBase.toLocaleString('id-ID');
+        document.getElementById('modalPaidAmount').value = currentTxBase;
+        document.getElementById('modalAdditionalCharges').value = 0;
+        
+        recalcModalTotal();
+
+        document.getElementById('modalCheckoutForm').action = `/transactions/checkout/${tx.id}`;
+        document.getElementById('quickCheckoutModal').classList.remove('hidden');
+      })
+      .catch(err => {
+        window.location.href = `/front-office?tx_id=${txId}`;
+      });
+  }
+
+  function closeCheckoutModal() {
+    document.getElementById('quickCheckoutModal').classList.add('hidden');
+  }
+
+  function recalcModalTotal() {
+    const addVal = parseInt(document.getElementById('modalAdditionalCharges').value) || 0;
+    const finalTotal = currentTxBase + addVal;
+    document.getElementById('modalAdditionalDisplay').innerText = 'Rp ' + addVal.toLocaleString('id-ID');
+    document.getElementById('modalFinalTotal').innerText = 'Rp ' + finalTotal.toLocaleString('id-ID');
+    document.getElementById('modalPaidAmount').value = finalTotal;
+  }
+</script>
+@endpush
 
 @endsection

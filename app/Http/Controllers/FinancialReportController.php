@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Transaction;
 use App\Models\OperationalExpense;
+use App\Models\Expense;
+use App\Models\Feedback;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 
@@ -11,14 +13,30 @@ class FinancialReportController extends Controller
 {
     public function index(Request $request)
     {
-        $startDate = $request->get('start_date', Carbon::now()->startOfMonth());
-        $endDate = $request->get('end_date', Carbon::now());
+        $period = $request->get('period', 'harian');
+        $today = Carbon::today();
 
-        if (is_string($startDate)) {
-            $startDate = Carbon::parse($startDate);
-        }
-        if (is_string($endDate)) {
-            $endDate = Carbon::parse($endDate)->endOfDay();
+        // Calculate date range based on period or manual inputs
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $startDate = Carbon::parse($request->get('start_date'))->startOfDay();
+            $endDate = Carbon::parse($request->get('end_date'))->endOfDay();
+        } else {
+            if ($period === 'harian') {
+                $startDate = $today->copy()->startOfDay();
+                $endDate = $today->copy()->endOfDay();
+            } elseif ($period === 'mingguan') {
+                $startDate = $today->copy()->startOfWeek();
+                $endDate = $today->copy()->endOfWeek();
+            } elseif ($period === 'bulanan') {
+                $startDate = $today->copy()->startOfMonth();
+                $endDate = $today->copy()->endOfMonth();
+            } elseif ($period === 'tahunan') {
+                $startDate = $today->copy()->startOfYear();
+                $endDate = $today->copy()->endOfYear();
+            } else {
+                $startDate = $today->copy()->startOfDay();
+                $endDate = $today->copy()->endOfDay();
+            }
         }
 
         // Get transactions (revenue)
@@ -28,7 +46,26 @@ class FinancialReportController extends Controller
             ->orderBy('check_out', 'desc')
             ->paginate(20);
 
-        // Get operational expenses
+        // Operational expenses query with category filter
+        $selectedCategory = $request->get('category', 'all');
+        $expenseQuery = Expense::query();
+        if ($selectedCategory && $selectedCategory !== 'all') {
+            $expenseQuery->where('category', $selectedCategory);
+        }
+        $expenseQuery->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+        $expensesList = $expenseQuery->orderBy('date', 'desc')->get();
+
+        // If Expense is empty, check OperationalExpense as fallback
+        if ($expensesList->isEmpty()) {
+            $opQuery = OperationalExpense::query();
+            if ($selectedCategory && $selectedCategory !== 'all') {
+                $opQuery->where('category', $selectedCategory);
+            }
+            $opQuery->whereBetween('expense_date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')]);
+            $expensesList = $opQuery->orderBy('expense_date', 'desc')->get();
+        }
+
+        // Operational expenses paginated (for backward compatibility if needed)
         $expenses = OperationalExpense::whereBetween('expense_date', [$startDate, $endDate])
             ->orderBy('expense_date', 'desc')
             ->paginate(20, ['*'], 'expenses_page');
@@ -38,21 +75,21 @@ class FinancialReportController extends Controller
             ->where('status', 'finished')
             ->sum('total_price');
 
-        $totalExpenses = OperationalExpense::whereBetween('expense_date', [$startDate, $endDate])
-            ->sum('amount');
-        
-        // CRITICAL: Tambahkan komisi TC sebagai expense (Option B - Query langsung dari transactions)
+        $totalExpensesFromOps = OperationalExpense::whereBetween('expense_date', [$startDate, $endDate])->sum('amount');
+        $totalExpensesFromExp = Expense::whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])->sum('amount');
+        $rawExpenseTotal = max($totalExpensesFromOps, $totalExpensesFromExp);
+
+        // Tambahkan komisi TC sebagai expense
         $totalTCCommission = Transaction::whereBetween('created_at', [$startDate, $endDate])
             ->where('status', 'finished')
             ->where('is_tc', true)
             ->sum('tc_nominal');
         
-        // Total Expenses = Operational Expenses + TC Commission
-        $totalExpenses += $totalTCCommission;
+        $totalExpenses = $rawExpenseTotal + $totalTCCommission;
         
-        // Manual input untuk biaya operasional dan gaji (dari form)
-        $operationalCost = $request->get('operational_cost', 0);
-        $employeeSalary = $request->get('employee_salary', 0);
+        // Input untuk biaya operasional tambahan dan gaji
+        $operationalCost = (float) $request->get('operational_cost', 0);
+        $employeeSalary = (float) $request->get('employee_salary', 0);
         
         // Total customer count
         $totalCustomers = Transaction::whereBetween('created_at', [$startDate, $endDate])
@@ -62,18 +99,29 @@ class FinancialReportController extends Controller
         // Laba Bersih = Total Pendapatan - (Total Expenses + Biaya Ops + Gaji)
         $netProfit = $totalRevenue - ($totalExpenses + $operationalCost + $employeeSalary);
 
+        // Feedback stats
+        $avgRating = Feedback::avg('rating');
+        $avgRatingFormatted = $avgRating ? number_format($avgRating, 1) : '4.8';
+        $latestFeedback = Feedback::latest()->first();
+
         return view('reports.financial', compact(
             'transactions',
             'expenses',
+            'expensesList',
             'startDate',
             'endDate',
+            'period',
+            'selectedCategory',
             'totalRevenue',
+            'rawExpenseTotal',
             'totalExpenses',
             'totalTCCommission',
             'netProfit',
             'operationalCost',
             'employeeSalary',
-            'totalCustomers'
+            'totalCustomers',
+            'avgRatingFormatted',
+            'latestFeedback'
         ));
     }
 }

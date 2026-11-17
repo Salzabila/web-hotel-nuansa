@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Room;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
 
 class RoomController extends Controller
@@ -52,6 +53,19 @@ class RoomController extends Controller
             'status' => 'nullable|in:available,occupied,maintenance,dirty',
         ]);
 
+        // Prevent status change if room has active transactions
+        if ($request->filled('status') && $data['status'] !== $room->status) {
+            $hasActiveTransaction = Transaction::where('room_id', $room->id)
+                ->where('status', 'active')
+                ->exists();
+            
+            if ($hasActiveTransaction) {
+                return back()
+                    ->withInput()
+                    ->with('error', "❌ Tidak dapat mengubah status kamar {$room->room_number}. Kamar masih memiliki transaksi aktif. Selesaikan checkout terlebih dahulu.");
+            }
+        }
+
         $room->update($data);
         return redirect()->route('rooms.index')->with('success','Kamar diperbarui.');
     }
@@ -72,6 +86,12 @@ class RoomController extends Controller
 
         if ($room->status !== 'dirty') {
             return back()->with('error', 'Hanya kamar dengan status KOTOR yang bisa ditandai bersih.');
+        }
+
+        // Integrity check: pastikan tidak ada transaksi aktif yang gantung
+        $hasActive = Transaction::where('room_id', $room->id)->where('status', 'active')->exists();
+        if ($hasActive) {
+            return back()->with('error', "❌ Kamar {$room->room_number} tidak dapat ditandai bersih karena masih memiliki transaksi aktif. Lakukan checkout terlebih dahulu.");
         }
 
         $room->status = 'available';

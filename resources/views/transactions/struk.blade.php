@@ -29,13 +29,32 @@
     .price { text-align: right; white-space: nowrap; }
     
     @media print {
-      body { margin: 0; padding: 8px; }
+      body { margin: 0; padding: 8px; width: 80mm; }
       @page { size: 80mm auto; margin: 0; }
+      .no-print { display: none !important; }
+    }
+    .print-btn {
+      display: block;
+      width: 100%;
+      background: #0B192C;
+      color: #fff;
+      text-align: center;
+      padding: 10px;
+      font-weight: bold;
+      border-radius: 8px;
+      text-decoration: none;
+      margin-bottom: 12px;
+      cursor: pointer;
+      font-family: sans-serif;
+      font-size: 12px;
     }
   </style>
   <title>{{ $tx->invoice_code }}</title>
 </head>
 <body onload="window.print();">
+  <div class="no-print" style="margin-bottom: 12px;">
+    <button onclick="window.print()" class="print-btn">🖨️ Cetak Struk Sekarang</button>
+  </div>
   @php
     $durationDays = $tx->duration;
     $subtotal = $tx->room->price_per_night * $durationDays;

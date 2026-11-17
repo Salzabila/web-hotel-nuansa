@@ -1,169 +1,149 @@
 @extends('layouts.app')
 
+@section('title', 'Manajemen Pengguna - Hotel Nuansa')
+@section('page_title', 'Pengguna')
+
 @section('content')
-<div class="h-full">
-  <div class="mb-8">
-    <h1 class="text-3xl font-bold text-slate-800">Manajemen User</h1>
-    <p class="text-slate-500 mt-2 text-base">Kelola akun admin dan kasir</p>
+<div class="space-y-6">
+
+  <!-- TOP HEADER & ACTION -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h2 class="text-xl md:text-2xl font-extrabold text-[#0B192C]">Manajemen Pengguna</h2>
+      <p class="text-xs md:text-sm text-slate-500 font-medium mt-0.5">Kelola akun staf, petugas kasir, dan administrator hotel</p>
+    </div>
+
+    <a href="{{ route('users.create') }}" 
+       class="inline-flex items-center gap-2 bg-[#F5A623] hover:bg-[#e29515] text-[#0B192C] font-extrabold px-6 py-2.5 rounded-full text-xs shadow-md transition-all self-start sm:self-auto active:scale-95">
+      <i class="fas fa-plus"></i>
+      <span>Tambah Pengguna</span>
+    </a>
   </div>
 
-  @if(session('success'))
-    <div class="bg-green-50 border border-green-200 text-green-700 px-6 py-4 rounded-xl mb-6 flex items-center gap-3">
-      <i class="fas fa-check-circle text-xl"></i>
-      <span>{{ session('success') }}</span>
-    </div>
-  @endif
-
-  @if(session('error'))
-    <div class="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl mb-6 flex items-center gap-3">
-      <i class="fas fa-exclamation-circle text-xl"></i>
-      <span>{{ session('error') }}</span>
-    </div>
-  @endif
-
-  <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-    <div class="flex justify-between items-center mb-6">
+  <!-- SUMMARY CARDS -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-3xl p-5 shadow-sm border border-stone-200/50 flex items-center justify-between">
       <div>
-        <h2 class="text-xl font-bold text-slate-800">Daftar User</h2>
-        <p class="text-slate-500 text-sm mt-1">Total: {{ $users->count() }} user</p>
+        <p class="text-xs font-semibold text-slate-400">Total Akun</p>
+        <h3 class="text-2xl font-black text-[#0B192C] mt-1">{{ $users->count() }} User</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Pengguna terdaftar</p>
       </div>
-      <a href="{{ route('users.create') }}" class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl transition-all shadow-lg">
-        <i class="fas fa-plus"></i> Tambah User
-      </a>
+      <div class="w-11 h-11 rounded-2xl bg-stone-100 flex items-center justify-center text-slate-600">
+        <i class="fas fa-users text-base"></i>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-5 shadow-sm border border-stone-200/50 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold text-slate-400">Administrator</p>
+        <h3 class="text-2xl font-black text-[#1D58B8] mt-1">{{ $adminCount }} Akun</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Hak akses penuh</p>
+      </div>
+      <div class="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center text-[#1D58B8]">
+        <i class="fas fa-crown text-base"></i>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-3xl p-5 shadow-sm border border-stone-200/50 flex items-center justify-between">
+      <div>
+        <p class="text-xs font-semibold text-slate-400">Petugas Kasir</p>
+        <h3 class="text-2xl font-black text-emerald-600 mt-1">{{ $users->where('role', 'kasir')->count() }} Akun</h3>
+        <p class="text-[11px] text-slate-400 mt-0.5">Operasional front desk</p>
+      </div>
+      <div class="w-11 h-11 rounded-2xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+        <i class="fas fa-user-shield text-base"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- USERS TABLE CARD -->
+  <div class="bg-white rounded-3xl shadow-sm border border-stone-200/50 overflow-hidden">
+    <div class="p-6 border-b border-stone-100 flex items-center justify-between">
+      <h3 class="text-base font-bold text-[#0B192C]">Daftar Akun Pengguna</h3>
+      <span class="text-xs font-semibold text-slate-400">{{ $users->count() }} Pengguna</span>
     </div>
 
     <div class="overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="border-b-2 border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100">
-            <th class="text-left py-4 px-6 font-bold text-gray-900">Nama</th>
-            <th class="text-left py-4 px-6 font-bold text-gray-900">Telepon</th>
-            <th class="text-left py-4 px-6 font-bold text-gray-900">Role</th>
-            <th class="text-center py-4 px-6 font-bold text-gray-900">Aksi</th>
+      <table class="w-full text-left text-xs md:text-sm">
+        <thead class="bg-[#F8F5EF] text-slate-600 font-bold uppercase tracking-wider text-[11px]">
+          <tr>
+            <th class="py-3.5 px-6">Nama Pengguna</th>
+            <th class="py-3.5 px-6">No. HP / Username</th>
+            <th class="py-3.5 px-6 text-center">Peran (Role)</th>
+            <th class="py-3.5 px-6 text-right">Aksi</th>
           </tr>
         </thead>
-        <tbody class="divide-y divide-gray-100">
-          @foreach($users as $user)
-            <tr class="hover:bg-blue-50 transition-colors duration-150">
-              <td class="py-4 px-6 font-semibold text-gray-900">
-                {{ $user->name }}
-                @if($user->id === auth()->id())
-                  <span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">Anda</span>
-                @endif
-              </td>
-              <td class="py-4 px-6 text-gray-700">{{ $user->phone }}</td>
+        <tbody class="divide-y divide-stone-100 font-medium">
+          @forelse($users as $user)
+            <tr class="hover:bg-[#FBF9F5] transition-colors">
               <td class="py-4 px-6">
+                <div class="flex items-center gap-3">
+                  <div class="w-9 h-9 rounded-full bg-[#0B192C] text-white font-black text-xs flex items-center justify-center shadow-xs">
+                    {{ strtoupper(substr($user->name, 0, 1)) }}
+                  </div>
+                  <div>
+                    <p class="font-bold text-[#0B192C]">{{ $user->name }}</p>
+                    <p class="text-[11px] text-slate-400">ID: #{{ $user->id }}</p>
+                  </div>
+                </div>
+              </td>
+              <td class="py-4 px-6 font-semibold text-slate-700">
+                {{ $user->phone }}
+              </td>
+              <td class="py-4 px-6 text-center">
                 @if($user->role === 'admin')
-                  <span class="inline-flex items-center gap-1.5 bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-semibold">
-                    <i class="fas fa-crown"></i> Admin
+                  <span class="bg-[#0B192C] text-white text-xs font-bold px-3 py-1 rounded-full inline-block shadow-xs">
+                    Admin
                   </span>
                 @else
-                  <span class="inline-flex items-center gap-1.5 bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">
-                    <i class="fas fa-user"></i> Kasir
+                  <span class="bg-[#DCFCE7] text-[#16A34A] text-xs font-bold px-3 py-1 rounded-full inline-block">
+                    Kasir
                   </span>
                 @endif
               </td>
-              <td class="py-4 px-6">
-                <div class="flex items-center justify-center gap-2">
-                  <a href="{{ route('users.edit', $user) }}" class="inline-flex items-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold text-xs px-3 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md" style="line-height: 1; width: 75px; justify-content: center;">
-                    <i class="fas fa-edit" style="font-size: 11px; vertical-align: middle;"></i>
-                    <span style="vertical-align: middle;">Edit</span>
+              <td class="py-4 px-6 text-right">
+                <div class="inline-flex items-center gap-2 justify-end">
+                  <a href="{{ route('users.edit', $user) }}" 
+                     class="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-slate-700 flex items-center justify-center transition-all"
+                     title="Edit Data">
+                    <i class="fas fa-edit text-xs"></i>
                   </a>
-                  
-                  <button type="button" onclick="openResetModal({{ $user->id }}, '{{ $user->name }}')" class="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold text-xs px-3 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md" style="line-height: 1; width: 75px; justify-content: center;">
-                    <i class="fas fa-key" style="font-size: 11px; vertical-align: middle;"></i>
-                    <span style="vertical-align: middle;">Reset</span>
-                  </button>
+
+                  <!-- Reset Password -->
+                  <form method="POST" action="{{ route('users.resetPassword', $user) }}" class="inline" onsubmit="return confirm('Reset password pengguna ini ke default?')">
+                    @csrf
+                    <button type="submit" 
+                            class="w-8 h-8 rounded-full bg-amber-50 hover:bg-amber-100 text-amber-700 flex items-center justify-center transition-all"
+                            title="Reset Password">
+                      <i class="fas fa-key text-xs"></i>
+                    </button>
+                  </form>
 
                   @if($user->id !== auth()->id())
-                    <form action="{{ route('users.destroy', $user) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin menghapus user {{ $user->name }}?')">
+                    <form method="POST" action="{{ route('users.destroy', $user) }}" class="inline" onsubmit="return confirm('Hapus akun {{ $user->name }}?')">
                       @csrf
                       @method('DELETE')
-                      <button type="submit" class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs px-3 py-2 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md" style="line-height: 1; width: 75px; justify-content: center;">
-                        <i class="fas fa-trash" style="font-size: 11px; vertical-align: middle;"></i>
-                        <span style="vertical-align: middle;">Hapus</span>
+                      <button type="submit" 
+                              class="w-8 h-8 rounded-full bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition-all"
+                              title="Hapus Akun">
+                        <i class="fas fa-trash text-xs"></i>
                       </button>
                     </form>
-                  @else
-                    <div style="width: 75px;"></div>
                   @endif
                 </div>
               </td>
             </tr>
-          @endforeach
+          @empty
+            <tr>
+              <td colspan="4" class="py-12 text-center text-slate-400 text-xs font-medium">
+                Belum ada data pengguna.
+              </td>
+            </tr>
+          @endforelse
         </tbody>
       </table>
     </div>
   </div>
+
 </div>
-
-<!-- Reset Password Modal -->
-<div id="resetModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-  <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
-    <div class="flex items-center gap-3 mb-5">
-      <div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
-        <i class="fas fa-key text-orange-600"></i>
-      </div>
-      <div>
-        <h3 class="text-lg font-bold text-slate-800">Reset Password</h3>
-        <p class="text-xs text-slate-500" id="resetUserName"></p>
-      </div>
-    </div>
-    
-    <form id="resetForm" method="POST">
-      @csrf
-      <div class="space-y-3 mb-5">
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">Password Baru</label>
-          <input type="password" 
-                 name="new_password" 
-                 class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm" 
-                 placeholder="Minimal 6 karakter"
-                 required 
-                 minlength="6">
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-slate-700 mb-1.5">Konfirmasi Password</label>
-          <input type="password" 
-                 name="new_password_confirmation" 
-                 class="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm" 
-                 placeholder="Ulangi password"
-                 required 
-                 minlength="6">
-        </div>
-      </div>
-      
-      <div class="flex gap-2">
-        <button type="button" 
-                onclick="closeResetModal()" 
-                class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-lg transition-colors text-sm">
-          Batal
-        </button>
-        <button type="submit" 
-                class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-medium py-2 rounded-lg transition-colors text-sm shadow-sm">
-          Reset Password
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-<script>
-function openResetModal(userId, userName) {
-  document.getElementById('resetModal').classList.remove('hidden');
-  document.getElementById('resetUserName').textContent = userName;
-  document.getElementById('resetForm').action = `/users/${userId}/reset-password`;
-}
-
-function closeResetModal() {
-  document.getElementById('resetModal').classList.add('hidden');
-}
-
-// Close modal when clicking outside
-document.getElementById('resetModal').addEventListener('click', function(e) {
-  if (e.target === this) {
-    closeResetModal();
-  }
-});
-</script>
 @endsection

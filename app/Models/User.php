@@ -55,4 +55,22 @@ class User extends Authenticatable
     {
         return 'phone';
     }
+
+    public function setUsernameAttribute($value): void
+    {
+        $this->attributes['username'] = $value ?? ($this->phone ?? null);
+    }
+
+    public function getUsernameAttribute($value): ?string
+    {
+        return $value ?? $this->phone;
+    }
+
+    /**
+     * Get all transactions for this user (kasir)
+     */
+    public function transactions()
+    {
+        return $this->hasMany(Transaction::class);
+    }
 }
