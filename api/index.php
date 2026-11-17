@@ -1,5 +1,9 @@
 <?php
 
+// Matikan tampilan warning/deprecation di output HTML produksi
+ini_set('display_errors', '0');
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE);
+
 // Pastikan direktori writeable di /tmp tersedia untuk Laravel di lingkungan serverless Vercel
 $dirs = [
     '/tmp/storage/framework/views',
