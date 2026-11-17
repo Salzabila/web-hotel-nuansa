@@ -6,6 +6,84 @@
 @section('content')
 <div class="space-y-6">
 
+  @php
+    $overdueGuestsList = ($approachingCheckoutGuests ?? collect())->filter(fn($g) => $g->checkout_urgency === 'overdue');
+  @endphp
+
+  <!-- POPUP PERINGATAN TERLAMBAT CHECKOUT -->
+  @if($overdueGuestsList->isNotEmpty())
+    <div id="overdueCheckoutModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-lg w-full shadow-2xl border-2 border-rose-500 overflow-hidden animate-in fade-in zoom-in duration-200">
+        
+        <!-- Header Modal -->
+        <div class="bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 p-6 text-white flex items-start justify-between gap-4">
+          <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur-xs flex items-center justify-center text-2xl shrink-0 shadow-inner">
+              <i class="fas fa-bell text-white animate-bounce"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="bg-white/25 text-white text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider">Perhatian Kasir & Front Office</span>
+              </div>
+              <h3 class="text-lg md:text-xl font-extrabold text-white mt-1">
+                Peringatan Checkout Terlambat!
+              </h3>
+              <p class="text-xs text-rose-100 mt-0.5">
+                Terdapat <strong>{{ $overdueGuestsList->count() }} kamar</strong> yang sudah melewati batas waktu checkout (12:00 WIB).
+              </p>
+            </div>
+          </div>
+          <button type="button" onclick="closeOverdueModal()" class="w-8 h-8 rounded-full bg-black/20 hover:bg-black/30 flex items-center justify-center text-white/80 hover:text-white transition-all shrink-0">
+            <i class="fas fa-times text-sm"></i>
+          </button>
+        </div>
+
+        <!-- Body: Daftar Kamar Terlambat -->
+        <div class="p-6 max-h-[60vh] overflow-y-auto space-y-3 bg-slate-50/50">
+          @foreach($overdueGuestsList as $overdue)
+            <div class="bg-white p-4 rounded-2xl border border-rose-200 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-rose-400 transition-all">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-rose-100 text-rose-700 font-extrabold flex flex-col items-center justify-center shrink-0 border border-rose-300">
+                  <span class="text-[9px] uppercase tracking-tighter">Kamar</span>
+                  <span class="text-base font-black leading-none">{{ $overdue->room->room_number }}</span>
+                </div>
+                <div>
+                  <h5 class="text-sm font-bold text-slate-800">{{ $overdue->guest_name }}</h5>
+                  <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
+                    <span>{{ $overdue->room->type }}</span>
+                    <span>•</span>
+                    <span class="text-rose-600 font-bold flex items-center gap-1">
+                      <i class="fas fa-clock text-[10px]"></i> {{ $overdue->checkout_countdown_text }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tombol Aksi Langsung -->
+              <div class="flex items-center gap-2 shrink-0">
+                <button type="button" onclick="openCheckoutModal({{ $overdue->id }}); closeOverdueModal();" 
+                        class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-xs shadow-xs transition-all active:scale-95 flex items-center gap-1.5">
+                  <i class="fas fa-arrow-right-from-bracket text-[11px]"></i>
+                  <span>Checkout</span>
+                </button>
+              </div>
+            </div>
+          @endforeach
+        </div>
+
+        <!-- Footer Modal -->
+        <div class="p-4 bg-white border-t border-slate-100 flex items-center justify-between gap-3">
+          <span class="text-xs text-slate-400 italic">Harap konfirmasi ke tamu terkait overtime/extend stay.</span>
+          <button type="button" onclick="closeOverdueModal()" 
+                  class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all active:scale-95">
+            Tutup Peringatan
+          </button>
+        </div>
+
+      </div>
+    </div>
+  @endif
+
   <!-- HERO BANNER -->
   <div class="relative overflow-hidden rounded-3xl p-7 md:p-9 text-white shadow-xl"
        style="background: linear-gradient(135deg, #09172B 0%, #0F2A52 50%, #1A4482 100%);">
@@ -687,6 +765,11 @@
 
   function closeCheckoutModal() {
     document.getElementById('quickCheckoutModal').classList.add('hidden');
+  }
+
+  function closeOverdueModal() {
+    const modal = document.getElementById('overdueCheckoutModal');
+    if (modal) modal.classList.add('hidden');
   }
 
   function recalcModalTotal() {
