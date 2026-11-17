@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\FinancialReportController;
 use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\RoomController;
@@ -50,6 +51,11 @@ Route::middleware('auth')->group(function () {
     // Room Management - accessible by all users
     Route::post('rooms/{id}/mark-clean', [RoomController::class, 'markAsClean'])->name('rooms.markClean');
     Route::get('rooms', [RoomController::class, 'index'])->name('rooms.index');
+
+    // Feedback / Ulasan Tamu
+    Route::get('transactions/{id}/feedback', [FeedbackController::class, 'create'])->name('feedbacks.create');
+    Route::post('transactions/{id}/feedback', [FeedbackController::class, 'store'])->name('feedbacks.store');
+    Route::get('reports/feedback', [\App\Http\Controllers\ReportController::class, 'feedback'])->name('reports.feedback');
 
     // Personal Recap - accessible by Admin & Kasir
     Route::get('my-recap', [\App\Http\Controllers\RecapController::class, 'personal'])->name('recaps.personal');
