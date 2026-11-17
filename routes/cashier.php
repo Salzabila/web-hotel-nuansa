@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\FinancialReportController;
+use App\Http\Controllers\ReportExportController;
 use App\Http\Controllers\RoomController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -31,6 +34,18 @@ Route::middleware('auth')->group(function () {
     Route::get('transactions/checkout/{id}', [TransactionController::class, 'showCheckout'])->name('transactions.checkout');
     Route::post('transactions/checkout/{id}', [TransactionController::class, 'processCheckout'])->name('transactions.processCheckout');
     Route::get('transactions/struk/{id}', [TransactionController::class, 'struk'])->name('transactions.struk');
+
+    // Pengeluaran Operasional - accessible by all users (Kasir & Admin)
+    Route::get('expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+    Route::get('expenses/create', [ExpenseController::class, 'create'])->name('expenses.create');
+    Route::post('expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+
+    // Laporan Keuangan - accessible by all users (Kasir & Admin)
+    Route::get('reports/finance', [FinancialReportController::class, 'index'])->name('reports.finance');
+    Route::get('export/financial-pdf', [ReportExportController::class, 'exportFinancialPDF'])->name('export.financial.pdf');
+    Route::get('export/financial-excel', [ReportExportController::class, 'exportFinancialExcel'])->name('export.financial.excel');
+    Route::get('export/transactions-pdf', [ReportExportController::class, 'exportTransactionsPDF'])->name('export.transactions.pdf');
+    Route::get('export/transactions-excel', [ReportExportController::class, 'exportTransactionsExcel'])->name('export.transactions.excel');
 
     // Room Management - accessible by all users
     Route::post('rooms/{id}/mark-clean', [RoomController::class, 'markAsClean'])->name('rooms.markClean');
