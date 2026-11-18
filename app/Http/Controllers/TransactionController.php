@@ -401,39 +401,55 @@ class TransactionController extends Controller
             $tx = Transaction::with('room')->findOrFail($id);
             
             if ($tx->status !== 'active') {
-                return back()->with('error', 'Hanya transaksi aktif yang bisa diperpanjang.');
+                return redirect()->route('front-office', ['tx_id' => $id])
+                    ->with('error', 'Hanya transaksi kamar aktif yang bisa diperpanjang masa inapnya.');
             }
             
-            $data = $request->validate([
-                'additional_nights' => 'required|integer|min:1|max:30',
-            ]);
-            
-            $additionalNights = $data['additional_nights'];
+            $additionalNights = 1;
+            if ($request->filled('additional_nights')) {
+                $data = $request->validate([
+                    'additional_nights' => 'required|integer|min:1|max:30',
+                ]);
+                $additionalNights = (int) $data['additional_nights'];
+            }
             
             DB::beginTransaction();
             
-            // Update duration and checkout date (use copy() to avoid modifying original)
-            $tx->duration += $additionalNights;
-            $tx->check_out = $tx->check_out->copy()->addDays($additionalNights);
+            // Update durasi
+            $tx->duration = (int) $tx->duration + $additionalNights;
             
-            // Recalculate total price (base price only, additional_charges unchanged)
-            $basePrice = $tx->room->price_per_night * $tx->duration;
-            $tx->total_price = $basePrice;
+            // Update tanggal checkout secara aman
+            if ($tx->check_out instanceof \Carbon\Carbon) {
+                $tx->check_out = $tx->check_out->copy()->addDays($additionalNights);
+            } elseif (!empty($tx->check_out)) {
+                $tx->check_out = \Carbon\Carbon::parse($tx->check_out)->addDays($additionalNights);
+            } elseif (!empty($tx->check_in)) {
+                $tx->check_out = \Carbon\Carbon::parse($tx->check_in)->addDays($tx->duration)->setTime(12, 0, 0);
+            } else {
+                $tx->check_out = \Carbon\Carbon::now()->addDays($additionalNights)->setTime(12, 0, 0);
+            }
+            
+            // Hitung ulang total tagihan kamar
+            $roomRate = $tx->room ? (float) $tx->room->price_per_night : 0;
+            $tx->total_price = $roomRate * $tx->duration;
             
             $tx->save();
             
             DB::commit();
             
-            return back()->with('success', "✓ Masa menginap berhasil diperpanjang {$additionalNights} malam. Total: Rp " . number_format($tx->total_price, 0, ',', '.'));
+            $roomNumber = $tx->room ? $tx->room->room_number : '-';
+            return redirect()->route('front-office', ['tx_id' => $tx->id])
+                ->with('success', "✓ Masa menginap Kamar {$roomNumber} berhasil diperpanjang {$additionalNights} malam. Total baru: Rp " . number_format($tx->total_price, 0, ',', '.'));
             
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             if (DB::transactionLevel() > 0) {
                 DB::rollBack();
             }
             
-            Log::error('Extend transaction error: ' . $e->getMessage());
+            Log::error('Extend transaction error: ' . $e->getMessage() . "\n" . $e->getTraceAsString());
             
-            return back()->with('error', 'Error saat perpanjangan: ' . $e->getMessage());
+            return redirect()->route('front-office', ['tx_id' => $id])
+                ->with('error', 'Gagal memperpanjang masa inap: ' . $e->getMessage());
         }
     }
     /**

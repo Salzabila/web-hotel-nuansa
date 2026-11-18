@@ -31,7 +31,7 @@ Route::middleware('auth')->group(function () {
         return response()->json(\App\Models\User::where('role', 'kasir')->orderBy('name')->get(['id', 'name']));
     });
 
-    Route::post('transactions/{id}/extend', [TransactionController::class, 'extend'])->name('transactions.extend');
+    Route::match(['get', 'post'], 'transactions/{id}/extend', [TransactionController::class, 'extend'])->name('transactions.extend');
     Route::get('transactions/checkout/{id}', [TransactionController::class, 'showCheckout'])->name('transactions.checkout');
     Route::post('transactions/checkout/{id}', [TransactionController::class, 'processCheckout'])->name('transactions.processCheckout');
     Route::get('transactions/struk/{id}', [TransactionController::class, 'struk'])->name('transactions.struk');

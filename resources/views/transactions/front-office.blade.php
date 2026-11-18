@@ -526,11 +526,65 @@
 
 </div>
 
-<!-- Extend Hidden Form -->
-<form id="extendForm" method="POST" action="" class="hidden">
-  @csrf
-  <input type="hidden" name="additional_nights" id="extendNightsInput" value="1">
-</form>
+<!-- Extend Stay Modal -->
+<div id="extendStayModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-stone-200 overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div class="bg-gradient-to-r from-[#0B192C] to-[#1E3E62] p-5 text-white flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-amber-400/20 text-amber-400 flex items-center justify-center text-lg">
+          <i class="fas fa-calendar-plus"></i>
+        </div>
+        <div>
+          <h4 class="font-extrabold text-base text-white">Perpanjang Masa Inap</h4>
+          <p class="text-xs text-slate-300">Extend Stay Kamar <span id="modalExtendRoomNum">{{ $selectedTx ? $selectedTx->room->room_number : '-' }}</span></p>
+        </div>
+      </div>
+      <button type="button" onclick="closeExtendModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 text-white/80 hover:text-white flex items-center justify-center transition-all">
+        <i class="fas fa-times text-sm"></i>
+      </button>
+    </div>
+
+    <form id="extendForm" method="POST" action="" class="p-6 space-y-4">
+      @csrf
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1.5">Tamu Saat Ini</label>
+        <p class="text-sm font-semibold text-[#0B192C] bg-slate-50 px-3.5 py-2.5 rounded-xl border border-stone-200" id="modalExtendGuestName">{{ $selectedTx ? $selectedTx->guest_name : '-' }}</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold text-slate-700 mb-1.5">Jumlah Malam Tambahan</label>
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="adjustExtendNights(-1)" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 font-black text-slate-700 text-base active:scale-95 transition-all">-</button>
+          <input type="number" name="additional_nights" id="extendNightsInput" value="1" min="1" max="30" required
+                 oninput="recalcExtendCost()"
+                 class="w-full text-center px-4 py-2.5 rounded-xl border border-stone-200 font-bold text-base focus:ring-2 focus:ring-amber-400 focus:outline-none">
+          <button type="button" onclick="adjustExtendNights(1)" class="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 font-black text-slate-700 text-base active:scale-95 transition-all">+</button>
+        </div>
+      </div>
+
+      <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200/80 space-y-1.5 text-xs text-amber-950">
+        <div class="flex justify-between">
+          <span class="text-slate-600">Tarif Kamar / Malam:</span>
+          <strong id="modalExtendRate">Rp {{ number_format($selectedTx && $selectedTx->room ? $selectedTx->room->price_per_night : 0, 0, ',', '.') }}</strong>
+        </div>
+        <div class="flex justify-between font-bold border-t border-amber-200/60 pt-1.5 text-sm text-[#0B192C]">
+          <span>Biaya Perpanjangan:</span>
+          <span id="modalExtendTotal" class="text-amber-600 font-black">Rp {{ number_format($selectedTx && $selectedTx->room ? $selectedTx->room->price_per_night : 0, 0, ',', '.') }}</span>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button type="button" onclick="closeExtendModal()" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-all active:scale-95">
+          Batal
+        </button>
+        <button type="submit" class="px-6 py-2.5 rounded-xl bg-[#F5A623] hover:bg-[#e29515] text-[#0B192C] font-extrabold text-xs shadow-md transition-all active:scale-95 flex items-center gap-1.5">
+          <i class="fas fa-check"></i>
+          <span>Konfirmasi Perpanjang</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
 
 @push('scripts')
 <script>
@@ -578,14 +632,42 @@
     document.getElementById('coPaidAmountInput').value = finalTotal;
   }
 
-  function extendCurrentStay(txId) {
-    const nights = prompt('Masukkan jumlah malam tambahan:', '1');
-    if (nights && parseInt(nights) > 0) {
-      const form = document.getElementById('extendForm');
-      form.action = `/transactions/${txId}/extend`;
-      document.getElementById('extendNightsInput').value = nights;
-      form.submit();
+  let activeExtendRate = {{ $selectedTx && $selectedTx->room ? $selectedTx->room->price_per_night : 0 }};
+
+  function extendCurrentStay(txId, roomNum, guestName, price) {
+    const form = document.getElementById('extendForm');
+    form.action = `/transactions/${txId}/extend`;
+    
+    if (roomNum) document.getElementById('modalExtendRoomNum').innerText = roomNum;
+    if (guestName) document.getElementById('modalExtendGuestName').innerText = guestName;
+    if (price) {
+      activeExtendRate = price;
+      document.getElementById('modalExtendRate').innerText = 'Rp ' + activeExtendRate.toLocaleString('id-ID');
     }
+    document.getElementById('extendNightsInput').value = 1;
+    recalcExtendCost();
+
+    document.getElementById('extendStayModal').classList.remove('hidden');
+  }
+
+  function closeExtendModal() {
+    document.getElementById('extendStayModal').classList.add('hidden');
+  }
+
+  function adjustExtendNights(delta) {
+    const input = document.getElementById('extendNightsInput');
+    let val = (parseInt(input.value) || 1) + delta;
+    if (val < 1) val = 1;
+    if (val > 30) val = 30;
+    input.value = val;
+    recalcExtendCost();
+  }
+
+  function recalcExtendCost() {
+    const input = document.getElementById('extendNightsInput');
+    let nights = parseInt(input.value) || 1;
+    const total = activeExtendRate * nights;
+    document.getElementById('modalExtendTotal').innerText = 'Rp ' + total.toLocaleString('id-ID');
   }
 
   window.addEventListener('DOMContentLoaded', () => {
